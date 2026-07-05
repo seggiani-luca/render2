@@ -151,6 +151,8 @@ void freeEntity(entity* e) {
 }
 
 void appendField(entity* e, void* f) {
+	if(getField(e, ((field*)f)->name)) return;
+
 	// get to last field 
 	field** cur = &e->root;
 	while(*cur) cur = &(*cur)->next;

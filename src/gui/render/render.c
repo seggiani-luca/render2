@@ -190,6 +190,9 @@ guiContext* initGui(window* win) {
 		// attach callbacks
 		glfwSetCharCallback(win->gl, charCallback);
 		glfwSetKeyCallback(win->gl, keyCallback);
+
+		// set other values
+		ctx->inactive = 0;
 	}
 	
 	// reset queue
@@ -238,6 +241,12 @@ void inputGui(window* win) {
 
 	// get mouse position
 	glfwGetCursorPos(win->gl, &ctx->in.xCur, &ctx->in.yCur);
+
+	if(ctx->inactive) {
+		ctx->in.curPress = ctx->in.curReles = ctx->in.curDown = 0;
+		ctx->in.enter = 0;
+		return;
+	}
 
 	// get mouse down state
     int down = glfwGetMouseButton(win->gl, GLFW_MOUSE_BUTTON_LEFT);

@@ -11,6 +11,8 @@ window* hierarchyWin;
 
 // -- main
 
+extern renderCallback makeAddFieldCallback(entity* ent);
+
 int main() {
 	// create example entity
 	entity* ent = newEntity("Enterprise");
@@ -29,8 +31,8 @@ int main() {
 
 	// create inspector
 	inspectorWin = newWindow(
-		320,
-		640,
+		INSPECTOR_WIDTH,
+		INSPECTOR_HEIGHT,
 		"Inspector",
 		makeEntityCallback(ent)
 	);

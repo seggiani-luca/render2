@@ -54,16 +54,22 @@ char* bufferGui(
 
 // -- rendering primitives
 
-float quadGui(guiContext* ctx, float4 rect, float4 uv) {
+void quadGui(guiContext* ctx, float4 rect, float4 uv) {
 	pushGui(ctx, (quad) {
 		{ rect.x, rect.y + ctx->vPos, rect.z, rect.w },
 		uv
 	});
-
-	return rect.y;
 }
 
-float textGui(guiContext* ctx, float2 rPos, const char* str) {
+#define W 0.5f // width
+void borderGui(guiContext* ctx, float4 rect, float4 uv) {
+	quadGui(ctx, (float4){ rect.x, rect.y,              rect.z, W }, uv);
+	quadGui(ctx, (float4){ rect.x, rect.y + rect.w - W, rect.z, W }, uv);
+	quadGui(ctx, (float4){ rect.x, rect.y,              W,      rect.w }, uv);
+	quadGui(ctx, (float4){ rect.x + rect.z - W, rect.y, W,      rect.w }, uv);
+}
+
+void textGui(guiContext* ctx, float2 pos, const char* str) {
 	char c;
 	int w = 0;
 	while((c = *str++)) {
@@ -71,24 +77,78 @@ float textGui(guiContext* ctx, float2 rPos, const char* str) {
 		int tY = (c - 32) / 32;
 
 		pushGui(ctx, (quad) {
-			{rPos.x + w, ctx->vPos + rPos.y, TXT_WIDTH, TXT_HEIGHT},
+			{pos.x + w, ctx->vPos + pos.y, TXT_WIDTH, TXT_HEIGHT},
 			{UV((float)tX / 2, tY), UV((float)tX / 2 + 0.5f, tY + 1.0f)}
 		});
 
 		w += TXT_WIDTH; 
 	}
-
-	return w;
 }
 
-void iconGui(guiContext* ctx, float2 rPos, float4 uv) {
+void iconGui(guiContext* ctx, float2 pos, float4 uv) {
 	pushGui(ctx, (quad) {
-		{rPos.x, rPos.y + ctx->vPos, ICO_SIZ, ICO_SIZ},
+		{pos.x, pos.y + ctx->vPos, ICO_SIZ, ICO_SIZ},
 		uv
 	});
 }
 
-float intGui(guiContext* ctx, float4 rect, int* val) {
+int buttonGui(guiContext* ctx, float4 rect, float4 ico, const char* str) {
+	// push quad
+	quadGui(ctx, rect, BG_LIGHT);
+	borderGui(ctx, rect, FG_DARK);
+
+	// display icon + text 
+	iconGui(ctx, (float2) {rect.x + PAD, rect.y + PAD}, ico);
+	textGui(ctx, (float2) {rect.x + ICO_SIZ + PAD * 2, rect.y + PAD}, str);
+
+	// check for input
+	return hoverGui(ctx, rect) && ctx->in.curReles;
+}
+
+void subWindowGui(
+	guiContext* ctx,
+	int width,
+	int height,
+	const char* title,
+	renderCallback cback,
+	float4 rect,
+	float4 ico,
+	const char* str
+) {
+	// push quad
+	quadGui(ctx, rect, BG_LIGHT);
+	borderGui(ctx, rect, FG_DARK);
+
+	// display icon + text 
+	iconGui(ctx, (float2) {rect.x + PAD, rect.y + PAD}, ico);
+	textGui(ctx, (float2) {rect.x + ICO_SIZ + PAD * 2, rect.y + PAD}, str);
+	
+	if(ctx->child) {
+		if(!updateWindow(ctx->child)) {
+			freeWindow(ctx->child);
+			ctx->child = NULL;
+			ctx->inactive = 0;
+		}
+		glfwMakeContextCurrent(ctx->win->gl); // hack for context
+
+		return;
+	}
+
+	// check for input
+	if(hoverGui(ctx, rect) && ctx->in.curReles) {
+		ctx->child = newWindow(
+			width,
+			height,
+			title,
+			cback
+		);
+		glfwMakeContextCurrent(ctx->win->gl); // hack for context
+		
+		ctx->inactive = 1;
+	}
+}
+
+void intGui(guiContext* ctx, float4 rect, int* val) {
 	// int to string
 	char str[FIELD_SIZ];
 	snprintf(str, FIELD_SIZ, "%d", *val);
@@ -99,17 +159,16 @@ float intGui(guiContext* ctx, float4 rect, int* val) {
 
 	// push quad
 	quadGui(ctx, rect, BG_DARK);
+	borderGui(ctx, rect, FG_DARK);
 	
 	// update displayed value and display
 	textGui(ctx, (float2) {rect.x + PAD, rect.y + PAD}, active ? in : str);
 
 	// update actual value on submit
 	if(submit) *val = atoi(in);
-
-	return rect.y;
 }
 
-float floatGui(guiContext* ctx, float4 rect, float* val) {
+void floatGui(guiContext* ctx, float4 rect, float* val) {
 	// int to string
 	char str[FIELD_SIZ];
 	snprintf(str, FIELD_SIZ, "%g", *val);
@@ -120,17 +179,16 @@ float floatGui(guiContext* ctx, float4 rect, float* val) {
 
 	// push quad
 	quadGui(ctx, rect, BG_DARK);
+	borderGui(ctx, rect, FG_DARK);
 	
 	// update displayed value and display
 	textGui(ctx, (float2) {rect.x + PAD, rect.y + PAD}, active ? in : str);
 
 	// update actual value on submit
 	if(submit) *val = atof(in);
-
-	return rect.y;
 }
 
-float stringGui(guiContext* ctx, float4 rect, char* val) {
+void stringGui(guiContext* ctx, float4 rect, char* val) {
 	// int to string
 	char str[FIELD_SIZ];
 	snprintf(str, FIELD_SIZ, "%s", val);
@@ -141,6 +199,7 @@ float stringGui(guiContext* ctx, float4 rect, char* val) {
 
 	// push quad
 	quadGui(ctx, rect, BG_DARK);
+	borderGui(ctx, rect, FG_DARK);
 	
 	// update displayed value and display
 	textGui(ctx, (float2) {rect.x + PAD, rect.y + PAD}, active ? in : str);
@@ -148,7 +207,5 @@ float stringGui(guiContext* ctx, float4 rect, char* val) {
 	// update actual value on submit
 	if(submit) {
 		strncpy(val, in, IN_BUF_SIZ);
-	} 
-
-	return rect.y;
+	}
 }

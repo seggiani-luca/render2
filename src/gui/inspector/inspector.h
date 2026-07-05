@@ -3,6 +3,10 @@
 
 #include "../gui.h"
 
+#define INSPECTOR_WIDTH  320
+#define INSPECTOR_HEIGHT 640
+#define NEW_FIELD_HEIGHT 140
+
 // -- field primitives
 
 // renders an int field to GUI

@@ -7,12 +7,6 @@ typedef struct field field;
 
 // -- rendering
 
-// size of GUI queue
-#define QUEUE_SIZ 512
-
-// size of field entry box
-#define FIELD_SIZ 64
-
 // paths for GUI shader
 #define GUI_VERT_PATH "dat/shader/gui_vert.glsl"
 #define GUI_FRAG_PATH "dat/shader/gui_frag.glsl"

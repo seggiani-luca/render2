@@ -9,6 +9,9 @@
 
 // -- rendering
 
+// size of GUI queue
+#define QUEUE_SIZ 512
+
 // GUI quad instance
 struct quad {
 	float4 pos;
@@ -39,6 +42,9 @@ void flushGui(guiContext* ctx);
 struct guiContext {
 	// window handle
 	window* win;
+
+	// children window handle
+	window* child;
 
 	// substruct for OpenGL specific context
 	struct {
@@ -87,6 +93,9 @@ struct guiContext {
 		// input buffer position
 		int keyBufSiz;
 	} in;
+
+	// should the window be inactive
+	int inactive;
 	
 	// rendering queue
 	guiQueue queue;

@@ -67,10 +67,6 @@ int loadGl() {
 		printf("Failed to initialize GLAD\n");
 		return 0;
 	}
-
-	// OpenGL state
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	printf("Success\n");
 	printGl();
@@ -148,6 +144,10 @@ window* newWindow(
     int fbWidth, fbHeight;
     glfwGetFramebufferSize(win->gl, &fbWidth, &fbHeight);
     glViewport(0, 0, fbWidth, fbHeight);
+	
+	// setup depth
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	return win;
 }

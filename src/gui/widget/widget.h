@@ -8,6 +8,9 @@
 
 // -- constants
 
+// size of field entry box
+#define FIELD_SIZ 64
+
 // sizing contants
 #define PAD 5.0f
 #define ROW 60.0f
@@ -17,16 +20,20 @@
 #define UV(x, y) ((float)(x) * AU), (1.0f - (float)(y) * AU)
 
 // atlas colors
-#define BG_DARK  (float4){UV(0, 3), UV(1, 4)}
-#define BG_LIGHT (float4){UV(1, 3), UV(2, 4)}
-#define FG_DARK  (float4){UV(2, 3), UV(3, 4)}
-#define FG_LIGHT (float4){UV(3, 3), UV(4, 4)}
+#define BG_ABS   (float4){UV(0, 3), UV(1, 4)}
+#define BG_DARK  (float4){UV(1, 3), UV(2, 4)}
+#define BG_LIGHT (float4){UV(2, 3), UV(3, 4)}
+#define FG_DARK  (float4){UV(3, 3), UV(4, 4)}
+#define FG_LIGHT (float4){UV(4, 3), UV(5, 4)}
 
 // atlas icons
-#define ICO_ENTITY (float4){UV(4, 3), UV(5, 4)} 
-#define ICO_INT    (float4){UV(5, 3), UV(6, 4)} 
-#define ICO_FLOAT  (float4){UV(6, 3), UV(7, 4)} 
-#define ICO_STR    (float4){UV(7, 3), UV(8, 4)} 
+#define ICO(x, y) (float4){UV(x, y), UV(x + 1, y + 1)}
+#define ICO_ENTITY ICO(0, 4) 
+#define ICO_INT    ICO(1, 4) 
+#define ICO_FLOAT  ICO(2, 4) 
+#define ICO_STR    ICO(3, 4) 
+#define ICO_NEW    ICO(0, 5) 
+#define ICO_DEL    ICO(1, 5) 
 
 // atlas text sizing
 #define TXT_WIDTH  (0.5f * AU * ATLAS_SIZ)
@@ -50,21 +57,39 @@ char* bufferGui(
 // -- rendering primitives
 
 // pushes a quad 
-float quadGui(guiContext* ctx, float4 rect, float4 uv);
+void quadGui(guiContext* ctx, float4 rect, float4 uv);
+
+// pushes a quad border 
+void borderGui(guiContext* ctx, float4 rect, float4 uv);
 
 // pushes elements to make up a text string
-float textGui(guiContext* ctx, float2 rPos, const char* str);
+void textGui(guiContext* ctx, float2 pos, const char* str);
 
 // pushes an icon
-void iconGui(guiContext* ctx, float2 rPos, float4 uv);
+void iconGui(guiContext* ctx, float2 pos, float4 uv);
+
+// pushes a button
+int buttonGui(guiContext* ctx, float4 rect, float4 ico, const char* str);
+
+// creates a new window button
+void subWindowGui(
+	guiContext* ctx,
+	int width,
+	int height,
+	const char* title,
+	renderCallback cback,
+	float4 rect,
+	float4 ico,
+	const char* str
+);
 
 // pushes an int edit box  
-float intGui(guiContext* ctx, float4 rect, int* val);
+void intGui(guiContext* ctx, float4 rect, int* val);
 
 // pushes a float edit box  
-float floatGui(guiContext* ctx, float4 rect, float* val);
+void floatGui(guiContext* ctx, float4 rect, float* val);
 
 // pushes a string edit box  
-float stringGui(guiContext* ctx, float4 rect, char* val);
+void stringGui(guiContext* ctx, float4 rect, char* val);
 
 #endif
