@@ -18,21 +18,21 @@ typedef struct field field;
 typedef struct {
 	// read method
 	void (*read)(const field* f, void* dst);
-	
+
 	// write method
 	void (*write)(field* f, const void* src);
 
 	// debug print method
 	void (*print)(const field* f);
 
-	// GUI rendering method (pushes quads too a GUI queue)
+	// GUI rendering method (pushes quads to a GUI queue)
 	int (*gui)(const field* f, guiContext* ctx);
 } fieldVtable;
 
 // basic field data
 struct field {
 	// name of field
-	char name[ENT_STR_SIZ];
+	char name[ENT_NAME_SIZ];
 
 	// vtable of methods for access operations on this field
 	fieldVtable* vtable;
@@ -97,21 +97,37 @@ field* stringNew(const char* name);
 // entity data
 struct entity {
 	// name of entity
-	char name[ENT_STR_SIZ];
+	char name[ENT_NAME_SIZ];
 
 	// root of field list
 	field* root;
 
 	// number of fields
-	int fields;
+	int fieldCount;
+
+	// parent of this entity (NULL for root)
+	struct entity* parent;
+
+	// direct children of this entity
+	struct entity* child;
+
+	// next peer of this entity
+	struct entity* peer;
 };
 typedef struct entity entity;
+
+// debug prints an entity
+void printEntity(const entity* e);
+
+// -- lifetime
 
 // creates a new entity
 entity* newEntity(const char* name);
 
 // frees an entity
 void freeEntity(entity* e);
+
+// -- fields
 
 // appends a field to an entity
 void appendField(entity* e, void* f);
@@ -122,7 +138,45 @@ void removeField(entity* e, const char* name);
 // gets first field in an entity, by name 
 field* getField(const entity* e, const char* name);
 
-// debug prints an entity
-void printEntity(const entity* e);
+// -- hierarchy
+
+// appends a child to an entity 
+void appendChild(entity* e, entity* child);
+
+// removes a child from an entity 
+void removeChild(entity* e, entity* child);
+
+// -- scenes
+
+// a scene is just an entity hierarchy 
+struct scene {
+	// scene name
+	char name[ENT_NAME_SIZ];
+
+	// root of scene hierarchy
+	entity root;
+};
+typedef struct scene scene;
+
+scene* newScene(const char* name);
+
+// frees a scene
+void freeScene(scene* s);
+
+// scene iterator
+struct sceneIter {
+	// current entity
+	entity* cur;
+
+	// current depth in scene hierarchy 
+	int depth;
+};
+typedef struct sceneIter sceneIter;
+
+// gets a scene iterator for a scene
+sceneIter getScIter(scene* s);
+
+// advances a scene iterator 
+entity* scIterNext(sceneIter* it);
 
 #endif

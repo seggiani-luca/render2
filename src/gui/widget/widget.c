@@ -63,7 +63,7 @@ char* bufferGui(
 		return ctx->in.keyBuf;
 	}
 
-		// return temp. buffer
+	// return temp. buffer
 	return ctx->in.keyBuf;
 }
 

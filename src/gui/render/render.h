@@ -86,7 +86,7 @@ struct guiContext {
 		int curReles;
 			
 		// previous mouse state
-    	int prevCur;
+		int prevCur;
 
 		// enter key state
 		int enter;

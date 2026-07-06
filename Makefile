@@ -26,6 +26,9 @@ all: $(EX)
 run:
 	@./$(EX)
 
+debug:
+	@gdb ./$(EX)
+
 $(EX): $(SRC_OUT_C) $(LIB_OUT_C)
 	@echo "Linking sources ..."
 	@$(L) $(SRC_OUT_C) $(LIB_OUT_C) $(LFLAGS) $(OFLAGS) -o $@

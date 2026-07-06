@@ -29,19 +29,19 @@ int guiField(const field* f, guiContext* ctx) {
 
 // macro for vtable declaration
 #define VTABLE(type) \
-    fieldVtable type##FieldVtable = { \
-        .read  = type##Read,          \
-        .write = type##Write,         \
-        .print = type##Print,         \
-        .gui   = type##FieldGui,      \
-    };                                \
+	fieldVtable type##FieldVtable = { \
+	    .read  = type##Read,          \
+	    .write = type##Write,         \
+	    .print = type##Print,         \
+	    .gui   = type##FieldGui,      \
+	};                                
 
 // macro for field allocation
 #define ALLOC_FIELD(type) \
-	if(*name == '\0') return NULL;                 \
-    type##Field* f = malloc(sizeof(type##Field)); \
-    if(!f) return NULL;                           \
-    f->base = newField(name, &type##FieldVtable);
+	if(*name == '\0') return NULL;                \
+	type##Field* f = malloc(sizeof(type##Field)); \
+	if(!f) return NULL;                           \
+	f->base = newField(name, &type##FieldVtable);
 
 // -- integer field
 
@@ -125,7 +125,21 @@ field* stringNew(const char* name) {
 
 // -- entities
 
+void printEntity(const entity* e) {
+	printf("%s (Entity):\n", e->name);
+	field* cur = e->root;
+	while(cur) {
+		printf("\t"); printField(cur); printf("\n");
+
+		cur = cur->next;
+	}
+}
+
+// -- lifetime
+
 entity* newEntity(const char* name) {
+	if(*name == '\0') return NULL;
+
 	// allocate entity
 	entity* e = malloc(sizeof(entity));
 	if(!e) return NULL;
@@ -134,7 +148,10 @@ entity* newEntity(const char* name) {
 	strncpy(e->name, name, ENT_NAME_SIZ);
 	e->name[ENT_NAME_SIZ - 1] = '\0';
 	e->root = NULL;
-	e->fields = 0;
+	e->fieldCount = 0;
+
+	// setup hierarchy
+	e->parent = e->child = e->peer = NULL;
 
 	return e;
 }
@@ -150,6 +167,8 @@ void freeEntity(entity* e) {
 
 	free(e);
 }
+
+// -- fields
 
 void appendField(entity* e, void* f) {
 	if(!f) return;
@@ -167,7 +186,7 @@ void appendField(entity* e, void* f) {
 	// append
 	((field*) f)->next = NULL;
 	*cur = f;
-	e->fields++;
+	e->fieldCount++;
 }
 
 void removeField(entity* e, const char* name) {
@@ -179,7 +198,7 @@ void removeField(entity* e, const char* name) {
 			field* tmp = *cur;
 			*cur = (*cur)->next;
 			free(tmp);
-			e->fields--;
+			e->fieldCount--;
 
 			return;
 		}
@@ -201,12 +220,99 @@ field* getField(const entity* e, const char* name) {
 	return NULL;
 }
 
-void printEntity(const entity* e) {
-	printf("%s (Entity):\n", e->name);
-	field* cur = e->root;
-	while(cur) {
-		printf("\t"); printField(cur); printf("\n");
+// -- hierarchy
 
-		cur = cur->next;
+// appends a child to an entity 
+void appendChild(entity* e, entity* child) {
+	child->parent = e;
+	
+	// simple on first child
+	if(!e->child) {
+		e->child = child;
+		return;
 	}
+
+	// walk all children
+	entity* temp = e->child;
+	while(temp->peer) temp = temp->peer;
+
+	// append child
+	temp->peer = child;
+}
+
+// removes a child from an entity 
+void removeChild(entity* e, entity* child) {
+	// simple on first child
+	if (e->child == child) {
+		e->child = child->peer;
+		child->parent = NULL;
+		child->peer = NULL;
+		return;
+	}
+	
+	// walk all children
+	entity* temp = e->child;
+	while(temp->peer && temp->peer != child) temp = temp->peer;
+
+	// remove only if found
+	if (!temp || temp->peer != child) return;
+	temp->peer = child->peer;
+	child->parent = NULL;
+	child->peer = NULL;
+}
+
+// -- scenes
+
+scene* newScene(const char* name) {
+	if(*name == '\0') return NULL;
+
+	// allocate entity
+	scene* s = malloc(sizeof(scene));
+	if(!s) return NULL;
+
+	// copy name and clear root
+	strncpy(s->name, name, ENT_NAME_SIZ);
+	s->name[ENT_NAME_SIZ - 1] = '\0';
+
+	// setup root 
+	strcpy(s->root.name, "Root");
+	s->root.root = NULL;
+	s->root.fieldCount = 0;
+	s->root.parent = s->root.child = s->root.peer = NULL;
+
+	return s;
+}
+
+void freeScene(scene* s) {
+	// TODO implement
+}
+
+sceneIter getScIter(scene* s) {
+	return (sceneIter) {
+		&s->root, 0
+	};
+}
+
+entity* scIterNext(sceneIter* it) {
+	if(!it->cur) return NULL;
+
+	// first check children
+	if(it->cur->child) {
+		it->depth++;
+		it->cur = it->cur->child;
+		return it->cur;
+	}
+
+	// climb to first parent with peers
+	while (it->cur && !it->cur->peer) {
+		it->depth--;
+		it->cur = it->cur->parent;
+	}
+
+	// return NULL when root reached
+	if(!it->cur) return NULL;
+
+	// go to peer
+	it->cur = it->cur->peer;
+	return it->cur;
 }

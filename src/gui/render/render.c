@@ -135,7 +135,7 @@ int newGui(guiContext* ctx) {
 		GL_DYNAMIC_DRAW
 	);
 	GL_ERR("gui instance VBO data init")
-	
+
 	// quad bounds (x, y, w, h) attribute 
 	glVertexAttribPointer(
 		1,
@@ -149,7 +149,7 @@ int newGui(guiContext* ctx) {
 	glEnableVertexAttribArray(1);
 	glVertexAttribDivisor(1, 1);
 	GL_ERR("gui instance vertex attrib enable")
-	
+
 	// quad uv attribute 
 	glVertexAttribPointer(
 		2,
@@ -202,7 +202,7 @@ guiContext* initGui(window* win) {
 	if(ctx->win == NULL) {
 		if(!newGui(ctx)) return NULL;
 		ctx->win = win;
-		
+
 		// hook into GLFW
 		glfwSetWindowUserPointer(win->gl, ctx);
 
@@ -234,9 +234,9 @@ guiContext* initGui(window* win) {
 // GLFW character callback
 void charCallback(GLFWwindow* win, unsigned int codepoint) {
 	guiContext* ctx = glfwGetWindowUserPointer(win);
-	
+
 	// check if should input 
-    if (!ctx || ctx->in.hotId == 0 || ctx->in.keyBufSiz == IN_BUF_SIZ - 1) 
+	if (!ctx || ctx->in.hotId == 0 || ctx->in.keyBufSiz == IN_BUF_SIZ - 1) 
 		return;
 
 	// convert to plain ASCII
@@ -268,7 +268,7 @@ void scrollCallback(
 	double y
 ) {
 	guiContext* ctx = glfwGetWindowUserPointer(win);
-	ctx->in.scroll += (float) y;	
+	ctx->in.scroll += (float) y;
 }
 
 void inputGui(window* win) {
@@ -284,15 +284,15 @@ void inputGui(window* win) {
 	}
 
 	// get mouse down state
-    int down = glfwGetMouseButton(win->gl, GLFW_MOUSE_BUTTON_LEFT);
+	int down = glfwGetMouseButton(win->gl, GLFW_MOUSE_BUTTON_LEFT);
 
 	// get other mouse states
-    ctx->in.curPress = (down && !ctx->in.prevCur);
-    ctx->in.curReles = (!down && ctx->in.prevCur);
-   	ctx->in.curDown = down;
+	ctx->in.curPress = (down && !ctx->in.prevCur);
+	ctx->in.curReles = (!down && ctx->in.prevCur);
+	ctx->in.curDown = down;
 
 	// update previous mouse state
-    ctx->in.prevCur = down;
+	ctx->in.prevCur = down;
 
 	// get enter state
 	ctx->in.enter = (glfwGetKey(win->gl, GLFW_KEY_ENTER) == GLFW_PRESS);

@@ -46,7 +46,7 @@ int fieldGui(
 	// push icon
 	iconGui(ctx, SCROLL, (float2) {
 		2 PAD,
-		2 PAD + HPAD	
+		2 PAD + HPAD
 	}, ico);
 
 	// push name
@@ -65,12 +65,12 @@ int fieldGui(
 
 	// push delete button
 	int del = (buttonGui(ctx, SCROLL, (float4) {
-		HWIN + DEL_OFF,
+		HWIN + DEL_WIDTH,
 		2 PAD ,
-		HWIN       - 2 PAD - DEL_OFF,
+		HWIN       - 2 PAD - DEL_WIDTH,
 		TXT_HEIGHT + 2 PAD - 0.5f
 	}, ICO_DEL, "Delete"));
-	
+
 	downGui(ctx, SCROLL, ROW + 1 PAD);
 
 	return del;
@@ -115,9 +115,17 @@ void addFieldGui(window* win) {
 	guiContext* ctx = &eCtx->gui;
 	entity* ent = eCtx->ent;
 	char* name = eCtx->name;
-	
+
 	// update input state
 	inputGui(win);
+
+	// push background
+	quadGui(ctx, BACKGROUND, (float4) {
+		0,
+		0,
+		WIN,
+		ADD_FIELD_HEIGHT	
+	}, BG_ABS);
 
 	// push name edit box
 	{
@@ -125,7 +133,7 @@ void addFieldGui(window* win) {
 		quadGui(ctx, FIXED, (float4) {
 			0,
 			0,
-			ctx->win->width,
+			WIN,
 			TXT_HEIGHT + 4 PAD 
 		}, BG_ABS);
 
@@ -154,10 +162,18 @@ void addFieldGui(window* win) {
 	static const fieldButton fieldButtons[] = {
 		{ "New Int",    ICO_INT,   intNew    },
 		{ "New Float",  ICO_FLOAT, floatNew  },
-		{ "New String", ICO_STR,   stringNew },
+		{ "New String", ICO_STR,   stringNew }
 	};
+	int fieldButtonCount = (int) (sizeof(fieldButtons) / sizeof(fieldButton));
 
-	for(size_t i = 0; i < sizeof(fieldButtons) / sizeof(fieldButton); i++) {
+	// scroll field button layer
+	float scrollRange =
+	    (TXT_HEIGHT + 3 PAD) * fieldButtonCount // buttons 
+	  + (TXT_HEIGHT + 3 PAD)                    // name edit box 
+	  - ADD_FIELD_HEIGHT + 1 PAD;
+	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
+
+	for(int i = 0; i < fieldButtonCount; i++) {
 		const fieldButton* f = &fieldButtons[i];
 
 		// push new field button
@@ -167,14 +183,17 @@ void addFieldGui(window* win) {
 			WIN        - 2 PAD, 
 			TXT_HEIGHT + 2 PAD
 		}, f->ico, f->label)) {
+			// actually construct and append field
 			appendField(ent, f->ctor(name));
+
+			// should close
 			glfwSetWindowShouldClose(win->gl, 1);
 		}
 		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 	}
-	
+
 	// flush changes
-  	flushGui(ctx);
+	flushGui(ctx);
 }
 
 // gets a callback object for a "new field" menu 
@@ -218,7 +237,7 @@ void entityGui(window* win) {
 		quadGui(ctx, FIXED, (float4) {
 			0,
 			0,
-			ctx->win->width,
+			WIN,
 			TXT_HEIGHT + 4 PAD 
 		}, BG_ABS);
 
@@ -240,9 +259,9 @@ void entityGui(window* win) {
 
 	// scroll field layer
 	float scrollRange =
-	    (ROW + 1 PAD) * ent->fields // fields
-	  + (TXT_HEIGHT + 3 PAD)        // entity label
-	  + (TXT_HEIGHT + 3 PAD)        // add field button
+	    ent ? (ROW + 1 PAD) * ent->fieldCount : 0 // fields
+	  + (TXT_HEIGHT + 3 PAD)                      // entity label
+	  + (TXT_HEIGHT + 3 PAD)                      // add field button
 	  - INSPECTOR_HEIGHT + 1 PAD;
 	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
 
@@ -260,18 +279,18 @@ void entityGui(window* win) {
 			1 PAD,
 			WIN        - 2 PAD, 
 			TXT_HEIGHT + 2 PAD 
-	}, ICO_NEW, "Add Field") && ent) {
+	}, ICO_NEW, "Append") && ent) {
 		// create add field window
 		subWindowGui(ctx, newWindow(
-			INSPECTOR_WIDTH,
+			ADD_FIELD_WIDTH,
 			ADD_FIELD_HEIGHT,
-			"Add Field",
+			"Append Field",
 			makeAddFieldCallback(ent)
 		));
 	}
-	
+
 	// flush changes
-  	flushGui(ctx);
+	flushGui(ctx);
 }
 
 renderCallback makeEntityCallback(entity* ent) {
@@ -287,4 +306,9 @@ renderCallback makeEntityCallback(entity* ent) {
 		eCtx,
 		freeGui
 	};
+}
+
+void changeEntityCallback(window* win, entity* ent) {
+	entityGuiContext* ctx = (entityGuiContext*) win->cbak.ctx;
+	ctx->ent = ent;
 }

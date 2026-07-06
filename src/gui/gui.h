@@ -1,8 +1,6 @@
 #ifndef GUI_H
 #define GUI_H
 
-typedef struct entity entity; // forward entity
-typedef struct field field;
 #include "../window/window.h"
 
 // -- rendering

@@ -4,7 +4,6 @@
 #include "../gui.h"
 #include "../../math/math.h"
 #include "../render/render.h"
-#include "../../entity/entity.h"
 
 // -- constants
 
@@ -38,6 +37,8 @@
 #define ICO_INT    ICO(1, 4) 
 #define ICO_FLOAT  ICO(2, 4) 
 #define ICO_STR    ICO(3, 4) 
+#define ICO_SCENE  ICO(4, 4) 
+#define ICO_INDENT ICO(5, 4) 
 #define ICO_NEW    ICO(0, 5) 
 #define ICO_DEL    ICO(1, 5) 
 

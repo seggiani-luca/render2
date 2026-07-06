@@ -2,6 +2,7 @@
 #define GUI_INSPECTOR_H
 
 #include "../gui.h"
+#include "../../entity/entity.h"
 
 // -- sizing
 
@@ -9,8 +10,8 @@
 #define INSPECTOR_WIDTH  320
 #define INSPECTOR_HEIGHT 640
 
-// offset for delete button
-#define DEL_OFF 70.0f
+// width of delete button
+#define DEL_WIDTH 70.0f
 
 // add field window size
 #define ADD_FIELD_WIDTH  320
@@ -34,5 +35,8 @@ int stringFieldGui(const field* f, guiContext* ctx);
 
 // gets a callback object for an entity inspector
 renderCallback makeEntityCallback(entity* ent);
+
+// changes entity callback
+void changeEntityCallback(window* win, entity* ent);
 
 #endif

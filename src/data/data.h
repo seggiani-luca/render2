@@ -33,35 +33,35 @@ typedef struct dataRef dataRef;
 typedef dataRef* dataTable;
 
 // data table and handlers declaration macro
-#define DATA_TABLE_DECL(type)             \
-    void type##PrintTable();              \
-    type* type##Import(const char* path); \
-    void type##Free(type* obj);           \
-    void type##FreeTable();
+#define DATA_TABLE_DECL(type) \
+	void type##PrintTable();              \
+	type* type##Import(const char* path); \
+	void type##Free(type* obj);           \
+	void type##FreeTable();
 
 // data table and handlers implementation macro
-#define DATA_TABLE_IMPL(type)                                                 \
-    dataTable type##Table = NULL;                                             \
-                                                                              \
-    void type##PrintTable() {                                                 \
-        printTable(type##Table, (void(*)(void*))type##Print);                 \
-    }                                                                         \
-                                                                              \
-    type* type##Import(const char* path) {                                    \
-        return importData(                                                    \
-            path,                                                             \
-            &type##Table,                                                     \
-            (void* (*)(FILE*)) type##_import                                  \
-            );                                                                \
-    }                                                                         \
-                                                                              \
-    void type##Free(type* data) {                                             \
-        freeData(data, &type##Table, (void(*)(void*))type##_free);            \
-    }                                                                         \
-                                                                              \
-    void type##FreeTable() {                                                  \
-        freeTable(&type##Table, (void(*)(void*))type##_free);                 \
-    }
+#define DATA_TABLE_IMPL(type) \
+	dataTable type##Table = NULL;                                  \
+	                                                               \
+	void type##PrintTable() {                                      \
+	    printTable(type##Table, (void(*)(void*))type##Print);      \
+	}                                                              \
+	                                                               \
+	type* type##Import(const char* path) {                         \
+	    return importData(                                         \
+	        path,                                                  \
+	        &type##Table,                                          \
+	        (void* (*)(FILE*)) type##_import                       \
+	        );                                                     \
+	}                                                              \
+	                                                               \
+	void type##Free(type* data) {                                  \
+	    freeData(data, &type##Table, (void(*)(void*))type##_free); \
+	}                                                              \
+	                                                               \
+	void type##FreeTable() {                                       \
+	    freeTable(&type##Table, (void(*)(void*))type##_free);      \
+	}
 
 // debug prints a data table
 void printTable(dataTable table, void (*printData)(void*));
