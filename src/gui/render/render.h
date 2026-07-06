@@ -9,9 +9,6 @@
 
 // -- rendering
 
-// size of GUI queue
-#define QUEUE_SIZ 512
-
 // GUI quad instance
 struct quad {
 	float4 pos;
@@ -19,26 +16,36 @@ struct quad {
 };
 typedef struct quad quad;
 
-// GUI queue of quad instances
-struct guiQueue {
-	quad vec[QUEUE_SIZ];
-	int first;
-	int last;
-};
-typedef struct guiQueue guiQueue;
-
-// pushes to a GUI context 
-void pushGui(guiContext* ctx, quad q);
-
-// flushes a rendering queue, drawing contents to screen
-void flushGui(guiContext* ctx);
-
-// -- state
+// size of GUI queue
+#define QUEUE_SIZ 512
 
 // input buffer size
 #define IN_BUF_SIZ 32
 
-// gui context data
+// GUI queue
+typedef struct {
+	quad vec[QUEUE_SIZ];
+	int first;
+	int last;
+} guiQueue;
+
+// GUI layer (rendering queue and cursor position)
+typedef struct {
+	// rendering queue of quad instances
+	guiQueue queue;
+
+	// vertical cursor position
+	float vPos;
+} guiLayer;
+
+typedef enum {
+	BACKGROUND,
+	SCROLL,
+	FIXED,
+	GUI_LAYERS
+} guiLayerId;
+
+// GUI context data
 struct guiContext {
 	// window handle
 	window* win;
@@ -92,25 +99,36 @@ struct guiContext {
 
 		// input buffer position
 		int keyBufSiz;
+
+		// scroll state
+		float scroll;
+
+		// absolute scrolling position
+		float absScroll;
 	} in;
 
-	// should the window be inactive
-	int inactive;
-	
-	// rendering queue
-	guiQueue queue;
+	// GUI layers
+	guiLayer layers[GUI_LAYERS];
 
-	// vertical cursor position
-	float vPos;
+	// should the window be inactive
+	int inactive;	
 };
+
+// -- rendering
+
+// pushes to a GUI context 
+void pushGui(guiLayer* ctx, quad q);
+
+// initializes GUI context
+guiContext* initGui(window* win);
+
+// flushes a rendering queue, drawing contents to screen
+void flushGui(guiContext* ctx);
 
 // -- initialization
 
 // frees GUI OpenGL data
 void freeGui(void* vCtx);
-
-// initializes GUI context
-guiContext* initGui(window* win);
 
 // -- input
 

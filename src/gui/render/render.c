@@ -5,14 +5,15 @@
 
 // -- rendering
 
-void pushGui(guiContext* ctx, quad q) {
+void pushGui(guiLayer* lay, quad q) {
 	// don't overflow
-	if(ctx->queue.last == QUEUE_SIZ) return;
-	ctx->queue.vec[ctx->queue.last++] = q;
+	if(lay->queue.last == QUEUE_SIZ) return;
+	lay->queue.vec[lay->queue.last++] = q;
 }
 
-void flushGui(guiContext* ctx) {
-	if(ctx->queue.last == 0) return;
+// flushes a single GUI layer
+void flushLayer(guiContext* ctx, guiLayer* lay) {
+	if(lay->queue.last == 0) return;
 
 	// bind GUI quad instance VBO
 	glBindBuffer(GL_ARRAY_BUFFER, ctx->gl.instanceVBO);
@@ -22,8 +23,8 @@ void flushGui(guiContext* ctx) {
 	glBufferSubData(
 		GL_ARRAY_BUFFER,
 		0,
-		sizeof(quad) * ctx->queue.last,
-		ctx->queue.vec
+		sizeof(quad) * lay->queue.last,
+		lay->queue.vec
 	);
 	GL_ERR("gui instance VBO data (flush)")
 
@@ -51,9 +52,26 @@ void flushGui(guiContext* ctx) {
 		GL_TRIANGLES,
 		0,
 		6,
-		ctx->queue.last
+		lay->queue.last
 	);
 	GL_ERR("gui drawing")
+}
+
+void flushGui(guiContext* ctx) {
+	// update child too if present
+	if(ctx->child) {
+		if(!updateWindow(ctx->child)) {
+			freeWindow(ctx->child);
+			ctx->child = NULL;
+			ctx->inactive = 0;
+		}
+		glfwMakeContextCurrent(ctx->win->gl); // hack for context
+	}
+
+	// flush all layers
+	for(int i = 0; i < GUI_LAYERS; i++) {
+		flushLayer(ctx, &ctx->layers[i]);
+	}
 }
 
 // -- initialization
@@ -174,9 +192,10 @@ void freeGui(void* vCtx) {
 	free(ctx);
 }
 
-// forward declarations for GLFW keyboard callbacks
+// forward declarations for GLFW callbacks
 void charCallback(GLFWwindow* win, unsigned int codepoint);
 void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods);
+void scrollCallback(GLFWwindow* win, double x, double y);
 
 guiContext* initGui(window* win) {
 	guiContext* ctx = (guiContext*) win->cbak.ctx;
@@ -190,16 +209,22 @@ guiContext* initGui(window* win) {
 		// attach callbacks
 		glfwSetCharCallback(win->gl, charCallback);
 		glfwSetKeyCallback(win->gl, keyCallback);
+		glfwSetScrollCallback(win->gl, scrollCallback);
 
 		// set other values
 		ctx->inactive = 0;
+		ctx->in.hotId = 0;
+		ctx->in.absScroll = 0.0f;
 	}
-	
-	// reset queue
-	ctx->queue.first = ctx->queue.last = 0;
 
-	// reset cursor
-	ctx->vPos = 0.0f;
+	// reset all layers
+	for(int i = 0; i < GUI_LAYERS; i++) {
+		guiLayer* lay = &ctx->layers[i];
+
+		// reset queue and cursor
+		lay->queue.first = lay->queue.last = 0;
+		lay->vPos = 0.0f;
+	}
 
 	return ctx;
 }
@@ -234,6 +259,16 @@ void keyCallback(
 	&& ctx->in.keyBufSiz > 0) {
 		ctx->in.keyBuf[--ctx->in.keyBufSiz] = '\0';
 	}
+}
+
+// GLFW scroll callback
+void scrollCallback(
+	GLFWwindow* win,
+	double x __attribute__((unused)),
+	double y
+) {
+	guiContext* ctx = glfwGetWindowUserPointer(win);
+	ctx->in.scroll += (float) y;	
 }
 
 void inputGui(window* win) {

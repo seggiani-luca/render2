@@ -23,8 +23,8 @@ field newField(const char* name, fieldVtable* vtable) {
 void readField(const field* f, void* dst) { f->vtable->read(f, dst); }
 void writeField(field* f, const void* src) { f->vtable->write(f, src); }
 void printField(const field* f) { f->vtable->print(f); }
-void guiField(const field* f, guiContext* ctx) { 
-	f->vtable->gui(f, ctx); 
+int guiField(const field* f, guiContext* ctx) { 
+	return f->vtable->gui(f, ctx); 
 }
 
 // macro for vtable declaration
@@ -38,6 +38,7 @@ void guiField(const field* f, guiContext* ctx) {
 
 // macro for field allocation
 #define ALLOC_FIELD(type) \
+	if(*name == '\0') return NULL;                 \
     type##Field* f = malloc(sizeof(type##Field)); \
     if(!f) return NULL;                           \
     f->base = newField(name, &type##FieldVtable);
@@ -61,11 +62,11 @@ void intPrint(const field* f) {
 
 VTABLE(int)
 
-intField* intNew(const char* name, int val) {
+field* intNew(const char* name) {
 	ALLOC_FIELD(int)
-	f->val = val;
+	f->val = 0;
 
-	return f;
+	return (field*) f;
 }
 
 // -- float field
@@ -87,11 +88,11 @@ void floatPrint(const field* f) {
 
 VTABLE(float)
 
-floatField* floatNew(const char* name, float val) {
+field* floatNew(const char* name) {
 	ALLOC_FIELD(float)
-	f->val = val;
+	f->val = 0.0f;
 
-	return f;
+	return (field*) f;
 }
 
 // -- string field
@@ -115,12 +116,11 @@ void stringPrint(const field* f) {
 
 VTABLE(string)
 
-stringField* stringNew(const char* name, const char* str) {
+field* stringNew(const char* name) {
 	ALLOC_FIELD(string)
-	strncpy(f->str, str, ENT_STR_SIZ);
-	f->str[ENT_STR_SIZ - 1] = '\0';
+	*f->str = '\0';
 
-	return f;
+	return (field*) f;
 }
 
 // -- entities
@@ -134,6 +134,7 @@ entity* newEntity(const char* name) {
 	strncpy(e->name, name, ENT_NAME_SIZ);
 	e->name[ENT_NAME_SIZ - 1] = '\0';
 	e->root = NULL;
+	e->fields = 0;
 
 	return e;
 }
@@ -151,7 +152,13 @@ void freeEntity(entity* e) {
 }
 
 void appendField(entity* e, void* f) {
-	if(getField(e, ((field*)f)->name)) return;
+	if(!f) return;
+
+	// fre yourself if not valid
+	if(getField(e, ((field*)f)->name)) {
+		free(f);
+		return;
+	} 
 
 	// get to last field 
 	field** cur = &e->root;
@@ -160,6 +167,7 @@ void appendField(entity* e, void* f) {
 	// append
 	((field*) f)->next = NULL;
 	*cur = f;
+	e->fields++;
 }
 
 void removeField(entity* e, const char* name) {
@@ -171,6 +179,7 @@ void removeField(entity* e, const char* name) {
 			field* tmp = *cur;
 			*cur = (*cur)->next;
 			free(tmp);
+			e->fields--;
 
 			return;
 		}

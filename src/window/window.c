@@ -25,39 +25,38 @@ int newGl() {
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	// GLFW OpenGL version hints
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_VERSION_MAJOR);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_VERSION_MINOR);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_VERSION_MAJOR);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_VERSION_MINOR);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// GLFW platform hints
 	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
 
 	// GLFW double buffering hints
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-	
+
 	printf("Success\n");
 	return 1;
 }
 
-// prints current platform as string
-void printPlatform() {
-	int platform = glfwGetPlatform();
-	printf("Platform is: ");
-	switch (platform) {
-		case GLFW_PLATFORM_WIN32:   printf("win32\n"); break;
-		case GLFW_PLATFORM_COCOA:   printf("cocoa\n"); break;
-		case GLFW_PLATFORM_WAYLAND: printf("wayland\n"); break;
-		case GLFW_PLATFORM_X11:     printf("x11\n"); break;
-		case GLFW_PLATFORM_NULL:    printf("null\n"); break;
-		default:                    printf("unknown\n"); break;
-	}
-}
-
+// prints OpenGL information
 void printGl() {
-    printf("\nLoaded OpenGL version: %s\n", glGetString(GL_VERSION));
-	printf("Renderer is: %s\n", glGetString(GL_RENDERER));
-	printPlatform();
-	printf("\n");
+	// print OpenGL version
+	printf("\nLoaded OpenGL version: %s\n", glGetString(GL_VERSION));
+
+	// print platform
+	int platform = glfwGetPlatform();
+	switch (platform) {
+		case GLFW_PLATFORM_WIN32:   printf("win32"); break;
+		case GLFW_PLATFORM_COCOA:   printf("cocoa"); break;
+		case GLFW_PLATFORM_WAYLAND: printf("wayland"); break;
+		case GLFW_PLATFORM_X11:     printf("x11"); break;
+		case GLFW_PLATFORM_NULL:    printf("null"); break;
+		default:                    printf("unknown"); break;
+	}
+
+	// print renderer
+	printf(" on %s\n\n", glGetString(GL_RENDERER));
 }
 
 // loads OpenGL (done when the first window is created)
@@ -67,7 +66,7 @@ int loadGl() {
 		printf("Failed to initialize GLAD\n");
 		return 0;
 	}
-	
+
 	printf("Success\n");
 	printGl();
 	return 1;
@@ -81,8 +80,8 @@ void freeGl() {
 	if(!winInitialized) return;
 
 	printf("%-55s", "Terminating OpenGL ...");
-    glfwTerminate();
-	
+	glfwTerminate();
+
 	printf("Success\n");
 }
 
@@ -102,7 +101,7 @@ window* newWindow(
 	win->width = width;
 	win->title = title;
 	win->cbak = cback;
-	
+
 	// initalize GLFW if needed
 	if(!winInitialized) {
 		if (!newGl()) {
@@ -141,9 +140,9 @@ window* newWindow(
 	}
 
 	// setup framebuffer
-    int fbWidth, fbHeight;
-    glfwGetFramebufferSize(win->gl, &fbWidth, &fbHeight);
-    glViewport(0, 0, fbWidth, fbHeight);
+	int fbWidth, fbHeight;
+	glfwGetFramebufferSize(win->gl, &fbWidth, &fbHeight);
+	glViewport(0, 0, fbWidth, fbHeight);
 	
 	// setup depth
 	glEnable(GL_BLEND);

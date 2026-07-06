@@ -26,7 +26,7 @@ typedef struct {
 	void (*print)(const field* f);
 
 	// GUI rendering method (pushes quads too a GUI queue)
-	void (*gui)(const field* f, guiContext* ctx);
+	int (*gui)(const field* f, guiContext* ctx);
 } fieldVtable;
 
 // basic field data
@@ -51,7 +51,7 @@ void writeField(field* f, const void* src);
 void printField(const field* f);
 
 // shortcut for field gui rendering via own method
-void guiField(const field* f, guiContext* ctx);
+int guiField(const field* f, guiContext* ctx);
 
 // -- integer field
 
@@ -64,7 +64,7 @@ typedef struct {
 } intField;
 
 // creates a new integer field
-intField* intNew(const char* name, int val);
+field* intNew(const char* name);
 
 // -- float field
 
@@ -77,7 +77,7 @@ typedef struct {
 } floatField;
 
 // creates a new float field
-floatField* floatNew(const char* name, float val);
+field* floatNew(const char* name);
 
 // -- string field
 
@@ -90,7 +90,7 @@ typedef struct {
 } stringField;
 
 // creates a new string field
-stringField* stringNew(const char* name, const char* val);
+field* stringNew(const char* name);
 
 // -- entities
 
@@ -101,6 +101,9 @@ struct entity {
 
 	// root of field list
 	field* root;
+
+	// number of fields
+	int fields;
 };
 typedef struct entity entity;
 

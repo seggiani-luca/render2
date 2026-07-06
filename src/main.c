@@ -5,29 +5,38 @@
 
 // -- windows
 
+// main engine window
 window* mainWin;
-window* inspectorWin;
+
+// entity hierarchy
 window* hierarchyWin;
+
+// entity inspector
+window* inspectorWin;
+
+// -- utils
+
+// cleans up after termination
+void cleanup() {
+	// free windows
+	freeWindow(inspectorWin);
+
+	// free data tables
+	freeTables();
+
+	// terminate OpenGL
+	freeGl();
+}
 
 // -- main
 
-extern renderCallback makeAddFieldCallback(entity* ent);
-
 int main() {
-	// create example entity
-	entity* ent = newEntity("Enterprise");
-	appendField(ent, stringNew(
-		"Captain",
-		"Kirk"
-	));
-	appendField(ent, floatNew(
-		"Weight",
-		10.5
-	));
-	appendField(ent, intNew(
-		"Missiles",
-		25
-	));
+	entity* ent = newEntity("Entity");
+	for(int i = 0; i < 10; i++) {
+		char name[ENT_NAME_SIZ];
+		sprintf(name, "Field %d", i);
+		appendField(ent, intNew(name));
+	}
 
 	// create inspector
 	inspectorWin = newWindow(
@@ -43,15 +52,8 @@ int main() {
 		if(!updateWindow(inspectorWin)) break;
 	}
 
-	// free example entity
 	freeEntity(ent);
 
-	// free windows
-	freeWindow(inspectorWin);
-
-	// free data tables
-	freeTables();
-
-	// terminate OpenGL
-	freeGl();
+	// free all data
+	cleanup();
 }
