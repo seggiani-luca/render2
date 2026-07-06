@@ -129,6 +129,7 @@ void entityHierGui(guiContext* ctx, entity* ent, int depth) {
 		HIER_ELEM_WIDTH,
 		TXT_HEIGHT + 2 PAD
 	}, ICO_ENTITY, ent->name)) {
+		// change current entity
 		changeEntityCallback(inspectorWin, ent);
 	}
 
@@ -146,6 +147,20 @@ void entityHierGui(guiContext* ctx, entity* ent, int depth) {
 			"Append Child",
 			makeAddChildCallback(ent)
 		));
+	}
+
+	// push delete child button, not on root
+	if(depth != 0) {
+		if(buttonGui(ctx, SCROLL, (float4) {
+			3 PAD + depth * (ICO_SIZ + 1 PAD) + HIER_ELEM_WIDTH + CHILD_WIDTH,
+			1 PAD,
+			CHILD_WIDTH,
+			TXT_HEIGHT + 2 PAD
+		}, ICO_DEL, "Delete")) {
+			// delete child
+			removeChild(ent->parent, ent);
+			freeEntity(ent);
+		}
 	}
 
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);

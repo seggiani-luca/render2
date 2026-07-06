@@ -156,7 +156,24 @@ entity* newEntity(const char* name) {
 	return e;
 }
 
+// recursive helper for children clearing
+void freeEntityChildren(entity* e)
+{
+	// get child
+	entity* child = e->child;
+
+	// go through children
+	while(child) {
+		entity* next = child->peer;
+		freeEntity(child);
+		child = next;
+	}
+}
+
 void freeEntity(entity* e) {
+	// free children
+	freeEntityChildren(e);
+
 	// go through all fields, freeing
 	field* cur = e->root;
 	while(cur) {
@@ -284,7 +301,8 @@ scene* newScene(const char* name) {
 }
 
 void freeScene(scene* s) {
-	// TODO implement
+	freeEntityChildren(&s->root);
+	free(s);
 }
 
 sceneIter getScIter(scene* s) {

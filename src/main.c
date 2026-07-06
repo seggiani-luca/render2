@@ -35,19 +35,6 @@ void cleanup() {
 int main() {
 	// create scene
 	scene* mainScene = newScene("Main Scene");
-	for(int i = 0; i < 10; i++) {
-		char entName[ENT_NAME_SIZ];
-		sprintf(entName, "Entity %d", i);
-		entity* ent = newEntity(entName);
-
-		for(int j = 0; j < 3; j++) {
-			char fldName[ENT_NAME_SIZ];
-			sprintf(fldName, "Field %d", j);
-			appendField(ent, intNew(fldName));
-		}
-
-		appendChild(&mainScene->root, ent);
-	}
 	
 	// create hierarchy 
 	hierarchyWin = newWindow(

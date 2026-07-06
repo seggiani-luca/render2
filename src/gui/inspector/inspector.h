@@ -7,8 +7,8 @@
 // -- sizing
 
 // inspector size
-#define INSPECTOR_WIDTH  320
-#define INSPECTOR_HEIGHT 640
+#define INSPECTOR_WIDTH  400
+#define INSPECTOR_HEIGHT 800
 
 // width of delete button
 #define DEL_WIDTH 70.0f

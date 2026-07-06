@@ -96,7 +96,7 @@ void quadGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv) {
 	});
 }
 
-#define W 0.5f // width
+#define W 1.0f // width
 void borderGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv) {
 	quadGui(ctx, layId,
 			(float4){ rect.x, rect.y,              rect.z, W      }, uv);
