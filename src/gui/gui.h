@@ -11,7 +11,9 @@
 
 // path for GUI atlas
 #define GUI_ATLAS_PATH "dat/texture/atlas.tga"
-#define ATLAS_SIZ 256
+#define ATLAS_DIM 256
+#define GUI_SCALE 1.0f
+#define ATLAS_SIZ (ATLAS_DIM * GUI_SCALE)
 
 // forward declaration of gui context
 typedef struct guiContext guiContext;

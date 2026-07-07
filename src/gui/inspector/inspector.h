@@ -11,8 +11,8 @@
 #define INSPECTOR_HEIGHT 800
 
 // add field window size
-#define ADD_FIELD_WIDTH 320
-#define ADD_FIELD_HEIGHT 130
+#define ADD_FIELD_WIDTH 400
+#define ADD_FIELD_HEIGHT 160
 
 // offset for new field button
 #define NEW_OFF 50.0f

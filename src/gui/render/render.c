@@ -272,7 +272,7 @@ guiContext* initGui(window* win) {
 		guiLayer* lay = &ctx->layers[i];
 
 		// reset queue and cursor
-		lay->queue.first = lay->queue.last = 0;
+		lay->queue.last = 0;
 		lay->vPos = 0.0f;
 	}
 
@@ -328,7 +328,10 @@ void inputGui(window* win) {
 	guiContext* ctx = (guiContext*)win->cbak.ctx;
 
 	// get mouse position
-	glfwGetCursorPos(win->gl, &ctx->in.xCur, &ctx->in.yCur);
+	double x, y;
+	glfwGetCursorPos(win->gl, &x, &y);
+	ctx->in.xCur = x;
+	ctx->in.yCur = y;
 
 	if(ctx->inactive) {
 		ctx->in.curPress = ctx->in.curReles = ctx->in.curDown = 0;

@@ -139,9 +139,8 @@ window* newWindow(
 	}
 
 	// setup framebuffer
-	int fbWidth, fbHeight;
-	glfwGetFramebufferSize(win->gl, &fbWidth, &fbHeight);
-	glViewport(0, 0, fbWidth, fbHeight);
+	glfwGetFramebufferSize(win->gl, &win->fbWidth, &win->fbHeight);
+	glViewport(0, 0, win->fbWidth, win->fbHeight);
 
 	// setup depth
 	glEnable(GL_BLEND);
@@ -174,4 +173,31 @@ int updateWindow(window* win) {
 	// swap buffers
 	glfwSwapBuffers(win->gl);
 	return 1;
+}
+
+void resizeWindow(window* win, int width, int height) {
+	win->width = width;
+	win->height = height;
+
+	glfwSetWindowSize(win->gl, width, height);
+	
+	// setup framebuffer
+	glfwGetFramebufferSize(win->gl, &win->fbWidth, &win->fbHeight);
+	glViewport(0, 0, win->fbWidth, win->fbHeight);
+}
+
+float winToFbW(window* win, float from) {
+	return from * ((float)win->fbWidth  / win->width);
+}
+
+float winToFbH(window* win, float from) {
+	return from * ((float)win->fbHeight  / win->height);
+}
+
+float fbToWinW(window* win, float from) {
+	return from / ((float)win->fbWidth  / win->width);
+}
+
+float fbToWinH(window* win, float from) {
+	return from / ((float)win->fbHeight  / win->height);
 }

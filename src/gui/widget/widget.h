@@ -11,15 +11,16 @@
 #define FIELD_SIZ 64
 
 // sizing contants
-#define PAD     *5.0f
+#define PAD     *4.0f
 #define HPAD    (1 PAD / 2.0f)
-#define ROW     60.0f
+#define ROW     48.0f
 #define HROW    (ROW / 2.0f)
-#define BORDER  1.0f
+#define BORDER  2.0f
 
 // window dependent sizing constants
 #define WIN  (ctx->win->width)
 #define HWIN (ctx->win->width / 2.0f)
+#define HEIG (ctx->win->height)
 
 // atlas sections
 #define AU       (1.0f / 16)
@@ -84,6 +85,9 @@ void scrollGui(guiContext* ctx, guiLayerId layId, float min, float max);
 
 // adds vertical space to GUI
 void downGui(guiContext* ctx, guiLayerId layId, float amt);
+
+// trims GUI to vertical space
+void trimGui(guiContext* ctx);
 
 // pushes a quad
 void quadGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv);

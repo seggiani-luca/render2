@@ -25,7 +25,6 @@ typedef struct quad quad;
 // GUI queue
 typedef struct {
 	quad vec[QUEUE_SIZ];
-	int first;
 	int last;
 } guiQueue;
 

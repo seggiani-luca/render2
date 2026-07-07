@@ -13,12 +13,12 @@
 // width of hierarchy element
 #define HIER_ELEM_WIDTH 160.0f
 
-// add field window size
-#define ADD_CHILD_WIDTH 320
-#define ADD_CHILD_HEIGHT 70
+// add child window size
+#define ADD_CHILD_WIDTH 400
+#define ADD_CHILD_HEIGHT 160 
 
-// offset for new field button
-#define NEW_OFF 50.0f
+// offset for new child button
+#define CHILD_OFF 50.0f 
 
 // -- scenes
 

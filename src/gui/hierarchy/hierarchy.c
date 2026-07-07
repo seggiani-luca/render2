@@ -57,7 +57,7 @@ void addChildGui(window* win) {
 	// push background
 	quadGui(ctx, BACKGROUND, (float4){
 		0, 0,
-		WIN, ADD_FIELD_HEIGHT
+		WIN, HEIG 
 	}, BG_ABS);
 
 	// push name edit box
@@ -75,8 +75,8 @@ void addChildGui(window* win) {
 
 		// push name edit box
 		stringGui(ctx, FIXED, (float4){
-			1 PAD + NEW_OFF, 1 PAD,
-			WIN - 2 PAD - NEW_OFF, TXT_HEIGHT + 2 PAD
+			1 PAD + CHILD_OFF, 1 PAD,
+			WIN - 2 PAD - CHILD_OFF, TXT_HEIGHT + 2 PAD
 		}, name);
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
@@ -92,7 +92,9 @@ void addChildGui(window* win) {
 		// should close
 		glfwSetWindowShouldClose(win->gl, 1);
 	}
-	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	downGui(ctx, SCROLL, TXT_HEIGHT + 4 PAD);
+
+	trimGui(ctx);
 
 	// flush changes
 	flushGui(ctx);
@@ -178,7 +180,7 @@ void sceneGui(window* win) {
 	// push background
 	quadGui(ctx, BACKGROUND, (float4){
 		0, 0,
-		WIN, HIERARCHY_HEIGHT
+		WIN, HEIG 
 	}, BG_ABS);
 
 	// push scene label
@@ -206,7 +208,7 @@ void sceneGui(window* win) {
 	float scrollRange =
 		(scn ? (TXT_HEIGHT + 3 PAD) * scn->root.childCount : 0) // entities
 		+ (TXT_HEIGHT + 3 PAD)                                  // scene label
-		- HIERARCHY_HEIGHT + 1 PAD;
+		- HEIG + 1 PAD;
 	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
 
 	// go through scene hierarchy

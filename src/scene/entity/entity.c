@@ -350,6 +350,8 @@ void removeChild(entity* e, entity* child) {
 }
 
 void moveChild(entity* e, entity* child) {
+	if(e == child) return;
+
 	removeChild(child->parent, child);
 	appendChild(e, child);
 }

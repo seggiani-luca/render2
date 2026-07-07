@@ -110,6 +110,11 @@ void downGui(guiContext* ctx, guiLayerId layId, float amt) {
 	ctx->layers[layId].vPos += amt;
 }
 
+void trimGui(guiContext* ctx) {
+	window* win = ctx->win;
+	resizeWindow(win, win->width, ctx->layers[SCROLL].vPos);
+}
+
 void quadGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv) {
 	pushGui(&ctx->layers[layId], (quad){
 		rect.x, rect.y + ctx->layers[layId].vPos, 
@@ -119,10 +124,13 @@ void quadGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv) {
 }
 
 void borderGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv) {
-	quadGui(ctx, layId, (float4){rect.x,                   rect.y,                   rect.z, BORDER}, uv);
-	quadGui(ctx, layId, (float4){rect.x,                   rect.y + rect.w - BORDER, rect.z, BORDER}, uv);
-	quadGui(ctx, layId, (float4){rect.x,                   rect.y,                   BORDER, rect.w}, uv);
-	quadGui(ctx, layId, (float4){rect.x + rect.z - BORDER, rect.y,                   BORDER, rect.w}, uv);
+	// i hate high DPI displays
+	float border = fbToWinH(ctx->win, BORDER);
+
+	quadGui(ctx, layId, (float4){rect.x,                   rect.y,                   rect.z, border}, uv);
+	quadGui(ctx, layId, (float4){rect.x,                   rect.y + rect.w - border, rect.z, border}, uv);
+	quadGui(ctx, layId, (float4){rect.x,                   rect.y,                   border, rect.w}, uv);
+	quadGui(ctx, layId, (float4){rect.x + rect.z - border, rect.y,                   border, rect.w}, uv);
 }
 
 void textGui(guiContext* ctx, guiLayerId layId, float2 pos, const char* str) {

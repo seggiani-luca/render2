@@ -37,6 +37,9 @@ typedef struct {
 struct window {
 	// window dimensions
 	int width, height;
+	
+	// framebuffer dimensions
+	int fbWidth, fbHeight;
 
 	// title of window
 	const char* title;
@@ -61,5 +64,20 @@ int updateWindow(window* win);
 
 // frees a window
 void freeWindow(window* win);
+
+// resizes a window
+void resizeWindow(window* win, int width, int height);
+
+// width from window coordinate to framebuffer coordinate
+float winToFbW(window* win, float from);
+
+// height from window coordinate to framebuffer coordinate
+float winToFbH(window* win, float from);
+
+// width from framebuffer coordinate to window coordinate
+float fbToWinW(window* win, float from);
+
+// height from framebuffer coordinate to window coordinate
+float fbToWinH(window* win, float from);
 
 #endif

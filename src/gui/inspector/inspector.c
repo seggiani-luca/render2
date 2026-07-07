@@ -46,7 +46,7 @@ int fieldGui(
 	// push panel
 	quadGui(ctx, SCROLL, (float4){
 		1 PAD, 1 PAD,
-		WIN - 2 PAD, ROW
+		WIN - 2 PAD, ROW + 2 PAD
 	}, BG_LIGHT);
 
 	// push icon
@@ -61,19 +61,19 @@ int fieldGui(
 
 	// push edit box
 	gui(ctx, SCROLL, (float4){
-		2 PAD, 1 PAD + HROW,
+		2 PAD, 3 PAD + HROW,
 		WIN - 4 PAD, HROW - 1 PAD
 	}, val);
 
 	// push delete button
 	if(buttonGui(ctx, SCROLL, (float4){
 		WIN - 4 PAD - ICO_SIZ, 2 PAD,
-		 2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD - 0.5f
+		 2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 	}, ICO_DELETE, "")) {
 		act = DELETE;
 	}
 
-	downGui(ctx, SCROLL, ROW + 1 PAD);
+	downGui(ctx, SCROLL, ROW + 3 PAD);
 
 	return act;
 }
@@ -187,7 +187,7 @@ void addFieldGui(window* win) {
 
 	// push background
 	quadGui(ctx, BACKGROUND, (float4){
-		0, 0, WIN, ADD_FIELD_HEIGHT
+		0, 0, WIN, HEIG 
 	}, BG_ABS);
 
 	// push name edit box
@@ -231,7 +231,7 @@ void addFieldGui(window* win) {
 	float scrollRange =
 		  (TXT_HEIGHT + 3 PAD) * fieldButtonCount // buttons
 		+ (TXT_HEIGHT + 3 PAD)                    // name edit box
-		- ADD_FIELD_HEIGHT + 1 PAD;
+		- HEIG + 1 PAD;
 	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
 
 	for(int i = 0; i < fieldButtonCount; i++) {
@@ -286,7 +286,7 @@ void entityGui(window* win) {
 	// push background
 	quadGui(ctx, BACKGROUND, (float4){
 		0, 0,
-		WIN, INSPECTOR_HEIGHT
+		WIN, HEIG 
 	},BG_ABS);
 
 	// push entity label
@@ -312,10 +312,10 @@ void entityGui(window* win) {
 
 	// scroll field layer
 	float scrollRange = 
-		  (ent ? (ROW + 1 PAD) * ent->fieldCount : 0) // fields
+		  (ent ? (ROW + 3 PAD) * ent->fieldCount : 0) // fields
 		+ (TXT_HEIGHT + 3 PAD)                        // entity label
 		+ (TXT_HEIGHT + 3 PAD)                        // add field button
-		- INSPECTOR_HEIGHT + 1 PAD;
+		- HEIG + 1 PAD;
 	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
 
 	// go through fields, pushing to gui
