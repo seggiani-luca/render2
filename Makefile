@@ -17,7 +17,7 @@ LIB_OUT_C := $(subst $(LIB), $(OUT), $(LIB_C:.c=.o))
 # -- tools
 C := gcc
 L := gcc
-CFLAGS := -Wall -Wextra -g
+CFLAGS := -Wall -Wextra -Wno-missing-braces -g
 LFLAGS := -lglfw -lGL
 OFLAGS :=
 
@@ -33,10 +33,6 @@ debug:
 asan:
 	@./$(EX) 2> tst/asan.txt
 
-format:
-	@echo "Formatting sources ..."
-	@uncrustify -c .uncrustify.cfg --replace $(SRC_C) $(SRC_H) 
-	
 $(EX): $(SRC_OUT_C) $(LIB_OUT_C)
 	@echo "Linking objects ..."
 	@$(L) $(SRC_OUT_C) $(LIB_OUT_C) $(LFLAGS) $(OFLAGS) -o $@

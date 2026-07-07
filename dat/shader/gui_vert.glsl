@@ -18,6 +18,6 @@ void main()
 	ndc.y = -ndc.y;
 	gl_Position = vec4(ndc, 0.0, 1.0);
 
-	// calculate uvs
+	// calculate UVs
 	vUV = mix(iUV.xy, iUV.zw, aPos);
 }

@@ -11,8 +11,8 @@
 
 // GUI quad instance
 struct quad {
-  float4 pos;
-  float4 uv;
+	float4 pos;
+	float4 uv;
 };
 typedef struct quad quad;
 
@@ -24,118 +24,120 @@ typedef struct quad quad;
 
 // GUI queue
 typedef struct {
-  quad vec[QUEUE_SIZ];
-  int first;
-  int last;
+	quad vec[QUEUE_SIZ];
+	int first;
+	int last;
 } guiQueue;
 
 // GUI layer (rendering queue and cursor position)
 typedef struct {
-  // rendering queue of quad instances
-  guiQueue queue;
+	// rendering queue of quad instances
+	guiQueue queue;
 
-  // vertical cursor position
-  float vPos;
+	// vertical cursor position
+	float vPos;
 } guiLayer;
 
 typedef enum {
-  BACKGROUND,
-  SCROLL,
-  FIXED,
-  GUI_LAYERS
+	BACKGROUND,
+	SCROLL,
+	FIXED,
+	GUI_LAYERS
 } guiLayerId;
 
 // GUI context data
 struct guiContext {
-  // window handle
-  window *win;
+	// window handle
+	window* win;
 
-  // children window handle
-  window *child;
+	// children window handle
+	window* child;
 
-  // substruct for OpenGL specific context
-  struct {
-    // VAO for basic quad
-    GLuint quadVAO;
+	// substruct for OpenGL specific context
+	struct {
+		// VAO for basic quad
+		GLuint quadVAO;
 
-    // VBO for basic quad
-    GLuint quadVBO;
+		// VBO for basic quad
+		GLuint quadVBO;
 
-    // VBO for GUI quad instances
-    GLuint instanceVBO;
+		// VBO for GUI quad instances
+		GLuint instanceVBO;
 
-    // GUI shader
-    shader *shd;
+		// GUI shader
+		shader* shd;
 
-    // GUI atlas texture
-    texture *tex;
-  } gl;
+		// GUI atlas texture
+		texture* tex;
+	}
+	gl;
 
-  // substruct for GUI input state
-  struct {
-    // mouse X and Y
-    double xCur, yCur;
+	// substruct for GUI input state
+	struct {
+		// mouse X and Y
+		double xCur, yCur;
 
-    // mouse state
-    int curDown;
+		// mouse state
+		int curDown;
 
-    // mouse state rising edge
-    int curPress;
+		// mouse state rising edge
+		int curPress;
 
-    // mouse state falling edge;
-    int curReles;
+		// mouse state falling edge;
+		int curReles;
 
-    // previous mouse state
-    int prevCur;
+		// previous mouse state
+		int prevCur;
 
-    // enter key state
-    int enter;
+		// enter key state
+		int enter;
 
-    // escape key state
-    int escape;
+		// escape key state
+		int escape;
 
-    // active element
-    uint64_t hotId; // always set to "imane"
+		// active element
+		uint64_t hotId; // always set to "imane"
 
-    // input buffer
-    char keyBuf[IN_BUF_SIZ];
+		// input buffer
+		char keyBuf[IN_BUF_SIZ];
 
-    // input buffer position
-    int keyBufSiz;
+		// input buffer position
+		int keyBufSiz;
 
-    // scroll state
-    float scroll;
+		// scroll state
+		float scroll;
 
-    // absolute scrolling position
-    float absScroll;
-  } in;
+		// absolute scrolling position
+		float absScroll;
+	}
+	in;
 
-  // GUI layers
-  guiLayer layers[GUI_LAYERS];
+	// GUI layers
+	guiLayer layers[GUI_LAYERS];
 
-  // should the window be inactive
-  int inactive;
+	// should the window be inactive
+	int inactive;
 };
 
 // -- rendering
 
 // pushes to a GUI context
-void pushGui(guiLayer *ctx, quad q);
+void pushGui(guiLayer* ctx, quad q);
 
 // initializes GUI context
-guiContext *initGui(window *win);
+guiContext* initGui(window* win);
 
 // flushes a rendering queue, drawing contents to screen
-void flushGui(guiContext *ctx);
+void flushGui(guiContext* ctx);
 
 // -- initialization
 
 // frees GUI OpenGL data
-void freeGui(void *vCtx);
+void freeGui(void* vCtx);
 
 // -- input
 
 // get GUI input
-void inputGui(window *win);
+void inputGui(window* win);
 
 #endif

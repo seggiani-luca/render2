@@ -1,6 +1,6 @@
 #version 420 core
 
-in vec2 vUV; // atlas uv
+in vec2 vUV; // atlas UV
 
 out vec4 FragColor;
 

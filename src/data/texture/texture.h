@@ -5,22 +5,22 @@
 #include "../data.h"
 #include <stdint.h>
 
-/* ---- texture types ------------------------------------------------------ */
+// -- textures
 
 // texture data type
 typedef struct {
-  // texture dimensions
-  int width, height;
+	// texture dimensions
+	int width, height;
 
-  // texture data
-  uint8_t *data;
+	// texture data
+	uint8_t* data;
 
-  // OpenGL texture handle
-  GLuint tex;
+	// OpenGL texture handle
+	GLuint tex;
 } texture;
 
 // print texture info
-void texturePrint(texture *texture);
+void texturePrint(texture* texture);
 
 // texture handler declaration
 DATA_TABLE_DECL(texture)

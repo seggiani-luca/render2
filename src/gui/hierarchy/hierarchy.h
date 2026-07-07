@@ -1,7 +1,7 @@
 #ifndef GUI_HIERARCHY_H
 #define GUI_HIERARCHY_H
 
-#include "../../entity/entity.h"
+#include "../../scene/scene.h"
 #include "../gui.h"
 
 // -- sizing
@@ -23,6 +23,6 @@
 // -- scenes
 
 // gets a callback object for a scene hierarchy
-renderCallback makeSceneCallback(scene *scn);
+renderCallback makeSceneCallback(scene* scn);
 
 #endif
