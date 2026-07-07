@@ -42,12 +42,12 @@ char* bufferGui(
 	*active = 1;
 
 	// discard on any press
-	if(!hover && ctx->in.curPress) {
+	if((!hover && ctx->in.curPress) || ctx->in.escape) {
 		// reset id
 		ctx->in.hotId = 0;
 
 		// if not empty, keep it (for ux)
-		if(*ctx->in.keyBuf != '\0') *submit = 1;
+		if(*ctx->in.keyBuf != '\0' && !ctx->in.escape) *submit = 1;
 		
 		// return temp. buffer
 		return ctx->in.keyBuf;

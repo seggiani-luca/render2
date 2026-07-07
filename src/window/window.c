@@ -6,6 +6,9 @@
 
 // -- initialization
 
+// window counter
+static int windows = 0;
+
 // OpenGL context pointer
 static GLFWwindow* glCtx; 
 
@@ -82,7 +85,8 @@ void freeGl() {
 	printf("%-55s", "Terminating OpenGL ...");
 	glfwTerminate();
 
-	printf("Success\n");
+	if(windows != 0) printf("Warning! Not all windows freed");
+	else printf("Success\n");
 }
 
 
@@ -148,15 +152,19 @@ window* newWindow(
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	windows++;
 	return win;
 }
 
 void freeWindow(window* win) {
+
 	// free context if present
 	if(win->cbak.ctx) win->cbak.free(win->cbak.ctx);
 
 	glfwDestroyWindow(win->gl);
 	free(win);
+
+	windows--;
 }
 
 int updateWindow(window* win) {

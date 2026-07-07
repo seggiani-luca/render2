@@ -65,11 +65,11 @@ int fieldGui(
 
 	// push delete button
 	int del = (buttonGui(ctx, SCROLL, (float4) {
-		HWIN + DEL_WIDTH,
+		WIN - 4 PAD - ICO_SIZ,
 		2 PAD ,
-		HWIN       - 2 PAD - DEL_WIDTH,
+		2 PAD + ICO_SIZ,
 		TXT_HEIGHT + 2 PAD - 0.5f
-	}, ICO_DEL, "Delete"));
+	}, ICO_DEL, ""));
 
 	downGui(ctx, SCROLL, ROW + 1 PAD);
 
@@ -259,9 +259,9 @@ void entityGui(window* win) {
 
 	// scroll field layer
 	float scrollRange =
-	    ent ? (ROW + 1 PAD) * ent->fieldCount : 0 // fields
-	  + (TXT_HEIGHT + 3 PAD)                      // entity label
-	  + (TXT_HEIGHT + 3 PAD)                      // add field button
+	    (ent ? (ROW + 1 PAD) * ent->fieldCount : 0) // fields
+	  + (TXT_HEIGHT + 3 PAD)                        // entity label
+	  + (TXT_HEIGHT + 3 PAD)                        // add field button
 	  - INSPECTOR_HEIGHT + 1 PAD;
 	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
 
@@ -311,4 +311,9 @@ renderCallback makeEntityCallback(entity* ent) {
 void changeEntityCallback(window* win, entity* ent) {
 	entityGuiContext* ctx = (entityGuiContext*) win->cbak.ctx;
 	ctx->ent = ent;
+}
+
+entity* getEntityCallback(window* win) {
+	entityGuiContext* ctx = (entityGuiContext*) win->cbak.ctx;
+	return ctx->ent;
 }

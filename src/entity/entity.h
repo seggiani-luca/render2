@@ -113,6 +113,9 @@ struct entity {
 
 	// next peer of this entity
 	struct entity* peer;
+
+	// number of children
+	int childCount;
 };
 typedef struct entity entity;
 

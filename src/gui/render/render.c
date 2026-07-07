@@ -294,6 +294,7 @@ void inputGui(window* win) {
 	// update previous mouse state
 	ctx->in.prevCur = down;
 
-	// get enter state
+	// get key state
 	ctx->in.enter = (glfwGetKey(win->gl, GLFW_KEY_ENTER) == GLFW_PRESS);
+	ctx->in.escape = (glfwGetKey(win->gl, GLFW_KEY_ESCAPE) == GLFW_PRESS);
 }

@@ -17,7 +17,7 @@ struct quad {
 typedef struct quad quad;
 
 // size of GUI queue
-#define QUEUE_SIZ 512
+#define QUEUE_SIZ 1024
 
 // input buffer size
 #define IN_BUF_SIZ 32
@@ -90,6 +90,9 @@ struct guiContext {
 
 		// enter key state
 		int enter;
+		
+		// escape key state
+		int escape;
 
 		// active element
 		uint64_t hotId; // always set to "imane"

@@ -10,9 +10,6 @@
 #define INSPECTOR_WIDTH  400
 #define INSPECTOR_HEIGHT 800
 
-// width of delete button
-#define DEL_WIDTH 70.0f
-
 // add field window size
 #define ADD_FIELD_WIDTH  320
 #define ADD_FIELD_HEIGHT 130
@@ -38,5 +35,8 @@ renderCallback makeEntityCallback(entity* ent);
 
 // changes entity callback
 void changeEntityCallback(window* win, entity* ent);
+
+// gets entity of entity callback
+entity* getEntityCallback(window* win);
 
 #endif

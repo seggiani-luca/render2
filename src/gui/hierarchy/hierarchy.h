@@ -13,9 +13,6 @@
 // width of hierarchy element
 #define HIER_ELEM_WIDTH  160.0f 
 
-// width of new child button 
-#define CHILD_WIDTH 80.0f
-
 // add field window size
 #define ADD_CHILD_WIDTH  320
 #define ADD_CHILD_HEIGHT 70

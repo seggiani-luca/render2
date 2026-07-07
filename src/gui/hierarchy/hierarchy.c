@@ -113,7 +113,7 @@ renderCallback makeAddChildCallback(entity* ent) {
 }
 		
 // renders an entity in the scene hierarchy to GUI
-void entityHierGui(guiContext* ctx, entity* ent, int depth) {
+int entityHierGui(guiContext* ctx, entity* ent, int depth) {
 	// push icon
 	if(depth > 0) {
 		iconGui(ctx, SCROLL, (float2) {
@@ -135,11 +135,11 @@ void entityHierGui(guiContext* ctx, entity* ent, int depth) {
 
 	// push new child button
 	if(buttonGui(ctx, SCROLL, (float4) {
-		2 PAD + depth * (ICO_SIZ + 1 PAD) + HIER_ELEM_WIDTH,
+		WIN - 3 PAD - ICO_SIZ,
 		1 PAD,
-		CHILD_WIDTH,
+		2 PAD + ICO_SIZ,
 		TXT_HEIGHT + 2 PAD
-	}, ICO_NEW, "Append")) {
+	}, ICO_NEW, "")) {
 		// create new child window
 		subWindowGui(ctx, newWindow(
 			ADD_CHILD_WIDTH,
@@ -150,20 +150,19 @@ void entityHierGui(guiContext* ctx, entity* ent, int depth) {
 	}
 
 	// push delete child button, not on root
+	int del = 0;
 	if(depth != 0) {
-		if(buttonGui(ctx, SCROLL, (float4) {
-			3 PAD + depth * (ICO_SIZ + 1 PAD) + HIER_ELEM_WIDTH + CHILD_WIDTH,
+		del = buttonGui(ctx, SCROLL, (float4) {
+			WIN - 6 PAD - 2 * ICO_SIZ,
 			1 PAD,
-			CHILD_WIDTH,
+			2 PAD + ICO_SIZ,
 			TXT_HEIGHT + 2 PAD
-		}, ICO_DEL, "Delete")) {
-			// delete child
-			removeChild(ent->parent, ent);
-			freeEntity(ent);
-		}
+		}, ICO_DEL, "");
 	}
 
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+
+	return del;
 }
 
 // renders the hierarchy GUI 
@@ -209,13 +208,35 @@ void sceneGui(window* win) {
 		}, scn ? scn->name : NULL);
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	
+	// scroll field layer
+	float scrollRange =
+	    (scn ? (TXT_HEIGHT + 3 PAD) * scn->root.childCount : 0) // entities
+	  + (TXT_HEIGHT + 3 PAD)                                    // scene label
+	  - HIERARCHY_HEIGHT + 1 PAD;
+	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
 
 	// go through scene hierarchy
 	sceneIter iter = getScIter(scn);
-	do {
-		// push entity
-		entityHierGui(ctx, iter.cur, iter.depth);
-	} while(scIterNext(&iter));
+	for(;;) {
+		entity* cur = iter.cur;
+		int depth = iter.depth;
+		
+		// advance first
+		entity* next = scIterNext(&iter);
+		
+		if(entityHierGui(ctx, cur, depth)) {
+			// make sure to update inspector
+			if(getEntityCallback(inspectorWin) == cur) 
+				changeEntityCallback(inspectorWin, NULL);
+
+			// delete child
+			removeChild(cur->parent, cur);
+			freeEntity(cur);
+		}
+
+		if(!next) break;
+	}
 
 	// flush changes
 	flushGui(ctx);

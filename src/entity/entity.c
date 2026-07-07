@@ -144,14 +144,17 @@ entity* newEntity(const char* name) {
 	entity* e = malloc(sizeof(entity));
 	if(!e) return NULL;
 
-	// copy name and clear root
+	// copy name 
 	strncpy(e->name, name, ENT_NAME_SIZ);
 	e->name[ENT_NAME_SIZ - 1] = '\0';
+
+	// setup fields
 	e->root = NULL;
 	e->fieldCount = 0;
 
 	// setup hierarchy
 	e->parent = e->child = e->peer = NULL;
+	e->childCount = 0;
 
 	return e;
 }
@@ -239,13 +242,28 @@ field* getField(const entity* e, const char* name) {
 
 // -- hierarchy
 
+// helper for child count propagation
+void updateChildCount(entity *e, int delta) {
+    while(e) {
+        e->childCount += delta;
+        e = e->parent;
+    }
+}
+
 // appends a child to an entity 
 void appendChild(entity* e, entity* child) {
+	if(!child) return;
+
 	child->parent = e;
+	child->peer = NULL;
+	
+	// update count
+	updateChildCount(e, 1 + child->childCount);
 	
 	// simple on first child
 	if(!e->child) {
 		e->child = child;
+
 		return;
 	}
 
@@ -259,11 +277,16 @@ void appendChild(entity* e, entity* child) {
 
 // removes a child from an entity 
 void removeChild(entity* e, entity* child) {
+	if(!child) return;
+	
 	// simple on first child
 	if (e->child == child) {
 		e->child = child->peer;
 		child->parent = NULL;
 		child->peer = NULL;
+	
+		// update count
+		updateChildCount(e, -1 - child->childCount);
 		return;
 	}
 	
@@ -276,6 +299,9 @@ void removeChild(entity* e, entity* child) {
 	temp->peer = child->peer;
 	child->parent = NULL;
 	child->peer = NULL;
+		
+	// update count
+	updateChildCount(e, -1 - child->childCount);
 }
 
 // -- scenes
