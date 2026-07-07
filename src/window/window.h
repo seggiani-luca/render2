@@ -23,43 +23,39 @@ typedef struct window window;
 
 // callback for window rendering
 typedef struct {
-	// actual rendering function
-	void (*fun)(window* win);
+  // actual rendering function
+  void (*fun)(window *win);
 
-	// context for callback
-	void* ctx;
-	
-	// context freeing function
-	void (*free)(void* ctx);
+  // context for callback
+  void *ctx;
+
+  // context freeing function
+  void (*free)(void *ctx);
 } renderCallback;
 
 // window data
 struct window {
-	// window dimensions
-	int width, height;
+  // window dimensions
+  int width, height;
 
-	// title of window
-	const char* title;
+  // title of window
+  const char *title;
 
-	// rendering callback for window
-	renderCallback cbak;
+  // rendering callback for window
+  renderCallback cbak;
 
-	// GLFW window handle
-	GLFWwindow* gl;
+  // GLFW window handle
+  GLFWwindow *gl;
 };
 
 // creates a new window
-window* newWindow(
-	int width,
-	int height,
-	const char* title,
-	renderCallback cback
-);
+window *newWindow(
+    int width, int height, const char *title, renderCallback cback);
 
 // updates a window
-int updateWindow(window* win);
+int updateWindow(window *win);
 
 // frees a window
-void freeWindow(window* win);
+void freeWindow(window *win);
 
 #endif

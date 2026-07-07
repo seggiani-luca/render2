@@ -1,69 +1,65 @@
-#include "entity/entity.h"
-#include "window/window.h"
-#include "gui/inspector/inspector.h"
-#include "gui/hierarchy/hierarchy.h"
 #include "data/data.h"
+#include "entity/entity.h"
+#include "gui/hierarchy/hierarchy.h"
+#include "gui/inspector/inspector.h"
+#include "window/window.h"
 
 // -- windows
 
 // main engine window
-window* mainWin;
+window *mainWin;
 
 // entity hierarchy
-window* hierarchyWin;
+window *hierarchyWin;
 
 // entity inspector
-window* inspectorWin;
+window *inspectorWin;
 
 // -- utils
 
 // cleans up after termination
 void cleanup() {
-	// free windows
-	freeWindow(inspectorWin);
-	freeWindow(hierarchyWin);
+  // free windows
+  freeWindow(inspectorWin);
+  freeWindow(hierarchyWin);
 
-	// free data tables
-	freeTables();
+  // free data tables
+  freeTables();
 
-	// terminate OpenGL
-	freeGl();
+  // terminate OpenGL
+  freeGl();
 }
 
 // -- main
 
 int main() {
-	// create scene
-	scene* mainScene = newScene("Main Scene");
-	for(int i = 0; i < 40; i++) {
-		appendChild(&mainScene->root, newEntity("Entity"));
-	}
+  // create scene
+  scene *mainScene = newScene("Main Scene");
 
-	// create hierarchy 
-	hierarchyWin = newWindow(
-		HIERARCHY_WIDTH,
-		HIERARCHY_HEIGHT,
-		"Hierarchy",
-		makeSceneCallback(mainScene)
-	);
+  // create hierarchy
+  hierarchyWin = newWindow(HIERARCHY_WIDTH,
+      HIERARCHY_HEIGHT,
+      "Hierarchy",
+      makeSceneCallback(mainScene));
 
-	// create inspector
-	inspectorWin = newWindow(
-		INSPECTOR_WIDTH,
-		INSPECTOR_HEIGHT,
-		"Inspector",
-		makeEntityCallback(NULL)
-	);
-	
-	// update windows
-	for(;;) {
-		updateGl();
-		if(!updateWindow(hierarchyWin)) break;
-		if(!updateWindow(inspectorWin)) break;
-	}
+  // create inspector
+  inspectorWin = newWindow(INSPECTOR_WIDTH,
+      INSPECTOR_HEIGHT,
+      "Inspector",
+      makeEntityCallback(NULL));
 
-	freeScene(mainScene);
+  // update windows
+  for (;;) {
+    updateGl();
+    if (!updateWindow(hierarchyWin))
+      break;
+    if (!updateWindow(inspectorWin))
+      break;
+  }
 
-	// free all data
-	cleanup();
+  // free scene
+  freeScene(mainScene);
+
+  // free all data
+  cleanup();
 }

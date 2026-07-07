@@ -5,6 +5,7 @@ LIB := lib
 LIB_C := $(shell find $(LIB) -name "*.c")
 SRC := src
 SRC_C := $(shell find $(SRC) -name "*.c")
+SRC_H := $(shell find $(SRC) -name "*.h")
 
 # -- objects
 
@@ -32,8 +33,12 @@ debug:
 asan:
 	@./$(EX) 2> tst/asan.txt
 
+format:
+	@echo "Formatting sources ..."
+	@uncrustify -c .uncrustify.cfg --replace $(SRC_C) $(SRC_H) 
+	
 $(EX): $(SRC_OUT_C) $(LIB_OUT_C)
-	@echo "Linking sources ..."
+	@echo "Linking objects ..."
 	@$(L) $(SRC_OUT_C) $(LIB_OUT_C) $(LFLAGS) $(OFLAGS) -o $@
 
 $(OUT)/%.o: $(SRC)/%.c | $(OUT)
