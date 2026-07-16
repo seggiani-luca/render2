@@ -1,5 +1,7 @@
 #ifndef RENDER_H
 #define RENDER_H
+
+#include "../scene/entity/entity.h"
 #include <stdio.h>
 
 // macro for OpenGL errors

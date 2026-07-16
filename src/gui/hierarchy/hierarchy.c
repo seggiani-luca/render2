@@ -81,19 +81,35 @@ void addChildGui(window* win) {
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 
-	// push new field button
+	// push new child button
 	if(buttonGui(ctx, SCROLL, (float4){
 		1 PAD, 1 PAD,
 		WIN - 2 PAD, TXT_HEIGHT + 2 PAD
 	}, ICO_ENTITY, "New Child")) {
+		// actually create and append child
+		entity* new = newEntity(name);
+		appendField(new, transformNew("Transform"));
+		appendChild(ent, new);
+
+		// should close
+		glfwSetWindowShouldClose(win->gl, 1);
+	}
+	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	
+	// push new empty child button
+	if(buttonGui(ctx, SCROLL, (float4){
+		1 PAD, 1 PAD,
+		WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+	}, ICO_ENTITY, "New Empty Child")) {
 		// actually create and append child
 		appendChild(ent, newEntity(name));
 
 		// should close
 		glfwSetWindowShouldClose(win->gl, 1);
 	}
-	downGui(ctx, SCROLL, TXT_HEIGHT + 4 PAD);
+	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 
+	downGui(ctx, SCROLL, 1 PAD);
 	trimGui(ctx);
 
 	// flush changes
@@ -132,7 +148,7 @@ hierAction entityHierGui(guiContext* ctx, entity* ent, int depth) {
 	if(buttonGui(ctx, SCROLL, (float4){
 		1 PAD + depth * (ICO_SIZ + 1 PAD), 1 PAD,
 		HIER_ELEM_WIDTH, TXT_HEIGHT + 2 PAD
-	}, ICO_ENTITY, ent->name) && depth != 0) {
+	}, ICO_ENTITY, ent->name)) {
 		act = VIEW;
 	}
 
@@ -205,11 +221,7 @@ void sceneGui(window* win) {
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 
 	// scroll field layer
-	float scrollRange =
-		(scn ? (TXT_HEIGHT + 3 PAD) * scn->root.childCount : 0) // entities
-		+ (TXT_HEIGHT + 3 PAD)                                  // scene label
-		- HEIG + 1 PAD;
-	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
+	scrollGui(ctx, SCROLL);
 
 	// go through scene hierarchy
 	sceneIter iter = getScIter(scn);
@@ -251,7 +263,8 @@ void sceneGui(window* win) {
 				}
 				else {
 					// view
-					changeEntityCallback(inspectorWin, cur);
+					if(cur != &scn->root)
+						changeEntityCallback(inspectorWin, cur);
 				}
 			} break;
 			case NEW: {
@@ -271,6 +284,7 @@ void sceneGui(window* win) {
 
 		if(!next) break;
 	}
+	downGui(ctx, SCROLL, 1 PAD);
 
 	// flush changes
 	flushGui(ctx);

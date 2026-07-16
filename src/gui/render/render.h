@@ -17,7 +17,7 @@ struct quad {
 typedef struct quad quad;
 
 // size of GUI queue
-#define QUEUE_SIZ 1024
+#define QUEUE_SIZ 2048
 
 // input buffer size
 #define IN_BUF_SIZ 32
@@ -35,6 +35,12 @@ typedef struct {
 
 	// vertical cursor position
 	float vPos;
+
+	// last layer height
+	float lastHeight;
+
+	// layer height 
+	float height;
 } guiLayer;
 
 typedef enum {
@@ -68,8 +74,7 @@ struct guiContext {
 
 		// GUI atlas texture
 		texture* tex;
-	}
-	gl;
+	} gl;
 
 	// substruct for GUI input state
 	struct {
@@ -96,6 +101,9 @@ struct guiContext {
 
 		// active element
 		uint64_t hotId; // always set to "imane"
+
+		// should the active element be reset at the next frame?
+		int hotReset;
 
 		// input buffer
 		char keyBuf[IN_BUF_SIZ];

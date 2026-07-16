@@ -87,7 +87,9 @@ void flushGui(guiContext* ctx) {
 
 	// flush all layers
 	for(int i = 0; i < GUI_LAYERS; i++) {
-		flushLayer(ctx, &ctx->layers[i]);
+		guiLayer* lay = &ctx->layers[i];
+		lay->lastHeight = lay->height;
+		flushLayer(ctx, lay);
 	}
 }
 
@@ -241,9 +243,9 @@ void freeGui(void* vCtx) {
 }
 
 // forward declarations for GLFW callbacks
-void charCallback(GLFWwindow* win, unsigned int codepoint);
-void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods);
-void scrollCallback(GLFWwindow* win, double x, double y);
+void charCallback(GLFWwindow* gl, unsigned int codepoint);
+void keyCallback(GLFWwindow* gl, int key, int scancode, int action, int mods);
+void scrollCallback(GLFWwindow* gl, double x, double y);
 
 guiContext* initGui(window* win) {
 	guiContext* ctx = (guiContext*)win->cbak.ctx;
@@ -252,9 +254,6 @@ guiContext* initGui(window* win) {
 	if(ctx->win == NULL) {
 		if(!newGui(ctx)) return NULL;
 		ctx->win = win;
-
-		// hook into GLFW
-		glfwSetWindowUserPointer(win->gl, ctx);
 
 		// attach callbacks
 		glfwSetCharCallback(win->gl, charCallback);
@@ -274,6 +273,7 @@ guiContext* initGui(window* win) {
 		// reset queue and cursor
 		lay->queue.last = 0;
 		lay->vPos = 0.0f;
+		lay->height = 0.0f;
 	}
 
 	return ctx;
@@ -282,8 +282,10 @@ guiContext* initGui(window* win) {
 // -- input
 
 // GLFW character callback
-void charCallback(GLFWwindow* win, unsigned int codepoint) {
-	guiContext* ctx = glfwGetWindowUserPointer(win);
+void charCallback(GLFWwindow* gl, unsigned int codepoint) {
+	// get context
+	window* win = glfwGetWindowUserPointer(gl);
+	guiContext* ctx = win->cbak.ctx;
 
 	// check if should input
 	if(!ctx 
@@ -298,13 +300,15 @@ void charCallback(GLFWwindow* win, unsigned int codepoint) {
 
 // GLFW key callback
 void keyCallback(
-	GLFWwindow* win,
+	GLFWwindow* gl,
 	int key,
 	int scancode __attribute__((unused)),
 	int action __attribute__((unused)),
 	int mods __attribute__((unused))
 ) {
-	guiContext* ctx = glfwGetWindowUserPointer(win);
+	// get context
+	window* win = glfwGetWindowUserPointer(gl);
+	guiContext* ctx = win->cbak.ctx;
 
 	// go back on backspace
 	if(key == GLFW_KEY_BACKSPACE 
@@ -316,11 +320,14 @@ void keyCallback(
 
 // GLFW scroll callback
 void scrollCallback(
-	GLFWwindow* win,
+	GLFWwindow* gl,
 	double x __attribute__((unused)),
 	double y
 ) {
-	guiContext* ctx = glfwGetWindowUserPointer(win);
+	// get context
+	window* win = glfwGetWindowUserPointer(gl);
+	guiContext* ctx = win->cbak.ctx;
+
 	ctx->in.scroll += (float)y;
 }
 
@@ -353,4 +360,10 @@ void inputGui(window* win) {
 	// get key state
 	ctx->in.enter  = (glfwGetKey(win->gl, GLFW_KEY_ENTER)  == GLFW_PRESS);
 	ctx->in.escape = (glfwGetKey(win->gl, GLFW_KEY_ESCAPE) == GLFW_PRESS);
+
+	// propagate hot
+	if(ctx->in.hotReset) {
+		ctx->in.hotReset = 0;
+		ctx->in.hotId = 0;
+	}
 }

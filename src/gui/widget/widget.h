@@ -48,6 +48,14 @@
 #define ICO_FLOAT2 ICO(5, 4)
 #define ICO_FLOAT3 ICO(6, 4)
 #define ICO_FLOAT4 ICO(7, 4)
+#define ICO_MAT2   ICO(8, 4)
+#define ICO_MAT3   ICO(9, 4)
+#define ICO_MAT4   ICO(10, 4)
+#define ICO_QUAT   ICO(11, 4)
+#define ICO_TRANS  ICO(12, 4)
+#define ICO_POS    ICO(13, 4)
+#define ICO_ROT    ICO(14, 4)
+#define ICO_SCALE  ICO(15, 4)
 
 #define ICO_NEW    ICO(0, 5)
 #define ICO_DELETE ICO(1, 5)
@@ -79,7 +87,7 @@ char* bufferGui(
 #define SCROLL_SENS 4.0f
 
 // scrolls GUI
-void scrollGui(guiContext* ctx, guiLayerId layId, float min, float max);
+void scrollGui(guiContext* ctx, guiLayerId layId);
 
 // -- rendering primitives
 

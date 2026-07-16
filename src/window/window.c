@@ -85,7 +85,16 @@ void freeGl() {
 	if(windows != 0) printf("Warning! Not all windows freed\n");
 }
 
-// -- windoww
+// -- window
+
+// callback for window resizing
+void resizeCallback(GLFWwindow* gl, int width, int height) {
+	window* win = glfwGetWindowUserPointer(gl);
+	
+	// setup framebuffer
+	win->fbWidth = width;
+    win->fbHeight = height;
+}
 
 window* newWindow(
 	int width,
@@ -125,6 +134,7 @@ window* newWindow(
 	// update OpenGL context
 	if(!glCtx) glCtx = win->gl;
 
+	// make context current
 	glfwMakeContextCurrent(win->gl);
 
 	// load OpenGL if needed
@@ -137,10 +147,13 @@ window* newWindow(
 
 		winInitialized = 1;
 	}
-
+	
 	// setup framebuffer
 	glfwGetFramebufferSize(win->gl, &win->fbWidth, &win->fbHeight);
-	glViewport(0, 0, win->fbWidth, win->fbHeight);
+	
+	// install framebuffer callback (timing matters on HiDPI)
+	glfwSetWindowUserPointer(win->gl, win);
+	glfwSetFramebufferSizeCallback(win->gl, resizeCallback);
 
 	// setup depth
 	glEnable(GL_BLEND);
@@ -163,6 +176,7 @@ void freeWindow(window* win) {
 
 int updateWindow(window* win) {
 	glfwMakeContextCurrent(win->gl);
+	glViewport(0, 0, win->fbWidth, win->fbHeight);
 
 	// signal if should close
 	if(glfwWindowShouldClose(win->gl)) return 0;

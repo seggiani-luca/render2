@@ -110,10 +110,6 @@ void freeTable(dataTable* table, void (*d_free)(void*)) {
 }
 
 void freeTables() {
-	printf("%-55s", "Freeing data tables ...");
-
 	shaderFreeTable();
 	textureFreeTable();
-
-	printf("Success\n");
 }

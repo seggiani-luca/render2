@@ -18,7 +18,7 @@ LIB_OUT_C := $(subst $(LIB), $(OUT), $(LIB_C:.c=.o))
 C := gcc
 L := gcc
 CFLAGS := -Wall -Wextra -Wno-missing-braces -g
-LFLAGS := -lglfw -lGL
+LFLAGS := -lglfw -lGL -lm
 OFLAGS :=
 
 # -- targets

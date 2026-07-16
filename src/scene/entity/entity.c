@@ -26,20 +26,20 @@ void printField(const field* f) { f->vtable->print(f); }
 int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
 
 // macro for vtable declaration
-#define VTABLE(type)                        \
-	fieldVtable type ## FieldVtable = { \
-	    .read  = type ## Read,          \
-	    .write = type ## Write,         \
-	    .print = type ## Print,         \
-	    .gui   = type ## FieldGui,      \
+#define VTABLE(type)                  \
+	fieldVtable type##FieldVtable = { \
+	    .read  = type##Read,          \
+	    .write = type##Write,         \
+	    .print = type##FieldPrint,    \
+	    .gui   = type##FieldGui,      \
 	};
 
 // macro for field allocation
 #define ALLOC_FIELD(type)                             \
 	if(*name == '\0') return NULL;                    \
-	type ## Field* f = malloc(sizeof(type ## Field)); \
+	type##Field* f = malloc(sizeof(type##Field)); \
 	if(!f) return NULL;                               \
-	f->base = newField(name, &type ## FieldVtable);
+	f->base = newField(name, &type##FieldVtable);
 
 // -- integer field
 
@@ -54,7 +54,7 @@ void intWrite(field* f, const void* src) {
 }
 
 // debug prints an integer field
-void intPrint(const field* f) {
+void intFieldPrint(const field* f) {
 	printf("%s (Integer): %d", f->name, ((intField*)f)->val);
 }
 
@@ -80,7 +80,7 @@ void floatWrite(field* f, const void* src) {
 }
 
 // debug prints a float field
-void floatPrint(const field* f) {
+void floatFieldPrint(const field* f) {
 	printf("%s (Float): %f", f->name, ((floatField*)f)->val);
 }
 
@@ -108,7 +108,7 @@ void stringWrite(field* f, const void* src) {
 }
 
 // debug prints a string field
-void stringPrint(const field* f) {
+void stringFieldPrint(const field* f) {
 	printf("%s (String): %s", f->name, ((stringField*)f)->str);
 }
 
@@ -132,6 +132,12 @@ field* stringNew(const char* name) {
 	    ((float##n##Field*)f)->val = *(float##n*)src; \
 	}                                                 \
 	                                                  \
+	void float##n##FieldPrint(const field* f) {       \
+	    float##n* vec = &((float##n##Field*)f)->val;  \
+	    printf("%s (Vector): ", f->name);             \
+		vecPrint##n(*vec);                            \
+	}                                                 \
+	                                                  \
 	VTABLE(float##n)                                  \
 	                                                  \
 	field* float##n##New(const char* name) {          \
@@ -141,24 +147,6 @@ field* stringNew(const char* name) {
 	    return (field*)f;                             \
 	}
 
-// debug prints a 2D vector field
-void float2Print(const field* f) {
-	float2* vec = &((float2Field*)f)->val;
-	printf("%s (Float2): %f, %f", f->name, vec->x, vec->y);
-}
-
-// debug prints a 3D vector field
-void float3Print(const field* f) {
-	float3* vec = &((float3Field*)f)->val;
-	printf("%s (Float2): %f, %f, %f", f->name, vec->x, vec->y, vec->z);
-}
-
-// debug prints a rD vector field
-void float4Print(const field* f) {
-	float4* vec = &((float4Field*)f)->val;
-	printf("%s (Float2): %f, %f, %f, %f", f->name, vec->x, vec->y, vec->z, vec->w);
-}
-
 // 2D vector field
 VEC_FIELD_IMPL(2)
 
@@ -167,6 +155,101 @@ VEC_FIELD_IMPL(3)
 
 // 4D vector field
 VEC_FIELD_IMPL(4)
+
+// -- matrix fields
+
+#define MAT_FIELD_IMPL(n)                             \
+	void mat##n##Read(const field* f, void* dst) {    \
+	    *(mat##n*)dst = ((mat##n##Field*)f)->val;     \
+	}                                                 \
+	                                                  \
+	void mat##n##Write(field* f, const void* src) {   \
+	    ((mat##n##Field*)f)->val = *(mat##n*)src;     \
+	}                                                 \
+	                                                  \
+	void mat##n##FieldPrint(const field* f) {         \
+	    mat##n* mat = &((mat##n##Field*)f)->val;      \
+	    printf("%s (Matrix): ", f->name);             \
+		matPrint##n(*mat);                            \
+	}                                                 \
+	                                                  \
+	VTABLE(mat##n)                                    \
+	                                                  \
+	field* mat##n##New(const char* name) {            \
+	    ALLOC_FIELD(mat##n)                           \
+	    f->val = (mat##n){0};                         \
+	                                                  \
+	    return (field*)f;                             \
+	}
+
+// 2x2 matrix field
+MAT_FIELD_IMPL(2)
+
+// 3x3 matrix field
+MAT_FIELD_IMPL(3)
+
+// 4x4 matrix field
+MAT_FIELD_IMPL(4)
+
+// -- quaternion field
+
+// reads a quaternion field
+void quatRead(const field* f, void* dst) {
+	*(quat*)dst = ((quatField*)f)->val;
+}
+
+// writes a quaternion field
+void quatWrite(field* f, const void* src) {
+	((quatField*)f)->val = *(quat*)src;
+}
+
+// debug prquats a quaternion field
+void quatFieldPrint(const field* f) {
+	printf("%s (Quaternion): ", f->name);
+	quatPrint(((quatField*)f)->val);
+}
+
+VTABLE(quat)
+
+field* quatNew(const char* name) {
+	ALLOC_FIELD(quat)
+	f->val = (quat){0};
+
+	return (field*)f;
+}
+
+// -- transform field
+
+// reads a transform field
+void transformRead(const field* f, void* dst) {
+	*(transform*)dst = ((transformField*)f)->val;
+}
+
+// writes a transform field
+void transformWrite(field* f, const void* src) {
+	((transformField*)f)->val = *(transform*)src;
+}
+
+// debug prints a transform field
+void transformFieldPrint(const field* f) {
+	transform* t = &((transformField*)f)->val;
+	float3 euler = quatToEuler(t->rotation);
+	printf("%s (Transform): Position: %f, %f, %f, Rotation: %f, %f, %f, Scale: %f, %f, %f",
+		f->name,
+		t->position.x, t->position.y, t->position.z,
+		euler.x, euler.y, euler.z,
+		t->scale.x, t->scale.y, t->scale.z);
+}
+
+VTABLE(transform)
+
+field* transformNew(const char* name) {
+	ALLOC_FIELD(transform)
+	f->val = (transform){0};
+	f->val.scale = (float3){1.0f, 1.0f, 1.0f};
+
+	return (field*)f;
+}
 
 // -- entities
 

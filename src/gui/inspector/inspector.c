@@ -39,14 +39,18 @@ int fieldGui(
 	const char* name,
 	float4 ico,
 	void (*gui)(guiContext* ctx, guiLayerId id, float4 rect, void* val),
-	void* val
+	void* val,
+	int rows
 ) {
 	inspAction act = NONE;
 
 	// push panel
+	float height = ROW + 2 PAD;
+	float bigHeight = HROW + HROW * rows + 2 PAD;
+	if(bigHeight > height) height = bigHeight;
 	quadGui(ctx, SCROLL, (float4){
 		1 PAD, 1 PAD,
-		WIN - 2 PAD, ROW + 2 PAD
+		WIN - 2 PAD, height
 	}, BG_LIGHT);
 
 	// push icon
@@ -59,12 +63,6 @@ int fieldGui(
 		3 PAD + ICO_SIZ, 2 PAD + HPAD
 	}, name);
 
-	// push edit box
-	gui(ctx, SCROLL, (float4){
-		2 PAD, 3 PAD + HROW,
-		WIN - 4 PAD, HROW - 1 PAD
-	}, val);
-
 	// push delete button
 	if(buttonGui(ctx, SCROLL, (float4){
 		WIN - 4 PAD - ICO_SIZ, 2 PAD,
@@ -73,7 +71,17 @@ int fieldGui(
 		act = DELETE;
 	}
 
-	downGui(ctx, SCROLL, ROW + 3 PAD);
+	// push edit box
+	float vPos = ctx->layers[SCROLL].vPos;
+	float lastHeight = ctx->layers[SCROLL].height;
+	gui(ctx, SCROLL, (float4){
+		2 PAD, 3 PAD + HROW,
+		WIN - 4 PAD, HROW - 1 PAD
+	}, val);
+	ctx->layers[SCROLL].vPos = vPos;
+	ctx->layers[SCROLL].height = lastHeight;
+
+	downGui(ctx, SCROLL, height + 1 PAD);
 
 	return act;
 }
@@ -84,7 +92,8 @@ int intFieldGui(const field* f, guiContext* ctx) {
 		f->name,
 		ICO_INT,
 		intGui,
-		&((intField*)f)->val
+		&((intField*)f)->val,
+		1
 	);
 }
 
@@ -94,7 +103,8 @@ int floatFieldGui(const field* f, guiContext* ctx) {
 		f->name,
 		ICO_FLOAT,
 		floatGui,
-		&((floatField*)f)->val
+		&((floatField*)f)->val,
+		1
 	);
 }
 
@@ -104,7 +114,8 @@ int stringFieldGui(const field* f, guiContext* ctx) {
 		f->name,
 		ICO_STRING,
 		stringGui,
-		&((stringField*)f)->str
+		&((stringField*)f)->str,
+		1
 	);
 }
 
@@ -148,7 +159,8 @@ int float2FieldGui(const field* f, guiContext* ctx) {
 		f->name,
 		ICO_FLOAT2,
 		float2Gui,
-		&((float2Field*)f)->val
+		&((float2Field*)f)->val,
+		1
 	);
 }
 
@@ -158,7 +170,8 @@ int float3FieldGui(const field* f, guiContext* ctx) {
 		f->name,
 		ICO_FLOAT3,
 		float3Gui,
-		&((float2Field*)f)->val
+		&((float2Field*)f)->val,
+		1
 	);
 }
 
@@ -168,8 +181,154 @@ int float4FieldGui(const field* f, guiContext* ctx) {
 		f->name,
 		ICO_FLOAT4,
 		float4Gui,
-		&((float2Field*)f)->val
+		&((float2Field*)f)->val,
+		1
 	);
+}
+
+// pushes a matrix row edit box 
+void matrixRowGui(
+	guiContext* ctx,
+	guiLayerId layId,
+	float4 rect,
+	void* val,
+	int n
+) {
+	// calculate float edit box span
+	float span = (rect.z - (n - 1) * 1 PAD) / n;
+	rect.z = span;
+
+	// make float edit boxes
+	for(int i = 0; i < n; i++) {
+		floatGui(ctx, layId, rect, val + n * i * sizeof(float));
+		rect.x += span + 1 PAD;
+	}
+}
+
+// macro for matrix edit boxes
+#define MAT_FIELD_GUI(n)                                                            \
+	void mat##n##Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {   \
+	    for(int i = 0; i < n; i++) {                                                \
+	        matrixRowGui(ctx, layId, rect, ((float*)val) + i, n);                   \
+	        downGui(ctx, layId, rect.w + 1 PAD);                                    \
+	    }                                                                           \
+	}                                                                               \
+
+// 2x2 matrix edit box
+MAT_FIELD_GUI(2)
+
+// 3x3 matrix edit box
+MAT_FIELD_GUI(3)
+
+// 4x4 matrix edit box
+MAT_FIELD_GUI(4)
+
+int mat2FieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_MAT2,
+		mat2Gui,
+		&((mat2Field*)f)->val,
+		2
+	);
+}
+
+int mat3FieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_MAT3,
+		mat3Gui,
+		&((mat2Field*)f)->val,
+		3
+	);
+}
+
+int mat4FieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_MAT4,
+		mat4Gui,
+		&((mat2Field*)f)->val,
+		4
+	);
+}
+
+int quatFieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_QUAT,
+		float4Gui,
+		&((quatField*)f)->val,
+		1
+	);
+}
+
+#define TRANS_OFF 84.0f
+void transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	rect.x += TRANS_OFF;
+	rect.z -= TRANS_OFF;
+
+	// position
+	float3Gui(ctx, layId, rect, ((float3*)val));
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Position");
+
+	// rotation
+	float3Gui(ctx, layId, rect, ((float3*)val) + 1);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD 
+	}, "Rotation");
+
+	// scale
+	float3Gui(ctx, layId, rect, ((float3*)val) + 2);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD 
+	}, "Scale");
+}
+
+int transformFieldGui(const field* f, guiContext* ctx) {
+	transform* trans = &((transformField*)f)->val;
+	
+	// get euler angles
+	float3 euler = quatToEuler(trans->rotation);
+
+	// get editable matrix
+	float3 mat[3] = {
+		trans->position,
+		euler,
+		trans->scale
+	};
+
+	// make edit box
+	int ret = fieldGui(
+		ctx,
+		f->name,
+		ICO_TRANS,
+		transformGui,
+		mat,
+		3
+	);
+
+	// copy values over
+	trans->position = mat[0];
+	trans->scale = mat[2];
+	
+	// copy rotation only if changed
+	if(mat[1].x != euler.x
+	|| mat[1].y != euler.y
+	|| mat[1].z != euler.z) {
+		trans->rotation = eulerToQuat(mat[1]);
+	}
+
+	return ret;
 }
 
 // -- entities
@@ -218,29 +377,28 @@ void addFieldGui(window* win) {
 		field*(*ctor)(const char* name);
 	} fieldButton;
 	static const fieldButton fieldButtons[] = {
-		{ "New Int",    ICO_INT,    intNew    },
-		{ "New Float",  ICO_FLOAT,  floatNew  },
-		{ "New String", ICO_STRING, stringNew },
-		{ "New Float2", ICO_FLOAT2, float2New },
-		{ "New Float3", ICO_FLOAT3, float3New },
-		{ "New Float4", ICO_FLOAT4, float4New }
+		{ "New Transform",  ICO_TRANS,   transformNew },
+		{ "New Int",        ICO_INT,     intNew       },
+		{ "New Float",      ICO_FLOAT,   floatNew     },
+		{ "New String",     ICO_STRING,  stringNew    },
+		{ "New 2D Vector",  ICO_FLOAT2,  float2New    },
+		{ "New 3D Vector",  ICO_FLOAT3,  float3New    },
+		{ "New 4D Vector",  ICO_FLOAT4,  float4New    },
+		{ "New 2x2 Matrix", ICO_MAT2,    mat2New      },
+		{ "New 3x3 Matrix", ICO_MAT3,    mat3New      },
+		{ "New 4x4 Matrix", ICO_MAT4,    mat4New      },
+		{ "New Quaternion", ICO_QUAT,    quatNew      }
 	};
 	int fieldButtonCount = (int)(sizeof(fieldButtons) / sizeof(fieldButton));
 
-	// scroll field button layer
-	float scrollRange =
-		  (TXT_HEIGHT + 3 PAD) * fieldButtonCount // buttons
-		+ (TXT_HEIGHT + 3 PAD)                    // name edit box
-		- HEIG + 1 PAD;
-	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
-
 	for(int i = 0; i < fieldButtonCount; i++) {
 		const fieldButton* f = &fieldButtons[i];
+		int side = i % 2;
 
 		// push new field button
 		if(buttonGui(ctx, SCROLL, (float4){
-			1 PAD, 1 PAD,
-			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+			1 PAD + (HWIN - HPAD) * side, 1 PAD,
+			HWIN - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
 		}, f->ico, f->label)) {
 			// actually construct and append field
 			appendField(ent, f->ctor(name));
@@ -249,8 +407,11 @@ void addFieldGui(window* win) {
 			glfwSetWindowShouldClose(win->gl, 1);
 		}
 
-		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+		if(side || i == fieldButtonCount - 1) downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 	}
+	
+	downGui(ctx, SCROLL, 1 PAD);
+	trimGui(ctx);
 
 	// flush changes
 	flushGui(ctx);
@@ -311,12 +472,7 @@ void entityGui(window* win) {
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 
 	// scroll field layer
-	float scrollRange = 
-		  (ent ? (ROW + 3 PAD) * ent->fieldCount : 0) // fields
-		+ (TXT_HEIGHT + 3 PAD)                        // entity label
-		+ (TXT_HEIGHT + 3 PAD)                        // add field button
-		- HEIG + 1 PAD;
-	scrollGui(ctx, SCROLL, -scrollRange, 0.0f);
+	scrollGui(ctx, SCROLL);
 
 	// go through fields, pushing to gui
 	field* f = ent ? ent->root : NULL;
@@ -349,6 +505,7 @@ void entityGui(window* win) {
 			makeAddFieldCallback(ent)
 		));
 	}
+	downGui(ctx, SCROLL, TXT_HEIGHT + 4 PAD);
 
 	// flush changes
 	flushGui(ctx);

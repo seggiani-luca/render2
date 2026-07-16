@@ -68,7 +68,7 @@ char* bufferGui(
 	// discard on outside press or escape
 	if((!hoverGui(ctx, layId, rect) && ctx->in.curDown) || ctx->in.escape) {
 		// reset id
-		ctx->in.hotId = 0;
+		ctx->in.hotReset = 1;
 
 		// on outside press, keep it (for ux)
 		if(*ctx->in.keyBuf != '\0' && !ctx->in.escape) *submit = 1;
@@ -80,7 +80,7 @@ char* bufferGui(
 	// return on complete
 	if(ctx->in.enter) {
 		// reset id
-		ctx->in.hotId = 0;
+		ctx->in.hotReset = 1;
 
 		// submit temp. buffer
 		*submit = 1;
@@ -91,7 +91,12 @@ char* bufferGui(
 	return ctx->in.keyBuf;
 }
 
-void scrollGui(guiContext* ctx, guiLayerId layId, float min, float max) {
+void scrollGui(guiContext* ctx, guiLayerId layId) {
+	float max = 0.0f;
+	float min = -ctx->layers[layId].lastHeight
+	          + HEIG
+	          + ctx->layers[FIXED].lastHeight;
+
 	// get absolute scroll
 	ctx->in.absScroll += ctx->in.scroll * SCROLL_SENS;
 	if(ctx->in.absScroll < min) ctx->in.absScroll = min;
@@ -108,6 +113,7 @@ void scrollGui(guiContext* ctx, guiLayerId layId, float min, float max) {
 
 void downGui(guiContext* ctx, guiLayerId layId, float amt) {
 	ctx->layers[layId].vPos += amt;
+	ctx->layers[layId].height += amt;
 }
 
 void trimGui(guiContext* ctx) {
@@ -215,10 +221,23 @@ char* editorGui(
 	quadGui(ctx, layId, rect, BG_DARK);
 	borderGui(ctx, layId, rect, FG_DARK);
 
+	// make displayed value
+	char disp[IN_BUF_SIZ];
+	strncpy(disp, active ? in : str, IN_BUF_SIZ);
+	disp[IN_BUF_SIZ - 1] = '\0';
+
+	// blink curs
+	double t = glfwGetTime();
+	int blink = ((int)(t * 2.0)) & 1;
+	if(active && blink) {
+		int len = strlen(disp);
+		if(len < IN_BUF_SIZ) disp[len] = '_';
+	}
+
 	// update displayed value and display
 	textGui(ctx, layId, (float2){
 		rect.x + 1 PAD, rect.y + 1 PAD
-	}, active ? in : str);
+	}, disp);
 
 	// update actual value on submit
 	if(submit) return in;

@@ -37,6 +37,21 @@ int float3FieldGui(const field* f, guiContext* ctx);
 // renders a 4D vector field to GUI
 int float4FieldGui(const field* f, guiContext* ctx);
 
+// renders a 2x2 matrix field to GUI
+int mat2FieldGui(const field* f, guiContext* ctx);
+
+// renders a 3x3 matrix field to GUI
+int mat3FieldGui(const field* f, guiContext* ctx);
+
+// renders a 4x4 matrix field to GUI
+int mat4FieldGui(const field* f, guiContext* ctx);
+
+// renders a quaternion field to GUI
+int quatFieldGui(const field* f, guiContext* ctx);
+
+// renders a transform field to GUI
+int transformFieldGui(const field* f, guiContext* ctx);
+
 // -- entities
 
 // gets a callback object for an entity inspector

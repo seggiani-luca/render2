@@ -113,6 +113,63 @@ VEC_FIELD_DECL(3)
 // 4D vector field
 VEC_FIELD_DECL(4)
 
+// -- matrix fields 
+
+// generic matrix field data
+#define MAT_FIELD_DECL(n)                   \
+	typedef struct {                        \
+	    field base;                         \
+	    mat##n val;                         \
+	} mat##n##Field;                        \
+	                                        \
+	field* mat##n##New(const char* name);
+
+// 2x2 matrix field
+MAT_FIELD_DECL(2)
+
+// 3x3 matrix field
+MAT_FIELD_DECL(3)
+
+// 4x4 matrix field
+MAT_FIELD_DECL(4)
+
+// -- quaternion field
+
+typedef struct {
+	field base;
+
+	// quaternion data
+	quat val;
+} quatField;
+
+// creates a new quaternion field
+field* quatNew(const char* name);
+
+// -- transform field
+
+// definition of transform
+typedef struct {
+	// position
+	float3 position;
+	
+	// rotation
+	quat rotation;
+
+	// scale
+	float3 scale;
+} transform;
+
+// transform field data
+typedef struct {
+	field base;
+
+	// transform data
+	transform val;
+} transformField;
+
+// creates a new transform field
+field* transformNew(const char* name);
+
 // -- entities
 
 // entity data
