@@ -4,38 +4,38 @@
 #include <stdlib.h>
 #include <string.h>
 
-void printTable(dataTable table, void (*printData)(void*)) {
+void printTable(dataTable table) {
 	printf("%-25s %-25s %-25s %s\n", "Address", "Path", "References", "Data");
 
 	// go through each table entry
-	dataRef* ref = table;
+	dataRef* ref = table.root;
 	while(ref) {
 		// print entry
 		printf("%-25p %-25s %-25d ", ref->data, ref->path, ref->refCount);
 
 		// print the data
-		printData(ref->data);
+		table.print(ref->data);
 		printf("\n");
 
 		ref = ref->next;
 	}
 }
 
-void* importData(const char* path, dataTable* table, void* (*d_import)(FILE*)) {
+dataRef* importData(const char* path, dataTable* table) {
 	// query table by path
-	dataRef* ref = *table;
+	dataRef* ref = table->root;
 	while(ref) {
 		// return if found
 		if(strcmp(ref->path, path) == 0) {
 			ref->refCount++;
-			return ref->data;
+			return ref; 
 		}
 
 		ref = ref->next;
 	}
 
 	// walk table to end
-	dataRef** cur = table;
+	dataRef** cur = &table->root;
 	while(*cur)cur = &(*cur)->next;
 	
 	// allocate entry
@@ -48,7 +48,7 @@ void* importData(const char* path, dataTable* table, void* (*d_import)(FILE*)) {
 		free(newRef);
 		return NULL;
 	}
-	void* data = d_import(file);
+	void* data = table->import(file);
 	fclose(file);
 	if(data == NULL) {
 		free(newRef);
@@ -66,25 +66,25 @@ void* importData(const char* path, dataTable* table, void* (*d_import)(FILE*)) {
 	newRef->data = data;
 
 	// return data
-	return data;
+	return newRef; 
 }
 
-void freeData(void* data, dataTable* table, void (*d_free)(void*)) {
+void freeData(void* dat, dataTable* table) {
 	// only if data is not NULL
-	if(data == NULL) return;
+	if(dat == NULL) return;
 
-	// locate in table by data
-	dataRef** cur = table;
+	// locate in table
+	dataRef** cur = &table->root;
 	while(*cur) {
 		// match by data
-		if((*cur)->data == data) {
+		if((*cur)->data == dat) {
 			(*cur)->refCount--;
 
 			// free on no refs
 			if((*cur)->refCount == 0) {
-				d_free(data);
+				table->free((*cur)->data);
 				dataRef* tmp = *cur;
-				*cur = (*cur)->next;
+				(*cur) = (*cur)->next;
 				free(tmp);
 			}
 
@@ -95,21 +95,21 @@ void freeData(void* data, dataTable* table, void (*d_free)(void*)) {
 	}
 }
 
-void freeTable(dataTable* table, void (*d_free)(void*)) {
+void freeTable(dataTable* table) {
 	// delete each entry
-	dataRef* cur = *table;
+	dataRef* cur = table->root;
 	while(cur) {
-		d_free(cur->data);
+		table->free(cur->data);
 
 		dataRef* tmp = cur;
 		cur = cur->next;
 		free(tmp);
 	}
 
-	*table = NULL;
+	table->root = NULL;
 }
 
 void freeTables() {
-	shaderFreeTable();
-	textureFreeTable();
+	freeTable(&textureTable);
+	freeTable(&shaderTable);
 }

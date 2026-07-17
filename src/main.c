@@ -35,6 +35,7 @@ void cleanup() {
 int main() {
 	// create scene
 	scene* mainScene = newScene("Main Scene");
+	appendChild(&mainScene->root, newDefaultEntity("Player"));
 
 	// create hierarchy
 	hierarchyWin = newWindow(

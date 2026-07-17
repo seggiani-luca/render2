@@ -206,11 +206,11 @@ int newGui(guiContext* ctx) {
 	GL_ERR("gui instance UV attrib enable")
 
 	// import shader
-	ctx->gl.shd = shaderImport(GUI_VERT_PATH, GUI_FRAG_PATH);
+	ctx->gl.shd = shaderImport(GUI_VERT_PATH, GUI_FRAG_PATH)->data;
 	if(!ctx->gl.shd) return 0;
 
 	// import texture
-	ctx->gl.tex = textureImport(GUI_ATLAS_PATH);
+	ctx->gl.tex = textureImport(GUI_ATLAS_PATH)->data;
 	if(!ctx->gl.tex) return 0;
 
 	return 1;
@@ -361,7 +361,7 @@ void inputGui(window* win) {
 	ctx->in.enter  = (glfwGetKey(win->gl, GLFW_KEY_ENTER)  == GLFW_PRESS);
 	ctx->in.escape = (glfwGetKey(win->gl, GLFW_KEY_ESCAPE) == GLFW_PRESS);
 
-	// propagate hot
+	// propagate hot state
 	if(ctx->in.hotReset) {
 		ctx->in.hotReset = 0;
 		ctx->in.hotId = 0;

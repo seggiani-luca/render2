@@ -58,13 +58,14 @@ typedef struct {
 	GLuint program;
 } shader;
 
-// debug prints shaders
-void shaderPrint(shader* s);
+// shader table
+extern dataTable shaderTable;
 
-// shader handler declaration (can't use macro, diff. shaderImport signature)
-void shaderPrintTable();
-shader* shaderImport(const char* vert, const char* frag);
-void shaderFree(shader* s);
-void shaderFreeTable();
+// debug prints shaders
+void shaderPrint(void* dat);
+
+// shader handler declarations (can't use macro, diff. shaderImport signature)
+dataRef* shaderImport(const char* vert, const char* frag);
+void shaderFree(void* dat);
 
 #endif

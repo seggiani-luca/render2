@@ -20,9 +20,9 @@ typedef struct {
 } texture;
 
 // print texture info
-void texturePrint(texture* texture);
+void texturePrint(void* dat);
 
-// texture handler declaration
+// texture handler declarations
 DATA_TABLE_DECL(texture)
 
 #endif

@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// -- contexts
+
 // context for scene GUI callback
 typedef struct {
 	// GUI context
@@ -86,10 +88,8 @@ void addChildGui(window* win) {
 		1 PAD, 1 PAD,
 		WIN - 2 PAD, TXT_HEIGHT + 2 PAD
 	}, ICO_ENTITY, "New Child")) {
-		// actually create and append child
-		entity* new = newEntity(name);
-		appendField(new, transformNew("Transform"));
-		appendChild(ent, new);
+		// create and append child
+		appendChild(ent, newDefaultEntity(name));
 
 		// should close
 		glfwSetWindowShouldClose(win->gl, 1);
@@ -101,7 +101,7 @@ void addChildGui(window* win) {
 		1 PAD, 1 PAD,
 		WIN - 2 PAD, TXT_HEIGHT + 2 PAD
 	}, ICO_ENTITY, "New Empty Child")) {
-		// actually create and append child
+		// create and append child
 		appendChild(ent, newEntity(name));
 
 		// should close

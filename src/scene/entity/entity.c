@@ -28,28 +28,38 @@ int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
 // macro for vtable declaration
 #define VTABLE(type)                  \
 	fieldVtable type##FieldVtable = { \
-	    .read  = type##Read,          \
-	    .write = type##Write,         \
+	    .read  = type##FieldRead,     \
+	    .write = type##FieldWrite,    \
 	    .print = type##FieldPrint,    \
 	    .gui   = type##FieldGui,      \
 	};
 
+// macro for vtable declaration, with free 
+#define VTABLE_FREE(type)             \
+	fieldVtable type##FieldVtable = { \
+	    .read  = type##FieldRead,     \
+	    .write = type##FieldWrite,    \
+	    .print = type##FieldPrint,    \
+	    .gui   = type##FieldGui,      \
+		.free  = type##FieldFree      \
+	};
+
 // macro for field allocation
-#define ALLOC_FIELD(type)                             \
-	if(*name == '\0') return NULL;                    \
+#define ALLOC_FIELD(type)                         \
+	if(*name == '\0') return NULL;                \
 	type##Field* f = malloc(sizeof(type##Field)); \
-	if(!f) return NULL;                               \
+	if(!f) return NULL;                           \
 	f->base = newField(name, &type##FieldVtable);
 
 // -- integer field
 
 // reads an integer field
-void intRead(const field* f, void* dst) {
+void intFieldRead(const field* f, void* dst) {
 	*(int*)dst = ((intField*)f)->val;
 }
 
 // writes an integer field
-void intWrite(field* f, const void* src) {
+void intFieldWrite(field* f, const void* src) {
 	((intField*)f)->val = *(int*)src;
 }
 
@@ -70,12 +80,12 @@ field* intNew(const char* name) {
 // -- float field
 
 // reads a float field
-void floatRead(const field* f, void* dst) {
+void floatFieldRead(const field* f, void* dst) {
 	*(float*)dst = ((floatField*)f)->val;
 }
 
 // writes a float field
-void floatWrite(field* f, const void* src) {
+void floatFieldWrite(field* f, const void* src) {
 	((floatField*)f)->val = *(float*)src;
 }
 
@@ -96,12 +106,12 @@ field* floatNew(const char* name) {
 // -- string field
 
 // reads a string field
-void stringRead(const field* f, void* dst) {
+void stringFieldRead(const field* f, void* dst) {
 	*(char**)dst = ((stringField*)f)->str;
 }
 
 // writes a string field
-void stringWrite(field* f, const void* src) {
+void stringFieldWrite(field* f, const void* src) {
 	stringField* sf = (stringField*)f;
 	strncpy(sf->str, *(char**)src, ENT_STR_SIZ);
 	sf->str[ENT_STR_SIZ - 1] = '\0';
@@ -124,11 +134,11 @@ field* stringNew(const char* name) {
 // -- vector fields
 
 #define VEC_FIELD_IMPL(n)                             \
-	void float##n##Read(const field* f, void* dst) {  \
+	void float##n##FieldRead(const field* f, void* dst) {  \
 	    *(float##n*)dst = ((float##n##Field*)f)->val; \
 	}                                                 \
 	                                                  \
-	void float##n##Write(field* f, const void* src) { \
+	void float##n##FieldWrite(field* f, const void* src) { \
 	    ((float##n##Field*)f)->val = *(float##n*)src; \
 	}                                                 \
 	                                                  \
@@ -159,11 +169,11 @@ VEC_FIELD_IMPL(4)
 // -- matrix fields
 
 #define MAT_FIELD_IMPL(n)                             \
-	void mat##n##Read(const field* f, void* dst) {    \
+	void mat##n##FieldRead(const field* f, void* dst) {    \
 	    *(mat##n*)dst = ((mat##n##Field*)f)->val;     \
 	}                                                 \
 	                                                  \
-	void mat##n##Write(field* f, const void* src) {   \
+	void mat##n##FieldWrite(field* f, const void* src) {   \
 	    ((mat##n##Field*)f)->val = *(mat##n*)src;     \
 	}                                                 \
 	                                                  \
@@ -194,16 +204,16 @@ MAT_FIELD_IMPL(4)
 // -- quaternion field
 
 // reads a quaternion field
-void quatRead(const field* f, void* dst) {
+void quatFieldRead(const field* f, void* dst) {
 	*(quat*)dst = ((quatField*)f)->val;
 }
 
 // writes a quaternion field
-void quatWrite(field* f, const void* src) {
+void quatFieldWrite(field* f, const void* src) {
 	((quatField*)f)->val = *(quat*)src;
 }
 
-// debug prquats a quaternion field
+// debug prints a quaternion field
 void quatFieldPrint(const field* f) {
 	printf("%s (Quaternion): ", f->name);
 	quatPrint(((quatField*)f)->val);
@@ -221,12 +231,12 @@ field* quatNew(const char* name) {
 // -- transform field
 
 // reads a transform field
-void transformRead(const field* f, void* dst) {
+void transformFieldRead(const field* f, void* dst) {
 	*(transform*)dst = ((transformField*)f)->val;
 }
 
 // writes a transform field
-void transformWrite(field* f, const void* src) {
+void transformFieldWrite(field* f, const void* src) {
 	((transformField*)f)->val = *(transform*)src;
 }
 
@@ -247,6 +257,99 @@ field* transformNew(const char* name) {
 	ALLOC_FIELD(transform)
 	f->val = (transform){0};
 	f->val.scale = (float3){1.0f, 1.0f, 1.0f};
+
+	return (field*)f;
+}
+
+// -- texture field
+
+// reads a texture field
+void textureFieldRead(const field* f, void* dst) {
+	*(dataRef**)dst = ((textureField*)f)->ref;
+}
+
+// writes a transform field
+void textureFieldWrite(field* f, const void* src) {
+	((textureField*)f)->ref = *(dataRef**)src;
+}
+
+void textureFieldPrint(const field* f) {
+	dataRef* ref = ((textureField*)f)->ref;
+	printf("%s (Texture): %s (%d refs)", f->name, ref->path, ref->refCount);
+}
+
+void textureFieldFree(field* f) {
+	textureField* tf = (textureField*)f;
+	if(tf->ref) textureFree(tf->ref->data);
+}
+
+VTABLE_FREE(texture);
+
+field* textureNew(const char* name) {
+	ALLOC_FIELD(texture)
+	f->ref = NULL;
+
+	return (field*)f;
+}
+
+// -- mesh field
+
+// reads a mesh field
+void meshFieldRead(const field* f, void* dst) {
+	*(dataRef**)dst = ((meshField*)f)->ref;
+}
+
+// writes a transform field
+void meshFieldWrite(field* f, const void* src) {
+	((meshField*)f)->ref = *(dataRef**)src;
+}
+
+void meshFieldPrint(const field* f) {
+	dataRef* ref = ((meshField*)f)->ref;
+	printf("%s (Mesh): %s (%d refs)", f->name, ref->path, ref->refCount);
+}
+
+void meshFieldFree(field* f) {
+	meshField* mf = (meshField*)f;
+	if(mf->ref) meshFree(mf->ref->data);
+}
+
+VTABLE_FREE(mesh);
+
+field* meshNew(const char* name) {
+	ALLOC_FIELD(mesh)
+	f->ref = NULL;
+
+	return (field*)f;
+}
+
+// -- material field
+
+// reads a material field
+void materialFieldRead(const field* f, void* dst) {
+	*(dataRef**)dst = ((materialField*)f)->ref;
+}
+
+// writes a transform field
+void materialFieldWrite(field* f, const void* src) {
+	((materialField*)f)->ref = *(dataRef**)src;
+}
+
+void materialFieldPrint(const field* f) {
+	dataRef* ref = ((materialField*)f)->ref;
+	printf("%s (Material): %s (%d refs)", f->name, ref->path, ref->refCount);
+}
+
+void materialFieldFree(field* f) {
+	materialField* mf = (materialField*)f;
+	// if(mf->ref) materialFree(mf->ref->data); TODO
+}
+
+VTABLE_FREE(material);
+
+field* materialNew(const char* name) {
+	ALLOC_FIELD(material)
+	f->ref = NULL;
 
 	return (field*)f;
 }
@@ -285,6 +388,17 @@ entity* newEntity(const char* name) {
 	// setup hierarchy
 	e->parent = e->child = e->peer = NULL;
 	e->childCount = 0;
+
+	return e;
+}
+
+entity* newDefaultEntity(const char* name) {
+	entity* e = newEntity(name);
+		
+	// default fields
+	appendField(e, transformNew("Transform"));
+	appendField(e, meshNew("Mesh"));
+	appendField(e, materialNew("Material"));
 
 	return e;
 }
@@ -345,6 +459,9 @@ void removeField(entity* e, const char* name) {
 		if(strcmp((*cur)->name, name) == 0) {
 			field* tmp = *cur;
 			*cur = (*cur)->next;
+
+			// free field
+			if(tmp->vtable->free) tmp->vtable->free(tmp);
 			free(tmp);
 			e->fieldCount--;
 

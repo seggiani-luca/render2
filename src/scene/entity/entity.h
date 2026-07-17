@@ -3,6 +3,8 @@
 
 #include "../../gui/gui.h"
 #include "../../math/math.h"
+#include "../../data/texture/texture.h"
+#include "../../data/mesh/mesh.h"
 
 // -- fields
 
@@ -28,6 +30,9 @@ typedef struct {
 
 	// GUI rendering method (pushes quads to a GUI queue)
 	int (*gui)(const field* f, guiContext* ctx);
+
+	// freeing method
+	void (*free)(field* f);
 } fieldVtable;
 
 // basic field data
@@ -170,6 +175,45 @@ typedef struct {
 // creates a new transform field
 field* transformNew(const char* name);
 
+// -- texture field
+
+// texture field data
+typedef struct {
+	field base;
+
+	// texture pointer
+	dataRef* ref;
+} textureField;
+
+// creates a new texture field
+field* textureNew(const char* name);
+
+// -- mesh field
+
+// mesh field data
+typedef struct {
+	field base;
+
+	// mesh pointer
+	dataRef* ref;
+} meshField;
+
+// creates a new mesh field
+field* meshNew(const char* name);
+
+// -- material field
+
+// material field data
+typedef struct {
+	field base;
+
+	// material pointer
+	dataRef* ref;
+} materialField;
+
+// creates a new material field
+field* materialNew(const char* name);
+
 // -- entities
 
 // entity data
@@ -204,6 +248,9 @@ void printEntity(const entity* e);
 
 // creates a new entity
 entity* newEntity(const char* name);
+
+// creates a new entity with default fields
+entity* newDefaultEntity(const char* name);
 
 // frees an entity
 void freeEntity(entity* e);

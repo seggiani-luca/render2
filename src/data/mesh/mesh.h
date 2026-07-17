@@ -2,24 +2,36 @@
 #define DATA_MESH_H
 
 #include "../data.h"
+#include "../../../lib/glad/glad.h"
 
 // -- meshes 
 
 // vertex data type (mirrors OpenGL)
 typedef struct {
 	float x, y, z;    // position
-	float u, v;       // uvs
+	float u, v;       // UV
 	float nx, ny, nz; // normal
 } vertex;
 
 // mesh data type
 typedef struct {
+	// array of vertices
+	vertex* verts;
+
+	// number of vertices
+	int vertCount;
+	
+	// OpenGL VAO
+	GLuint vao;
+	
+	// OpenGL VBO
+	GLuint vbo;
 } mesh;
 
 // print mesh info
-void texturePrint(mesh* mesh);
+void meshPrint(mesh* mesh);
 
-// mesh handler declaration
+// mesh handler declarations
 DATA_TABLE_DECL(mesh)
 
 #endif

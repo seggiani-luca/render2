@@ -52,6 +52,15 @@ int quatFieldGui(const field* f, guiContext* ctx);
 // renders a transform field to GUI
 int transformFieldGui(const field* f, guiContext* ctx);
 
+// renders a texture field to GUI
+int textureFieldGui(const field* f, guiContext* ctx);
+
+// renders a transform field to GUI
+int meshFieldGui(const field* f, guiContext* ctx);
+
+// renders a material field to GUI
+int materialFieldGui(const field* f, guiContext* ctx);
+
 // -- entities
 
 // gets a callback object for an entity inspector

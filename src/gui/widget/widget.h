@@ -11,7 +11,7 @@
 #define FIELD_SIZ 64
 
 // sizing contants
-#define PAD     *4.0f
+#define PAD     * 4.0f
 #define HPAD    (1 PAD / 2.0f)
 #define ROW     48.0f
 #define HROW    (ROW / 2.0f)
@@ -61,6 +61,27 @@
 #define ICO_DELETE ICO(1, 5)
 #define ICO_MOVE   ICO(2, 5)
 #define ICO_INDENT ICO(3, 5)
+#define ICO_TEX    ICO(4, 5)
+#define ICO_MESH   ICO(5, 5)
+#define ICO_MAT    ICO(6, 5)
+#define ICO_SEARCH ICO(7, 5)
+#define ICO_FILE   ICO(8, 5)
+#define ICO_NUFILE ICO(9, 5)
+
+// -- sizing
+
+// data selector size
+#define DATASEL_WIDTH 600
+#define DATASEL_HEIGHT 400
+
+// offset for import button
+#define IMPORT_OFF 520.0f
+
+// offset for path button
+#define PATH_OFF 50.0f 
+
+// offset for transform fields
+#define TRANS_OFF 84.0f
 
 // -- input primitives
 
@@ -129,5 +150,35 @@ void floatGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a string edit box
 void stringGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a 2D vector edit box
+void float2Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a 3D vector edit box
+void float3Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a 4D vector edit box
+void float4Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a 2x2 matrix edit box
+void mat2Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a 3x3 matrix edit box
+void mat3Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a 4x4 matrix edit box
+void mat4Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a transform edit box
+void transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a texture edit box
+void textureGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a mesh edit box
+void meshGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a material edit box
+void materialGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 #endif

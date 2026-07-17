@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// -- contexts
+
 // context for entity GUI callback
 typedef struct {
 	// GUI context
@@ -119,40 +121,6 @@ int stringFieldGui(const field* f, guiContext* ctx) {
 	);
 }
 
-// pushes a vector edit box 
-void vectorGui(
-	guiContext* ctx,
-	guiLayerId layId,
-	float4 rect,
-	void* val,
-	int n
-) {
-	// calculate float edit box span
-	float span = (rect.z - (n - 1) * 1 PAD) / n;
-	rect.z = span;
-
-	// make float edit boxes
-	for(int i = 0; i < n; i++) {
-		floatGui(ctx, layId, rect, val + i * sizeof(float));
-		rect.x += span + 1 PAD;
-	}
-}
-
-// macro for vector edit boxes
-#define VEC_FIELD_GUI(n)                                                            \
-	void float##n##Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) { \
-	    vectorGui(ctx, layId, rect, val, n);                                        \
-	}
-
-// 2D vector edit box
-VEC_FIELD_GUI(2)
-
-// 3D vector edit box
-VEC_FIELD_GUI(3)
-
-// 4D vector edit box
-VEC_FIELD_GUI(4)
-
 int float2FieldGui(const field* f, guiContext* ctx) {
 	return fieldGui(
 		ctx,
@@ -185,43 +153,6 @@ int float4FieldGui(const field* f, guiContext* ctx) {
 		1
 	);
 }
-
-// pushes a matrix row edit box 
-void matrixRowGui(
-	guiContext* ctx,
-	guiLayerId layId,
-	float4 rect,
-	void* val,
-	int n
-) {
-	// calculate float edit box span
-	float span = (rect.z - (n - 1) * 1 PAD) / n;
-	rect.z = span;
-
-	// make float edit boxes
-	for(int i = 0; i < n; i++) {
-		floatGui(ctx, layId, rect, val + n * i * sizeof(float));
-		rect.x += span + 1 PAD;
-	}
-}
-
-// macro for matrix edit boxes
-#define MAT_FIELD_GUI(n)                                                            \
-	void mat##n##Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {   \
-	    for(int i = 0; i < n; i++) {                                                \
-	        matrixRowGui(ctx, layId, rect, ((float*)val) + i, n);                   \
-	        downGui(ctx, layId, rect.w + 1 PAD);                                    \
-	    }                                                                           \
-	}                                                                               \
-
-// 2x2 matrix edit box
-MAT_FIELD_GUI(2)
-
-// 3x3 matrix edit box
-MAT_FIELD_GUI(3)
-
-// 4x4 matrix edit box
-MAT_FIELD_GUI(4)
 
 int mat2FieldGui(const field* f, guiContext* ctx) {
 	return fieldGui(
@@ -267,33 +198,6 @@ int quatFieldGui(const field* f, guiContext* ctx) {
 	);
 }
 
-#define TRANS_OFF 84.0f
-void transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
-	rect.x += TRANS_OFF;
-	rect.z -= TRANS_OFF;
-
-	// position
-	float3Gui(ctx, layId, rect, ((float3*)val));
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Position");
-
-	// rotation
-	float3Gui(ctx, layId, rect, ((float3*)val) + 1);
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD 
-	}, "Rotation");
-
-	// scale
-	float3Gui(ctx, layId, rect, ((float3*)val) + 2);
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD 
-	}, "Scale");
-}
-
 int transformFieldGui(const field* f, guiContext* ctx) {
 	transform* trans = &((transformField*)f)->val;
 	
@@ -329,6 +233,39 @@ int transformFieldGui(const field* f, guiContext* ctx) {
 	}
 
 	return ret;
+}
+
+int textureFieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_TEX,
+		textureGui,
+		&((meshField*)f)->ref,
+		1
+	);
+}
+
+int meshFieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_MESH,
+		meshGui,
+		&((meshField*)f)->ref,
+		1
+	);
+}
+
+int materialFieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_MAT,
+		materialGui,
+		&((meshField*)f)->ref,
+		1
+	);
 }
 
 // -- entities
@@ -378,16 +315,19 @@ void addFieldGui(window* win) {
 	} fieldButton;
 	static const fieldButton fieldButtons[] = {
 		{ "New Transform",  ICO_TRANS,   transformNew },
+		{ "New Texture",    ICO_TEX,     textureNew   },
+		{ "New Mesh",       ICO_MESH,    meshNew      },
+		{ "New Material",   ICO_MAT,     materialNew  },
 		{ "New Int",        ICO_INT,     intNew       },
 		{ "New Float",      ICO_FLOAT,   floatNew     },
 		{ "New String",     ICO_STRING,  stringNew    },
+		{ "New Quaternion", ICO_QUAT,    quatNew      },
 		{ "New 2D Vector",  ICO_FLOAT2,  float2New    },
 		{ "New 3D Vector",  ICO_FLOAT3,  float3New    },
 		{ "New 4D Vector",  ICO_FLOAT4,  float4New    },
 		{ "New 2x2 Matrix", ICO_MAT2,    mat2New      },
 		{ "New 3x3 Matrix", ICO_MAT3,    mat3New      },
-		{ "New 4x4 Matrix", ICO_MAT4,    mat4New      },
-		{ "New Quaternion", ICO_QUAT,    quatNew      }
+		{ "New 4x4 Matrix", ICO_MAT4,    mat4New      }
 	};
 	int fieldButtonCount = (int)(sizeof(fieldButtons) / sizeof(fieldButton));
 
@@ -448,7 +388,7 @@ void entityGui(window* win) {
 	quadGui(ctx, BACKGROUND, (float4){
 		0, 0,
 		WIN, HEIG 
-	},BG_ABS);
+	}, BG_ABS);
 
 	// push entity label
 	{

@@ -5,8 +5,9 @@
 
 extern int textureDecode(texture* texture, FILE* file);
 
-void texturePrint(texture* texture) {
-	printf("Texture (width: %d, height: %d)", texture->width, texture->height);
+void texturePrint(void* dat) {
+	texture* tex = (texture*)dat;
+	printf("Texture (width: %d, height: %d)", tex->width, tex->height);
 }
 
 // generates an OpenGL texture for a texture
@@ -73,10 +74,10 @@ void destroyGLTextures(texture* texture) {
 	);
 }
 
-texture* texture_import(FILE* file) {
+void* texture_import(FILE* file) {
 	// initialize texture
 	texture* new_texture = malloc(sizeof(texture));
-	memset(new_texture, 0,sizeof(texture));
+	memset(new_texture, 0, sizeof(texture));
 
 	if(!textureDecode(new_texture, file)) {
 		free(new_texture);
@@ -89,14 +90,14 @@ texture* texture_import(FILE* file) {
 	return new_texture;
 }
 
-void texture_free(texture* texture) {
-	if(!texture) return;
+void texture_free(void* dat) {
+	if(!dat) return;
 
 	// free OpenGL texture
-	destroyGLTextures(texture);
+	destroyGLTextures(dat);
 
-	free(texture->data);
-	free(texture);
+	free(((texture*)dat)->data);
+	free(dat);
 }
 
 // texture handler implementations

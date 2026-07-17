@@ -36,7 +36,7 @@ typedef struct {
 	// vertical cursor position
 	float vPos;
 
-	// last layer height
+	// last render layer height
 	float lastHeight;
 
 	// layer height 
@@ -116,8 +116,7 @@ struct guiContext {
 
 		// absolute scrolling position
 		float absScroll;
-	}
-	in;
+	} in;
 
 	// GUI layers
 	guiLayer layers[GUI_LAYERS];

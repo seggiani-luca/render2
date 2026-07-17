@@ -87,8 +87,9 @@ GLuint compileShaders(const char* vertShader, const char* fragShader) {
 	return program;
 }
 
-void shaderPrint(shader* s) {
-	printf("Shader %d\n", s->program);
+void shaderPrint(void* dat) {
+	shader* shd = (shader*)dat;
+	printf("Shader %d\n", shd->program);
 }
 
 void shader_free(shader* shader) {
@@ -101,25 +102,26 @@ void shader_free(shader* shader) {
 }
 
 // shader handler implementations
-dataTable shaderTable = NULL;
-
-void shaderPrintTable() {
-	printTable(shaderTable, (void (*)(void*)) shaderPrint);
-}
+dataTable shaderTable = {
+	.root = NULL,
+	.print = (void (*)(void*))shaderPrint,
+	.import = NULL,
+	.free = (void (*)(void*))shader_free
+};
 
 // custom shader importer
-shader* shaderImport(const char* vert, const char* frag) {
+dataRef* shaderImport(const char* vert, const char* frag) {
 	// make composite path
 	char path[DAT_PATH_SIZ];
 	snprintf(path, DAT_PATH_SIZ, "%s,%s", vert, frag);
 
 	// query table by paths
-	dataRef* ref = shaderTable;
+	dataRef* ref = shaderTable.root;
 	while(ref) {
 		// return if found
 		if(strcmp(ref->path, path) == 0) {
 			ref->refCount++;
-			return ref->data;
+			return ref;
 		}
 
 		ref = ref->next;
@@ -152,7 +154,7 @@ shader* shaderImport(const char* vert, const char* frag) {
 	new_shader->program = program;
 
 	// walk table to end
-	dataRef** cur = &shaderTable;
+	dataRef** cur = &shaderTable.root;
 	while(*cur) cur = &(*cur)->next;
 	
 	// allocate entry
@@ -170,13 +172,9 @@ shader* shaderImport(const char* vert, const char* frag) {
 	newRef->data = new_shader;
 
 	// return data
-	return new_shader;
+	return newRef;
 }
 
-void shaderFree(shader* data) {
-	freeData(data, &shaderTable, (void (*)(void*)) shader_free);
-}
-
-void shaderFreeTable() {
-	freeTable(&shaderTable, (void (*)(void*)) shader_free);
+void shaderFree(void* dat) {
+	freeData(dat, &shaderTable);
 }

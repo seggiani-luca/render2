@@ -1,8 +1,124 @@
 #include "widget.h"
+#include "../../data/texture/texture.h"
+#include "../../data/mesh/mesh.h"
 #include <GLFW/glfw3.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+// -- contexts
+
+// context for data selector GUI callback
+typedef struct {
+	// GUI context
+	guiContext gui;
+
+	// data reference to update 
+	dataRef** ref;
+	
+	// data table to update from 
+	dataTable* tab;
+
+	// path of data to find
+	char path[DAT_PATH_SIZ];
+} dataselGuiContext;
+
+// -- data
+
+// renders the data selector GUI
+void dataselGui(window* win) {
+	// get context
+	dataselGuiContext* dCtx = (dataselGuiContext*)initGui(win);
+	guiContext* ctx = &dCtx->gui;
+	dataTable* tab = dCtx->tab;
+	char* path = dCtx->path;
+
+	// update input state
+	inputGui(win);
+
+	// push background
+	quadGui(ctx, BACKGROUND, (float4){
+		0, 0,
+		WIN, HEIG 
+	}, BG_ABS);
+
+	// push bottom frame
+	quadGui(ctx, FIXED, (float4) {
+		0, HEIG - TXT_HEIGHT - 4 PAD,
+		WIN, TXT_HEIGHT + 4 PAD
+	}, BG_LIGHT);
+		
+	// push label
+	textGui(ctx, FIXED, (float2){
+		1 PAD, HEIG - TXT_HEIGHT - 2 PAD
+	}, "Path:");
+
+	// push path edit box
+	stringGui(ctx, FIXED, (float4){
+		1 PAD + PATH_OFF, HEIG - TXT_HEIGHT - 3 PAD,
+		IMPORT_OFF - 2 PAD - PATH_OFF, TXT_HEIGHT + 2 PAD
+	}, path);
+
+	// push import button
+	if(buttonGui(ctx, FIXED, (float4){
+		IMPORT_OFF, HEIG - TXT_HEIGHT - 3 PAD,
+		WIN - IMPORT_OFF - 1 PAD, TXT_HEIGHT + 2 PAD
+	}, ICO_NUFILE, "Import")) {
+		// import data
+		if((*dCtx->ref)) freeData((*dCtx->ref)->data, tab);
+		*dCtx->ref = importData(path, tab);
+			
+		// should close
+		glfwSetWindowShouldClose(win->gl, 1);
+	}
+
+	// go through references, pushing to gui
+	dataRef* cur = tab->root;
+	while(cur) {
+		char str[DAT_PATH_SIZ + 16];
+		snprintf(str, DAT_PATH_SIZ + 16, "%s (%d refs)", cur->path, cur->refCount);
+
+		if(buttonGui(ctx, SCROLL, (float4){
+			1 PAD, 1 PAD,
+			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+		}, ICO_FILE, str)) {
+			// use this reference
+			if((*dCtx->ref)) freeData((*dCtx->ref)->data, tab);
+			*dCtx->ref = importData(cur->path, tab);
+
+			// should close
+			glfwSetWindowShouldClose(win->gl, 1);
+		}
+
+		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+		cur = cur->next;
+	}
+	
+	downGui(ctx, SCROLL, 1 PAD);
+	
+	// scroll reference layer
+	scrollGui(ctx, SCROLL);
+
+	// flush changes
+	flushGui(ctx);
+}
+
+renderCallback makeDataselCallback(dataRef** ref, dataTable* tab) {
+	// initialize context
+	dataselGuiContext* dCtx = malloc(sizeof(dataselGuiContext));
+	dCtx->gui.win = NULL;
+	dCtx->gui.child = NULL;
+	dCtx->ref = ref;
+	dCtx->tab = tab;
+	*dCtx->path = '\0';;
+
+	// return callback
+	return (renderCallback){
+		dataselGui,
+		dCtx,
+		freeGui
+	};
+}
 
 // -- input primitives
 
@@ -182,13 +298,16 @@ int buttonGui(
 	float4 ico,
 	const char* str
 ) {
+	int press = hoverGui(ctx, layId, rect)
+	            && ctx->in.curDown;
+
 	// push quad
 	quadGui(ctx, layId, rect, BG_LIGHT);
 	borderGui(ctx, layId, rect, FG_DARK);
 
 	// display icon
 	iconGui(ctx, layId, (float2){
-		rect.x + 1 PAD, rect.y + 1 PAD
+		rect.x + 1 PAD, rect.y + (press ? 1 PAD : HPAD)
 	}, ico);
 
 	// display text
@@ -206,6 +325,24 @@ void subWindowGui(guiContext* ctx, window* win) {
 	glfwMakeContextCurrent(ctx->win->gl); // hack for context
 }
 
+// pushes a non-interactive edit box
+void editBoxGui(
+	guiContext* ctx,
+	guiLayerId layId,
+	float4 rect,
+	const char* str
+) {
+	// push quad
+	quadGui(ctx, layId, rect, BG_DARK);
+	borderGui(ctx, layId, rect, FG_DARK);
+
+	// update displayed value and display
+	textGui(ctx, layId, (float2){
+		rect.x + 1 PAD, rect.y + 1 PAD
+	}, str);
+}
+
+// pushes an interactive edit box
 char* editorGui(
 	guiContext* ctx,
 	guiLayerId layId,
@@ -216,10 +353,6 @@ char* editorGui(
 	// check for input
 	int active, submit;
 	char* in = bufferGui(ctx, layId, id, rect, &submit, &active);
-
-	// push quad
-	quadGui(ctx, layId, rect, BG_DARK);
-	borderGui(ctx, layId, rect, FG_DARK);
 
 	// make displayed value
 	char disp[IN_BUF_SIZ];
@@ -234,10 +367,8 @@ char* editorGui(
 		if(len < IN_BUF_SIZ) disp[len] = '_';
 	}
 
-	// update displayed value and display
-	textGui(ctx, layId, (float2){
-		rect.x + 1 PAD, rect.y + 1 PAD
-	}, disp);
+	// make gui
+	editBoxGui(ctx, layId, rect, disp);
 
 	// update actual value on submit
 	if(submit) return in;
@@ -265,11 +396,150 @@ void floatGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 }
 
 void stringGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
-	// int to string
+	// temp. buffer 
 	char str[FIELD_SIZ];
 	snprintf(str, FIELD_SIZ, "%s", (char*)val);
 
 	// update actual value on submit
 	char* in = editorGui(ctx, layId, rect, str, (uint64_t)val + 1);
 	if(in && val) strncpy(val, in, IN_BUF_SIZ);
+}
+
+// pushes a vector edit box 
+void vectorGui(
+	guiContext* ctx,
+	guiLayerId layId,
+	float4 rect,
+	void* val,
+	int n
+) {
+	// calculate float edit box span
+	float span = (rect.z - (n - 1) * 1 PAD) / n;
+	rect.z = span;
+
+	// make float edit boxes
+	for(int i = 0; i < n; i++) {
+		floatGui(ctx, layId, rect, val + i * sizeof(float));
+		rect.x += span + 1 PAD;
+	}
+}
+
+// macro for vector edit boxes
+#define VEC_FIELD_GUI(n)                                                            \
+	void float##n##Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) { \
+	    vectorGui(ctx, layId, rect, val, n);                                        \
+	}
+
+// 2D vector edit box
+VEC_FIELD_GUI(2)
+
+// 3D vector edit box
+VEC_FIELD_GUI(3)
+
+// 4D vector edit box
+VEC_FIELD_GUI(4)
+
+// pushes a matrix row edit box 
+void matrixRowGui(
+	guiContext* ctx,
+	guiLayerId layId,
+	float4 rect,
+	void* val,
+	int n
+) {
+	// calculate float edit box span
+	float span = (rect.z - (n - 1) * 1 PAD) / n;
+	rect.z = span;
+
+	// make float edit boxes
+	for(int i = 0; i < n; i++) {
+		floatGui(ctx, layId, rect, val + n * i * sizeof(float));
+		rect.x += span + 1 PAD;
+	}
+}
+
+// macro for matrix edit boxes
+#define MAT_FIELD_GUI(n)                                                          \
+	void mat##n##Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) { \
+	    for(int i = 0; i < n; i++) {                                              \
+	        matrixRowGui(ctx, layId, rect, ((float*)val) + i, n);                 \
+	        downGui(ctx, layId, rect.w + 1 PAD);                                  \
+	    }                                                                         \
+	}                                                                             \
+
+// 2x2 matrix edit box
+MAT_FIELD_GUI(2)
+
+// 3x3 matrix edit box
+MAT_FIELD_GUI(3)
+
+// 4x4 matrix edit box
+MAT_FIELD_GUI(4)
+
+void transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	rect.x += TRANS_OFF;
+	rect.z -= TRANS_OFF;
+
+	// position
+	float3Gui(ctx, layId, rect, ((float3*)val));
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Position");
+
+	// rotation
+	float3Gui(ctx, layId, rect, ((float3*)val) + 1);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD 
+	}, "Rotation");
+
+	// scale
+	float3Gui(ctx, layId, rect, ((float3*)val) + 2);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD 
+	}, "Scale");
+}
+
+// GUI for a data reference
+void dataGui(
+	guiContext* ctx,
+	guiLayerId layId,
+	float4 rect,
+	dataRef** ref,
+	dataTable* tab
+) {
+	// ref to string 
+	char str[FIELD_SIZ];
+	snprintf(str, FIELD_SIZ, "%s", *ref ? (*ref)->path : "(null path)");
+
+	// make gui
+	rect.z -= 3 PAD + ICO_SIZ;
+	editBoxGui(ctx, layId, rect, str);
+	
+	// search button
+	if(buttonGui(ctx, SCROLL, (float4){
+		rect.x + rect.z + 1 PAD, rect.y,
+		2 PAD + ICO_SIZ, 1 PAD + ICO_SIZ 
+	}, ICO_SEARCH, "")) {
+		subWindowGui(ctx, newWindow(
+			DATASEL_WIDTH,
+			DATASEL_HEIGHT,
+			"Select Data",
+			makeDataselCallback(ref, tab)
+		));
+	}
+}
+
+void textureGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	dataGui(ctx, layId, rect, val, &textureTable);
+}
+
+void meshGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	dataGui(ctx, layId, rect, val, &meshTable);
+}
+
+void materialGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	// dataGui(ctx, layId, rect, val, &materialTable); TODO
 }
