@@ -256,8 +256,7 @@ VTABLE(transform)
 
 field* transformNew(const char* name) {
 	ALLOC_FIELD(transform)
-	f->val = (transform){0};
-	f->val.scale = (float3){1.0f, 1.0f, 1.0f};
+	f->val = transformIdent();
 
 	return (field*)f;
 }
@@ -508,7 +507,7 @@ void freeEntity(entity* e) {
 void appendField(entity* e, void* f) {
 	if(!f) return;
 
-	// fre yourself if not valid
+	// free yourself if not valid
 	if(getField(e, ((field*)f)->name)) {
 		free(f);
 		return;

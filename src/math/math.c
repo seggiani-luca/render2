@@ -402,3 +402,40 @@ quat eulerToQuat(float3 e) {
 void quatPrint(quat q) {
 	printf("%g (%g %g %g)", q.w, q.x, q.y, q.z);
 }
+
+transform transformIdent() {
+	transform r = {0};
+	r.scale = (float3){1.0f, 1.0f, 1.0f};
+
+	return r;
+}
+
+mat4 translationToMat4(float3 v) {
+	mat4 r = matEye4();
+	r.d = v.x;
+	r.h = v.y;
+	r.l = v.z;
+
+	return r;
+}
+
+mat4 scaleToMat4(float3 s) {
+	mat4 r = {0};
+	r.a = s.x;
+	r.f = s.y;
+	r.k = s.z;
+	r.p = 1.0f;
+
+	return r;
+}
+
+mat4 transformToMat4(transform t) {
+	mat4 tMat = translationToMat4(t.position);
+	mat4 rMat = quatToMat4(t.rotation);
+	mat4 sMat = scaleToMat4(t.scale);
+
+	return matMul4(matMul4(
+		tMat,
+		rMat),
+		sMat);
+}

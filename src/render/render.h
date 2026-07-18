@@ -2,6 +2,9 @@
 #define RENDER_H
 
 #include "../math/math.h"
+#include "../data/texture/texture.h"
+#include "../data/mesh/mesh.h"
+#include "../data/material/material.h"
 #include <stdio.h>
 
 // -- constants
@@ -35,19 +38,7 @@
 	    printf("OpenGL error 0x%x at %s\n", err, #func); \
 	}
 
-// -- rendering objects
-
-// definition of transform
-typedef struct {
-	// position
-	float3 position;
-
-	// rotation
-	quat rotation;
-
-	// scale
-	float3 scale;
-} transform;
+// -- objects
 
 // definition of camera 
 typedef struct {
@@ -66,5 +57,47 @@ typedef struct {
 	// ambient color
 	color ambient;
 } atmosphere;
+
+// -- views 
+
+// an entity, which can be rendered to screen
+struct renderEntity {
+	// entity transformation
+	mat4 transform;
+
+	// mesh of entity
+	mesh* mesh;
+	
+	// material of entity
+	material* material;
+
+	// next render entity in list
+	struct renderEntity* next;
+};
+typedef struct renderEntity renderEntity;
+
+// a rendering view of a scene
+typedef struct {
+	// scene camera
+	struct {
+		// camera field
+		camera* info;
+
+		// camera transform
+		mat4 transform;
+	} camera;
+
+	// scene atmosphere 
+	atmosphere* atmosphere;
+
+	// root of scene hierarchy
+	renderEntity* root;
+} renderScene;
+
+// forward declaration for updateRenderScene
+typedef struct scene scene;
+
+// updates rendering view of a scene
+void updateRenderScene(scene* scene);
 
 #endif

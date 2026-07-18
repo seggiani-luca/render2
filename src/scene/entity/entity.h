@@ -3,9 +3,6 @@
 
 #include "../../gui/gui.h"
 #include "../../math/math.h"
-#include "../../data/texture/texture.h"
-#include "../../data/mesh/mesh.h"
-#include "../../data/material/material.h"
 #include "../../render/render.h"
 
 // -- fields

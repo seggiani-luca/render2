@@ -200,4 +200,28 @@ quat eulerToQuat(float3 e);
 // prints a quaternion
 void quatPrint(quat q);
 
+// definition of transform
+typedef struct {
+	// position
+	float3 position;
+
+	// rotation
+	quat rotation;
+
+	// scale
+	float3 scale;
+} transform;
+
+// identity transform
+transform transformIdent();
+
+// translation to 4x4 matrix
+mat4 translationToMat4(float3 v);
+
+// scale to 4x4 matrix
+mat4 scaleToMat4(float3 s);
+
+// transform to 4x4 matrix
+mat4 transformToMat4(transform t);
+
 #endif

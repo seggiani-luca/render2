@@ -12,6 +12,9 @@ struct scene {
 
 	// root of scene hierarchy
 	entity root;
+
+	// rendering state
+	renderScene render;	
 };
 typedef struct scene scene;
 
@@ -25,14 +28,13 @@ scene* newDefaultScene(const char* name);
 void freeScene(scene* s);
 
 // scene iterator
-struct sceneIter {
+typedef struct {
 	// current entity
 	entity* cur;
 
 	// current depth in scene hierarchy
 	int depth;
-};
-typedef struct sceneIter sceneIter;
+} sceneIter;
 
 // gets a scene iterator for a scene
 sceneIter getScIter(scene* s);
