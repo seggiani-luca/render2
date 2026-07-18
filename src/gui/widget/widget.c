@@ -1,6 +1,7 @@
 #include "widget.h"
 #include "../../data/texture/texture.h"
 #include "../../data/mesh/mesh.h"
+#include "../../data/material/material.h"
 #include <GLFW/glfw3.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -15,7 +16,7 @@ typedef struct {
 
 	// data reference to update 
 	dataRef** ref;
-	
+
 	// data table to update from 
 	dataTable* tab;
 
@@ -47,7 +48,7 @@ void dataselGui(window* win) {
 		0, HEIG - TXT_HEIGHT - 4 PAD,
 		WIN, TXT_HEIGHT + 4 PAD
 	}, BG_LIGHT);
-		
+
 	// push label
 	textGui(ctx, FIXED, (float2){
 		1 PAD, HEIG - TXT_HEIGHT - 2 PAD
@@ -67,7 +68,7 @@ void dataselGui(window* win) {
 		// import data
 		if((*dCtx->ref)) freeData((*dCtx->ref)->data, tab);
 		*dCtx->ref = importData(path, tab);
-			
+
 		// should close
 		glfwSetWindowShouldClose(win->gl, 1);
 	}
@@ -93,9 +94,9 @@ void dataselGui(window* win) {
 		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 		cur = cur->next;
 	}
-	
+
 	downGui(ctx, SCROLL, 1 PAD);
-	
+
 	// scroll reference layer
 	scrollGui(ctx, SCROLL);
 
@@ -174,7 +175,7 @@ char* bufferGui(
 		memset(ctx->in.keyBuf, 0, IN_BUF_SIZ);
 		ctx->in.keyBufSiz = 0;
 
-		return NULL;
+		return ctx->in.keyBuf;
 	}
 
 	// check if active
@@ -476,32 +477,6 @@ MAT_FIELD_GUI(3)
 // 4x4 matrix edit box
 MAT_FIELD_GUI(4)
 
-void transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
-	rect.x += TRANS_OFF;
-	rect.z -= TRANS_OFF;
-
-	// position
-	float3Gui(ctx, layId, rect, ((float3*)val));
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Position");
-
-	// rotation
-	float3Gui(ctx, layId, rect, ((float3*)val) + 1);
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD 
-	}, "Rotation");
-
-	// scale
-	float3Gui(ctx, layId, rect, ((float3*)val) + 2);
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD 
-	}, "Scale");
-}
-
 // GUI for a data reference
 void dataGui(
 	guiContext* ctx,
@@ -512,7 +487,8 @@ void dataGui(
 ) {
 	// ref to string 
 	char str[FIELD_SIZ];
-	snprintf(str, FIELD_SIZ, "%s", *ref ? (*ref)->path : "(null path)");
+	snprintf(str, FIELD_SIZ, "%.*s", FIELD_SIZ - 1, 
+		*ref ? (*ref)->path : "(null path)");
 
 	// make gui
 	rect.z -= 3 PAD + ICO_SIZ;
@@ -541,5 +517,5 @@ void meshGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 }
 
 void materialGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
-	// dataGui(ctx, layId, rect, val, &materialTable); TODO
+	dataGui(ctx, layId, rect, val, &materialTable);
 }

@@ -1,0 +1,6 @@
+leak:libwayland-client
+leak:libglfw
+leak:libdecor
+leak:fontconfig
+leak:pango
+leak:gtk

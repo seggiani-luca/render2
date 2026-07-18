@@ -15,7 +15,11 @@ struct scene {
 };
 typedef struct scene scene;
 
+// creates a new scene
 scene* newScene(const char* name);
+
+// creates a new scene with default entities 
+scene* newDefaultScene(const char* name);
 
 // frees a scene
 void freeScene(scene* s);

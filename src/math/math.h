@@ -11,43 +11,43 @@
 // -- vectors
 
 // generic vector declaration
-#define VEC_DECL(n, ...)                                  \
-	typedef union {                                       \
-	    struct { float __VA_ARGS__; };                    \
-	    float dat[n];                                     \
-	} float##n;                                           \
-	                                                      \
-	/* vector negation */                                 \
-	float##n vecNeg##n(float##n v1);                      \
-	                                                      \
-	/* vector addition */                                 \
-	float##n vecAdd##n(float##n v1, float##n v2);         \
-	                                                      \
-	/* vector subtraction */                              \
-	float##n vecSub##n(float##n v1, float##n v2);         \
-	                                                      \
-	/* vector multiplication by scalar */                 \
-	float##n vecMul##n(float##n v,  float s);             \
-	                                                      \
-	/* vector division by scalar */                       \
-	float##n vecDiv##n(float##n v,  float s);             \
-	                                                      \
-	/* vector dot product */                              \
-	float vecDot##n(float##n v1, float##n v2);            \
-	                                                      \
-	/* vector hadamard (component-wise) product */        \
-	float##n vecHad##n(float##n v1, float##n v2);         \
-	                                                      \
-	/* vector squared norm */                             \
-	float vecNormSqr##n(float##n v);                      \
-	                                                      \
-	/* vector norm */                                     \
-	float vecNorm##n(float##n v);                         \
-	                                                      \
-	/* normalizes a vector */                             \
-	float##n vecNormalized##n(float##n v);                \
-	                                                      \
-	/* prints a vector */                                 \
+#define VEC_DECL(n, ...)                           \
+	typedef union {                                \
+	    struct { float __VA_ARGS__; };             \
+	    float dat[n];                              \
+	} float##n;                                    \
+	                                               \
+	/* vector negation */                          \
+	float##n vecNeg##n(float##n v1);               \
+	                                               \
+	/* vector addition */                          \
+	float##n vecAdd##n(float##n v1, float##n v2);  \
+	                                               \
+	/* vector subtraction */                       \
+	float##n vecSub##n(float##n v1, float##n v2);  \
+	                                               \
+	/* vector multiplication by scalar */          \
+	float##n vecMul##n(float##n v,  float s);      \
+	                                               \
+	/* vector division by scalar */                \
+	float##n vecDiv##n(float##n v,  float s);      \
+	                                               \
+	/* vector dot product */                       \
+	float vecDot##n(float##n v1, float##n v2);     \
+	                                               \
+	/* vector hadamard (component-wise) product */ \
+	float##n vecHad##n(float##n v1, float##n v2);  \
+	                                               \
+	/* vector squared norm */                      \
+	float vecNormSqr##n(float##n v);               \
+	                                               \
+	/* vector norm */                              \
+	float vecNorm##n(float##n v);                  \
+	                                               \
+	/* normalizes a vector */                      \
+	float##n vecNormalized##n(float##n v);         \
+	                                               \
+	/* prints a vector */                          \
 	void vecPrint##n(float##n v);
 
 // 2D vector
@@ -61,6 +61,12 @@ float3 vecCross3(float3 v1, float3 v2);
 
 // 4D vector
 VEC_DECL(4, x, y, z, w)
+
+// color vector
+typedef union {
+	struct { float r, g, b; };
+	float dat[3];
+} color;
 
 // -- matrices
 

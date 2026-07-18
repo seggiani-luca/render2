@@ -4,17 +4,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-void printTable(dataTable table) {
+// -- data tables 
+
+void printTable(const dataTable* table) {
 	printf("%-25s %-25s %-25s %s\n", "Address", "Path", "References", "Data");
 
 	// go through each table entry
-	dataRef* ref = table.root;
+	dataRef* ref = table->root;
 	while(ref) {
 		// print entry
 		printf("%-25p %-25s %-25d ", ref->data, ref->path, ref->refCount);
 
 		// print the data
-		table.print(ref->data);
+		table->print(ref->data);
 		printf("\n");
 
 		ref = ref->next;
@@ -42,24 +44,28 @@ dataRef* importData(const char* path, dataTable* table) {
 	dataRef* newRef = malloc(sizeof(dataRef));
 	if(!newRef) return NULL;
 
-	// import data from file
-	FILE* file = fopen(path, "r");
+	// open file file
+	FILE* file = fopen(path, "rb");
 	if(file == NULL) {
 		free(newRef);
 		return NULL;
 	}
+
+	// import data
 	void* data = table->import(file);
-	fclose(file);
 	if(data == NULL) {
 		free(newRef);
 		return NULL;
 	}
 
+	// close file
+	fclose(file);
+
 	// insert in table
 	newRef->next = NULL;
 	*cur = newRef;
 
-	// copy data
+	// copy data, setup reference
 	strncpy(newRef->path, path, DAT_PATH_SIZ);
 	newRef->path[DAT_PATH_SIZ - 1] = '\0';
 	newRef->refCount = 1;

@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "entity/entity.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,6 +22,17 @@ scene* newScene(const char* name) {
 	s->root.root = NULL;
 	s->root.fieldCount = 0;
 	s->root.parent = s->root.child = s->root.peer = NULL;
+
+	return s;
+}
+
+scene* newDefaultScene(const char* name) {
+	scene* s = newScene(name);
+	if(!s) return NULL;
+
+	// default entities
+	appendChild(&s->root, newCameraEntity("Camera"));
+	appendChild(&s->root, newRenderableEntity("Entity"));
 
 	return s;
 }

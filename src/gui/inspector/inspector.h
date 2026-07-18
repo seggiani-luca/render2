@@ -52,6 +52,12 @@ int quatFieldGui(const field* f, guiContext* ctx);
 // renders a transform field to GUI
 int transformFieldGui(const field* f, guiContext* ctx);
 
+// renders a camera field to GUI
+int cameraFieldGui(const field* f, guiContext* ctx);
+
+// renders an atmosphere field to GUI
+int atmosphereFieldGui(const field* f, guiContext* ctx);
+
 // renders a texture field to GUI
 int textureFieldGui(const field* f, guiContext* ctx);
 

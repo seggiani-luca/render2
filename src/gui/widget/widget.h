@@ -67,6 +67,10 @@
 #define ICO_SEARCH ICO(7, 5)
 #define ICO_FILE   ICO(8, 5)
 #define ICO_NUFILE ICO(9, 5)
+#define ICO_CAMERA ICO(10, 5)
+#define ICO_ATMOS  ICO(11, 5)
+#define ICO_DIR    ICO(12, 5)
+#define ICO_EMPTY  ICO(13, 5)
 
 // -- sizing
 
@@ -168,9 +172,6 @@ void mat3Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a 4x4 matrix edit box
 void mat4Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
-
-// pushes a transform edit box
-void transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a texture edit box
 void textureGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);

@@ -83,31 +83,36 @@ void addChildGui(window* win) {
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 
-	// push new child button
-	if(buttonGui(ctx, SCROLL, (float4){
-		1 PAD, 1 PAD,
-		WIN - 2 PAD, TXT_HEIGHT + 2 PAD
-	}, ICO_ENTITY, "New Child")) {
-		// create and append child
-		appendChild(ent, newDefaultEntity(name));
+	// declare child button table
+	typedef struct {
+		const char* label;
+		float4 ico;
+		entity* (*ctor)(const char* name);
+	} childButton;
+	static const childButton childButtons[] = {
+		{ "New Child",  ICO_ENTITY, newRenderableEntity },
+		{ "New Camera", ICO_CAMERA, newCameraEntity     },
+		{ "New Empty",  ICO_EMPTY,  newEntity           }
+	};
+	int childButtonCount = (int)(sizeof(childButtons) / sizeof(childButton));
 
-		// should close
-		glfwSetWindowShouldClose(win->gl, 1);
-	}
-	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
-	
-	// push new empty child button
-	if(buttonGui(ctx, SCROLL, (float4){
-		1 PAD, 1 PAD,
-		WIN - 2 PAD, TXT_HEIGHT + 2 PAD
-	}, ICO_ENTITY, "New Empty Child")) {
-		// create and append child
-		appendChild(ent, newEntity(name));
+	for(int i = 0; i < childButtonCount; i++) {
+		const childButton* c = &childButtons[i];
 
-		// should close
-		glfwSetWindowShouldClose(win->gl, 1);
+		// push new child button
+		if(buttonGui(ctx, SCROLL, (float4){
+			1 PAD, 1 PAD,
+			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+		}, c->ico, c->label)) {
+			// create and append child
+			entity* new = c->ctor(name);
+			if(new) appendChild(ent, new);
+
+			// should close
+			glfwSetWindowShouldClose(win->gl, 1);
+		}
+		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 	}
-	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 
 	downGui(ctx, SCROLL, 1 PAD);
 	trimGui(ctx);
@@ -243,14 +248,21 @@ void sceneGui(window* win) {
 				if(getEntityCallback(inspectorWin) == cur)
 					changeEntityCallback(inspectorWin, NULL);
 
-				// delete child
+				// remove entity from parent 
 				removeChild(cur->parent, cur);
+				
+				// free entity
 				freeEntity(cur);
+
+				// tree is not really valid anymore, redraw at next iteration
+				return;
 			} break;
+
 			case MOVE: {
 				// start move
 				sCtx->moving = cur;
 			} break;
+
 			case VIEW: {
 				entity* moving = sCtx->moving;
 
@@ -267,6 +279,7 @@ void sceneGui(window* win) {
 						changeEntityCallback(inspectorWin, cur);
 				}
 			} break;
+
 			case NEW: {
 				// reset move
 				sCtx->moving = NULL;
@@ -279,6 +292,7 @@ void sceneGui(window* win) {
 					makeAddChildCallback(cur)
 				));
 			} break;
+
 			default: break;
 		}
 

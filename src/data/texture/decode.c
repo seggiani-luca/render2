@@ -64,6 +64,7 @@ int textureDecode(texture* texture, FILE* file) {
 		if(bpp == 4) texture->data[idx + 3] = a;
 	}
 
+	// set width and height
 	texture->width = head.width;
 	texture->height = head.height;
 

@@ -1,48 +1,17 @@
 #include "mesh.h"
+#include "../decode.h"
 #include <stdlib.h>
-#include <string.h>
 
 // size of file line
-#define MESH_LINE_SIZ 2048
-
-// parses an .obj line for a given key, updating a float buffer if needed 
-void parseKey(const char* line, const char* key, int dim, int* cur, float* buf) {
-	// only if key matches
-	int keySiz = strlen(key);
-	if(strncmp(line, key, keySiz) != 0) return;
-	
-	// parse line
-	switch(dim) {
-		case 2:
-			sscanf(line + keySiz + 1, "%f %f",
-				&buf[*cur], 
-				&buf[*cur + 1]
-			);
-			break;
-
-		case 3:
-			sscanf(line + keySiz + 1, "%f %f %f",
-				&buf[*cur], 
-				&buf[*cur + 1],
-				&buf[*cur + 2]
-			);
-			break;
-
-		default:
-			break;  // good enough for the demo lol
-	}
-
-	// advance buffer
-	*cur += dim;
-}
+#define MESH_LINE_SIZ 256
 
 // imports a mesh in .obj format
 int meshDecode(mesh* mesh, FILE* file) {
 	char line[MESH_LINE_SIZ];
-	
+
 	// count vertices
 	while(fgets(line, MESH_LINE_SIZ, file)) 
-		if(*line == 'f') mesh->vertCount++;
+		if(checkKey(line, "f ")) mesh->vertCount++;
 	mesh->vertCount *= 3;
 
 	// reset file cursor
@@ -63,16 +32,16 @@ int meshDecode(mesh* mesh, FILE* file) {
 	long pos = 0;
 	while(fgets(line, MESH_LINE_SIZ, file)) {
 		// parse lines into temporary buffers
-		parseKey(line, "vt", 2, &nUv, tUv);
-		parseKey(line, "vn", 3, &nNorm, tNorm);
-		parseKey(line, "v", 3, &nVert, tVert);
+		parseFloatBufKey(line, "vt ", 2, &nUv, tUv);
+		parseFloatBufKey(line, "vn ", 3, &nNorm, tNorm);
+		parseFloatBufKey(line, "v ", 3, &nVert, tVert);
 
 		// rollback and quit on first face
-		if(strncmp(line, "f", 1) == 0) {
+		if(checkKey(line, "f ")) {
 			fseek(file, pos, SEEK_SET);
 			break;
 		}
-	
+
 		// advance position in file 
 		pos = ftell(file);
 	}
@@ -83,11 +52,18 @@ int meshDecode(mesh* mesh, FILE* file) {
 	// go through each face line
 	int cur = 0;
 	while(fgets(line, MESH_LINE_SIZ, file)) {
+		// don't overflow
+		if(cur >= mesh->vertCount) {
+			free(mesh->verts);
+			return 0;
+		}
+
 		// only if face key matches 
-		if(strncmp(line, "f", 1) != 0) continue;
-		
+		char* face = checkKey(line, "f ");
+		if(!face) continue;
+
 		// parse face line
-		sscanf(line, "f %d/%d/%d %d/%d/%d %d/%d/%d", 
+		sscanf(face, "%d/%d/%d %d/%d/%d %d/%d/%d", 
 			&v[0], &t[0], &n[0],
 			&v[1], &t[1], &n[1],
 			&v[2], &t[2], &n[2]
@@ -114,10 +90,7 @@ int meshDecode(mesh* mesh, FILE* file) {
 				.v = tUv[ti + 1]
 			};
 
-			if(++cur >= mesh->vertCount) {
-				free(mesh->verts);
-				return 0;
-			}
+			cur++;
 		}
 	}
 

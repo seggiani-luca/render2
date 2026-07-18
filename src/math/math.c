@@ -372,7 +372,7 @@ float3 quatToEuler(quat q) {
 	float sinr = 2 * (q.w * q.z + q.x * q.y);
 	float cosr = 1 - 2 * (q.y * q.y + q.z * q.z);
 	e.z = atan2f(sinr, cosr);
-	
+
 	// convert to degrees 
 	e.x *= RAD2DEG;
 	e.y *= RAD2DEG;
@@ -386,7 +386,7 @@ quat eulerToQuat(float3 e) {
 	e.x *= DEG2RAD;
 	e.y *= DEG2RAD;
 	e.z *= DEG2RAD;
-	
+
 	float cx = cosf(e.x * 0.5f); float sx = sinf(e.x * 0.5f);
 	float cy = cosf(e.y * 0.5f); float sy = sinf(e.y * 0.5f);
 	float cz = cosf(e.z * 0.5f); float sz = sinf(e.z * 0.5f);

@@ -5,8 +5,9 @@
 
 extern int meshDecode(mesh* mesh, FILE* file);
 
-void meshPrint(mesh* mesh) {
-	printf("Mesh (vertices: %d)", mesh->vertCount);
+void meshPrint(void* dat) {
+	mesh* msh = (mesh*)dat;
+	printf("Mesh (vertices: %d)", msh->vertCount);
 }
 
 // generates a VBO and a VAO for this mesh
@@ -17,7 +18,7 @@ void generateGLMeshes(mesh* mesh) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
 	GL_ERR("VBO binding");
-	
+
 	glBufferData(
 		GL_ARRAY_BUFFER, 
 		mesh->vertCount * sizeof(vertex), 
@@ -29,10 +30,10 @@ void generateGLMeshes(mesh* mesh) {
 	// generate VAO
 	glGenVertexArrays(1, &mesh->vao);
 	GL_ERR("VAO generation");
-	
+
 	glBindVertexArray(mesh->vao);
 	GL_ERR("VAO binding");
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->vbo);
 	GL_ERR("VBO to VAO binding");
 
@@ -46,7 +47,7 @@ void generateGLMeshes(mesh* mesh) {
 		(void*)0
 	);
 	GL_ERR("vertex attrib");
-	
+
 	glEnableVertexAttribArray(0);
 	GL_ERR("vertex attrib enable");
 
@@ -74,7 +75,7 @@ void generateGLMeshes(mesh* mesh) {
 		(void*)(5 * sizeof(float))
 	);
 	GL_ERR("normal attrib");
-	
+
 	glEnableVertexAttribArray(2);
 	GL_ERR("normal attrib enable");
 }
@@ -85,8 +86,8 @@ void destroyGLMeshes(mesh* mesh) {
 	glDeleteVertexArrays(1, &mesh->vao);
 }
 
-mesh* mesh_import(FILE* file) {
-	// initializemesh 
+void* mesh_import(FILE* file) {
+	// initialize mesh 
 	mesh* new_mesh = malloc(sizeof(mesh));
 	memset(new_mesh, 0, sizeof(mesh));
 
@@ -101,14 +102,14 @@ mesh* mesh_import(FILE* file) {
 	return new_mesh;
 }
 
-void mesh_free(mesh* mesh) {
-	if(!mesh) return;
+void mesh_free(void* dat) {
+	if(!dat) return;
 	
 	// free OpenGL buffers 
-	destroyGLMeshes(mesh);	
+	destroyGLMeshes(dat);
 	
-	free(mesh->verts);
-	free(mesh);
+	free(((mesh*)dat)->verts);
+	free(dat);
 }
 
 // mesh handler implementations

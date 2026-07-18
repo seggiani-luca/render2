@@ -5,6 +5,8 @@
 
 extern int textureDecode(texture* texture, FILE* file);
 
+// -- textures
+
 void texturePrint(void* dat) {
 	texture* tex = (texture*)dat;
 	printf("Texture (width: %d, height: %d)", tex->width, tex->height);

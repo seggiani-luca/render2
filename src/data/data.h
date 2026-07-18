@@ -6,10 +6,7 @@
 // -- data references
 
 // data reference path size
-#define DAT_PATH_SIZ 64
-
-// data object name size
-#define DAT_NAME_SIZ 64
+#define DAT_PATH_SIZ 256
 
 // data reference
 struct dataRef {
@@ -20,7 +17,7 @@ struct dataRef {
 	void* data;
 
 	// reference counter
-	int refCount;
+	unsigned int refCount;
 
 	// next data reference in data table
 	struct dataRef* next;
@@ -56,7 +53,7 @@ typedef struct {
 	    .root   = NULL,                        \
 	    .print  = type##Print,                 \
 	    .import = type##_import,               \
-		.free   = type##_free                  \
+	    .free   = type##_free                  \
 	};                                         \
 	                                           \
 	dataRef* type##Import(const char* path) {  \
@@ -68,7 +65,7 @@ typedef struct {
 	}
 
 // debug prints a data table
-void printTable(dataTable table);
+void printTable(const dataTable* table);
 
 // queries data table (importing on table miss) and returns value
 dataRef* importData(const char* path, dataTable* table);

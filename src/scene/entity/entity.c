@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "../../gui/inspector/inspector.h"
+#include "../../render/render.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +8,7 @@
 // -- fields
 
 // helper for field creation
-field newField(const char* name, fieldVtable* vtable) {
+field newField(const char* name, const fieldVtable* vtable) {
 	// create field on stack
 	field f;
 
@@ -26,22 +27,22 @@ void printField(const field* f) { f->vtable->print(f); }
 int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
 
 // macro for vtable declaration
-#define VTABLE(type)                  \
-	fieldVtable type##FieldVtable = { \
-	    .read  = type##FieldRead,     \
-	    .write = type##FieldWrite,    \
-	    .print = type##FieldPrint,    \
-	    .gui   = type##FieldGui,      \
+#define VTABLE(type)                               \
+	static const fieldVtable type##FieldVtable = { \
+	    .read  = type##FieldRead,                  \
+	    .write = type##FieldWrite,                 \
+	    .print = type##FieldPrint,                 \
+	    .gui   = type##FieldGui,                   \
 	};
 
 // macro for vtable declaration, with free 
-#define VTABLE_FREE(type)             \
-	fieldVtable type##FieldVtable = { \
-	    .read  = type##FieldRead,     \
-	    .write = type##FieldWrite,    \
-	    .print = type##FieldPrint,    \
-	    .gui   = type##FieldGui,      \
-		.free  = type##FieldFree      \
+#define VTABLE_FREE(type)                          \
+	static const fieldVtable type##FieldVtable = { \
+	    .read  = type##FieldRead,                  \
+	    .write = type##FieldWrite,                 \
+	    .print = type##FieldPrint,                 \
+	    .gui   = type##FieldGui,                   \
+	    .free  = type##FieldFree                   \
 	};
 
 // macro for field allocation
@@ -261,6 +262,65 @@ field* transformNew(const char* name) {
 	return (field*)f;
 }
 
+// -- camera field
+
+// reads a camera field
+void cameraFieldRead(const field* f, void* dst) {
+	*(camera*)dst = ((cameraField*)f)->val;
+}
+
+// writes a camera field
+void cameraFieldWrite(field* f, const void* src) {
+	((cameraField*)f)->val = *(camera*)src;
+}
+
+// debug prints a camera field
+void cameraFieldPrint(const field* f) {
+	camera* c = &((cameraField*)f)->val;
+	printf("%s (Camera): Fov: %f, Near: %f, Far: %f",
+		f->name, c->fov, c->nearPlane, c->farPlane);
+}
+
+VTABLE(camera)
+
+field* cameraNew(const char* name) {
+	ALLOC_FIELD(camera)
+	f->val = (camera){0};
+	f->val.fov = 90;
+	f->val.nearPlane = 0.02;
+	f->val.farPlane = 3000;
+
+	return (field*)f;
+}
+
+// -- atmosphere field
+
+// reads a camera field
+void atmosphereFieldRead(const field* f, void* dst) {
+	*(atmosphere*)dst = ((atmosphereField*)f)->val;
+}
+
+// writes a atmosphere field
+void atmosphereFieldWrite(field* f, const void* src) {
+	((atmosphereField*)f)->val = *(atmosphere*)src;
+}
+
+// debug prints an atmosphere field
+void atmosphereFieldPrint(const field* f) {
+	atmosphere* a = &((atmosphereField*)f)->val;
+	printf("%s (Atmosphere): Ambient: %f, %f, %f",
+		f->name, a->ambient.r, a->ambient.g, a->ambient.b);
+}
+
+VTABLE(atmosphere)
+
+field* atmosphereNew(const char* name) {
+	ALLOC_FIELD(atmosphere)
+	f->val = (atmosphere){0};
+
+	return (field*)f;
+}
+
 // -- texture field
 
 // reads a texture field
@@ -342,7 +402,7 @@ void materialFieldPrint(const field* f) {
 
 void materialFieldFree(field* f) {
 	materialField* mf = (materialField*)f;
-	// if(mf->ref) materialFree(mf->ref->data); TODO
+	if(mf->ref) materialFree(mf->ref->data);
 }
 
 VTABLE_FREE(material);
@@ -392,13 +452,26 @@ entity* newEntity(const char* name) {
 	return e;
 }
 
-entity* newDefaultEntity(const char* name) {
+entity* newRenderableEntity(const char* name) {
 	entity* e = newEntity(name);
-		
+	if(!e) return NULL;
+
 	// default fields
-	appendField(e, transformNew("Transform"));
-	appendField(e, meshNew("Mesh"));
-	appendField(e, materialNew("Material"));
+	appendField(e, transformNew(REN_TRANSFORM_NAME));
+	appendField(e, meshNew(REN_MESH_NAME));
+	appendField(e, materialNew(REN_MATERIAL_NAME));
+
+	return e;
+}
+
+entity* newCameraEntity(const char* name) {
+	entity* e = newEntity(name);
+	if(!e) return NULL;
+
+	// default fields
+	appendField(e, transformNew(REN_TRANSFORM_NAME));
+	appendField(e, cameraNew(REN_CAMERA_NAME));
+	appendField(e, atmosphereNew(REN_ATMOSPHERE_NAME));
 
 	return e;
 }
@@ -549,8 +622,22 @@ void removeChild(entity* e, entity* child) {
 	updateChildCount(e, -1 - child->childCount);
 }
 
+// checks if node is descendant of (supposed) parent
+int isDescendant(entity* node, entity* parent) {
+	while(node) {
+		if(parent == node) return 1;
+
+		node = node->parent;
+	}
+
+	return 0;
+}
+
 void moveChild(entity* e, entity* child) {
 	if(e == child) return;
+
+	// don't make cycles 
+	if(isDescendant(e, child)) return;
 
 	removeChild(child->parent, child);
 	appendChild(e, child);

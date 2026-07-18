@@ -198,18 +198,44 @@ int quatFieldGui(const field* f, guiContext* ctx) {
 	);
 }
 
+// pushes a transform edit box
+void transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	rect.x += TRANS_OFF;
+	rect.z -= TRANS_OFF;
+
+	// position
+	float3Gui(ctx, layId, rect, ((float3*)val));
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Position");
+
+	// rotation
+	float3Gui(ctx, layId, rect, ((float3*)val) + 1);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD 
+	}, "Rotation");
+
+	// scale
+	float3Gui(ctx, layId, rect, ((float3*)val) + 2);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD 
+	}, "Scale");
+}
+
 int transformFieldGui(const field* f, guiContext* ctx) {
-	transform* trans = &((transformField*)f)->val;
-	
+	transformField* tf = (transformField*)f;
+	transform* t = &tf->val;
+
 	// get euler angles
-	float3 euler = quatToEuler(trans->rotation);
+	float3 euler = quatToEuler(t->rotation);
 
 	// get editable matrix
-	float3 mat[3] = {
-		trans->position,
-		euler,
-		trans->scale
-	};
+	tf->mat[0] = t->position;
+	tf->mat[1] = euler;
+	tf->mat[2] = t->scale;
 
 	// make edit box
 	int ret = fieldGui(
@@ -217,22 +243,88 @@ int transformFieldGui(const field* f, guiContext* ctx) {
 		f->name,
 		ICO_TRANS,
 		transformGui,
-		mat,
+		tf->mat,
 		3
 	);
 
 	// copy values over
-	trans->position = mat[0];
-	trans->scale = mat[2];
-	
+	t->position = tf->mat[0];
+	t->scale = tf->mat[2];
+
 	// copy rotation only if changed
-	if(mat[1].x != euler.x
-	|| mat[1].y != euler.y
-	|| mat[1].z != euler.z) {
-		trans->rotation = eulerToQuat(mat[1]);
+	if(tf->mat[1].x != euler.x
+	|| tf->mat[1].y != euler.y
+	|| tf->mat[1].z != euler.z) {
+		t->rotation = eulerToQuat(tf->mat[1]);
 	}
 
 	return ret;
+}
+
+// pushes a camera edit box
+void cameraGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	rect.x += TRANS_OFF;
+	rect.z -= TRANS_OFF;
+
+	camera* c = (camera*)val;
+
+	// fov
+	floatGui(ctx, layId, rect, &c->fov);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Fov");
+
+	// near
+	floatGui(ctx, layId, rect, &c->nearPlane);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD 
+	}, "Near");
+
+	// far
+	floatGui(ctx, layId, rect, &c->farPlane);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD 
+	}, "Far");
+}
+
+int cameraFieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_CAMERA,
+		cameraGui,
+		&((cameraField*)f)->val,
+		3
+	);
+}
+
+// pushes an atmosphere edit box
+void atmosphereGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	rect.x += TRANS_OFF;
+	rect.z -= TRANS_OFF;
+
+	atmosphere* a = (atmosphere*)val;
+
+	// ambient
+	float3Gui(ctx, layId, rect, &a->ambient);
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Ambient");
+}
+
+int atmosphereFieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_ATMOS,
+		atmosphereGui,
+		&((atmosphereField*)f)->val,
+		1
+	);
 }
 
 int textureFieldGui(const field* f, guiContext* ctx) {
@@ -311,23 +403,32 @@ void addFieldGui(window* win) {
 	typedef struct {
 		const char* label;
 		float4 ico;
-		field*(*ctor)(const char* name);
+		field* (*ctor)(const char* name);
 	} fieldButton;
 	static const fieldButton fieldButtons[] = {
-		{ "New Transform",  ICO_TRANS,   transformNew },
-		{ "New Texture",    ICO_TEX,     textureNew   },
-		{ "New Mesh",       ICO_MESH,    meshNew      },
-		{ "New Material",   ICO_MAT,     materialNew  },
-		{ "New Int",        ICO_INT,     intNew       },
-		{ "New Float",      ICO_FLOAT,   floatNew     },
-		{ "New String",     ICO_STRING,  stringNew    },
-		{ "New Quaternion", ICO_QUAT,    quatNew      },
-		{ "New 2D Vector",  ICO_FLOAT2,  float2New    },
-		{ "New 3D Vector",  ICO_FLOAT3,  float3New    },
-		{ "New 4D Vector",  ICO_FLOAT4,  float4New    },
-		{ "New 2x2 Matrix", ICO_MAT2,    mat2New      },
-		{ "New 3x3 Matrix", ICO_MAT3,    mat3New      },
-		{ "New 4x4 Matrix", ICO_MAT4,    mat4New      }
+		{ "New Transform",  ICO_TRANS,   transformNew  },
+		{ "New Texture",    ICO_TEX,     textureNew    },
+
+		{ "New Mesh",       ICO_MESH,    meshNew       },
+		{ "New Material",   ICO_MAT,     materialNew   },
+		
+		{ "New Camera",     ICO_CAMERA,  cameraNew     },
+		{ "New Atmosphere", ICO_ATMOS,   atmosphereNew },
+
+		{ "New Int",        ICO_INT,     intNew        },
+		{ "New Float",      ICO_FLOAT,   floatNew      },
+
+		{ "New String",     ICO_STRING,  stringNew     },
+		{ "New Quaternion", ICO_QUAT,    quatNew       },
+
+		{ "New 2D Vector",  ICO_FLOAT2,  float2New     },
+		{ "New 3D Vector",  ICO_FLOAT3,  float3New     },
+
+		{ "New 4D Vector",  ICO_FLOAT4,  float4New     },
+		{ "New 2x2 Matrix", ICO_MAT2,    mat2New       },
+
+		{ "New 3x3 Matrix", ICO_MAT3,    mat3New       },
+		{ "New 4x4 Matrix", ICO_MAT4,    mat4New       }
 	};
 	int fieldButtonCount = (int)(sizeof(fieldButtons) / sizeof(fieldButton));
 
@@ -349,7 +450,7 @@ void addFieldGui(window* win) {
 
 		if(side || i == fieldButtonCount - 1) downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 	}
-	
+
 	downGui(ctx, SCROLL, 1 PAD);
 	trimGui(ctx);
 
@@ -469,6 +570,9 @@ renderCallback makeEntityCallback(entity* ent) {
 void changeEntityCallback(window* win, entity* ent) {
 	entityGuiContext* ctx = (entityGuiContext*)win->cbak.ctx;
 	ctx->ent = ent;
+
+	// reset hot
+	ctx->gui.in.hotReset = 1;
 }
 
 entity* getEntityCallback(window* win) {

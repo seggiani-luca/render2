@@ -20,16 +20,16 @@ typedef struct {
 
 	// number of vertices
 	int vertCount;
-	
+
 	// OpenGL VAO
 	GLuint vao;
-	
+
 	// OpenGL VBO
 	GLuint vbo;
 } mesh;
 
 // print mesh info
-void meshPrint(mesh* mesh);
+void meshPrint(void* dat);
 
 // mesh handler declarations
 DATA_TABLE_DECL(mesh)

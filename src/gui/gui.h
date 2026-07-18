@@ -5,7 +5,7 @@
 
 // -- rendering
 
-// paths for GUI shader
+// paths for GUI shaders
 #define GUI_VERT_PATH "dat/shader/gui_vert.glsl"
 #define GUI_FRAG_PATH "dat/shader/gui_frag.glsl"
 

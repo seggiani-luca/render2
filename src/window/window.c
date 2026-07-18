@@ -90,10 +90,10 @@ void freeGl() {
 // callback for window resizing
 void resizeCallback(GLFWwindow* gl, int width, int height) {
 	window* win = glfwGetWindowUserPointer(gl);
-	
+
 	// setup framebuffer
 	win->fbWidth = width;
-    win->fbHeight = height;
+	win->fbHeight = height;
 }
 
 window* newWindow(
