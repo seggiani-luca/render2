@@ -26,6 +26,9 @@ typedef struct {
 
 	// entity
 	entity* ent;
+	
+	// scene
+	scene* scn;
 
 	// name buffer
 	char name[ENT_NAME_SIZ];
@@ -48,10 +51,11 @@ typedef enum {
 // renders the add field GUI
 void addChildGui(window* win) {
 	// get context
-	addChildGuiContext* eCtx = (addChildGuiContext*)initGui(win);
-	guiContext* ctx = &eCtx->gui;
-	entity* ent = eCtx->ent;
-	char* name = eCtx->name;
+	addChildGuiContext* aCtx = (addChildGuiContext*)initGui(win);
+	guiContext* ctx = &aCtx->gui;
+	entity* ent = aCtx->ent;
+	scene* scn = aCtx->scn;
+	char* name = aCtx->name;
 
 	// update input state
 	inputGui(win);
@@ -108,6 +112,9 @@ void addChildGui(window* win) {
 			entity* new = c->ctor(name);
 			if(new) appendChild(ent, new);
 
+			// flag dirty
+			scn->dirty = 1;
+
 			// should close
 			glfwSetWindowShouldClose(win->gl, 1);
 		}
@@ -122,18 +129,19 @@ void addChildGui(window* win) {
 }
 
 // gets a callback object for a "new field" menu
-renderCallback makeAddChildCallback(entity* ent) {
+renderCallback makeAddChildCallback(entity* ent, scene* scn) {
 	// initialize context
-	addChildGuiContext* eCtx = malloc(sizeof(addChildGuiContext));
-	eCtx->gui.win = NULL;
-	eCtx->gui.child = NULL;
-	eCtx->ent = ent;
-	*eCtx->name = '\0';
+	addChildGuiContext* aCtx = malloc(sizeof(addChildGuiContext));
+	aCtx->gui.win = NULL;
+	aCtx->gui.child = NULL;
+	aCtx->ent = ent;
+	aCtx->scn = scn;
+	*aCtx->name = '\0';
 
 	// return callback
 	return (renderCallback){
 		addChildGui,
-		eCtx,
+		aCtx,
 		freeGui
 	};
 }
@@ -254,6 +262,9 @@ void sceneGui(window* win) {
 				// free entity
 				freeEntity(cur);
 
+				// flag dirty
+				scn->dirty = 1;
+
 				// tree is not really valid anymore, redraw at next iteration
 				return;
 			} break;
@@ -272,6 +283,9 @@ void sceneGui(window* win) {
 
 					// reset move
 					sCtx->moving = NULL;
+				
+					// flag dirty
+					scn->dirty = 1;
 				}
 				else {
 					// view
@@ -289,7 +303,7 @@ void sceneGui(window* win) {
 					ADD_CHILD_WIDTH,
 					ADD_CHILD_HEIGHT,
 					"Append Child",
-					makeAddChildCallback(cur)
+					makeAddChildCallback(cur, scn)
 				));
 			} break;
 
@@ -299,6 +313,9 @@ void sceneGui(window* win) {
 		if(!next) break;
 	}
 	downGui(ctx, SCROLL, 1 PAD);
+
+	// update render scene if modified
+	if(scn->dirty) updateRenderScene(scn);
 
 	// flush changes
 	flushGui(ctx);

@@ -7,7 +7,7 @@
 // -- sizing
 
 // inspector size
-#define INSPECTOR_WIDTH 400
+#define INSPECTOR_WIDTH  400
 #define INSPECTOR_HEIGHT 800
 
 // add field window size

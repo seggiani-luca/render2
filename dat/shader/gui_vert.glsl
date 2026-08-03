@@ -1,12 +1,12 @@
 #version 420 core
 
-layout(location = 0) in vec2 aPos;    // (0..1) quad
-layout(location = 1) in vec4 iBounds; // x, y, w, h
-layout(location = 2) in vec4 iUV;     // u0, v0, u1, v1
+layout(location = 0) in vec2 aPos;    // vertex       x, y
+layout(location = 1) in vec4 iBounds; // instance     x, y, w, h
+layout(location = 2) in vec4 iUV;     // instance     u0, v0, u1, v1
 
-out vec2 vUV;
+out vec2 vUV;                         // out          u, v
 
-uniform vec2 uScreenSize; // window size in pixels
+uniform vec2 uScreenSize;             // window size  pixels 
 
 void main()
 {

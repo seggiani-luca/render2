@@ -3,7 +3,14 @@
 
 #include "entity/entity.h"
 
+// macro for getting owner by member
+#define container_of(ptr, type, member) \
+	((type *)((char *)(ptr) - offsetof(type, member)))
+
 // -- scenes
+
+// name of root entity
+#define ROOT_NAME "Root"
 
 // a scene is just an entity hierarchy
 struct scene {
@@ -14,7 +21,10 @@ struct scene {
 	entity root;
 
 	// rendering state
-	renderScene render;	
+	renderScene render;
+
+	// dirty flag
+	int dirty;
 };
 typedef struct scene scene;
 

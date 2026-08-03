@@ -20,18 +20,19 @@ L := gcc
 CFLAGS := -Wall -Wextra -Wno-missing-braces -g
 LFLAGS := -lglfw -lGL -lm
 OFLAGS := -fsanitize=address
+SUPP := LSAN_OPTIONS=suppressions=tst/lsan.supp
 
 # -- targets
 all: $(EX)
 
 run:
-	@./$(EX)
+	@$(SUPP) ./$(EX)
 
 debug:
-	@gdb ./$(EX)
+	@$(SUPP) gdb ./$(EX)
 
 asan:
-	@LSAN_OPTIONS=suppressions=tst/lsan.supp ./$(EX) 2> tst/asan.txt
+	@$(SUPP) ./$(EX) 2> tst/asan.txt
 
 $(EX): $(SRC_OUT_C) $(LIB_OUT_C)
 	@echo "Linking objects ..."

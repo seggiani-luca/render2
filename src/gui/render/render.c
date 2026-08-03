@@ -264,6 +264,8 @@ guiContext* initGui(window* win) {
 		ctx->inactive = 0;
 		ctx->in.hotId = 0;
 		ctx->in.absScroll = 0.0f;
+		ctx->in.dataPtr = NULL;
+		ctx->in.dataSet = 0;
 	}
 
 	// reset all layers

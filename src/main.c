@@ -1,8 +1,9 @@
 #include "data/data.h"
+#include "window/window.h"
 #include "scene/scene.h"
+#include "render/render.h"
 #include "gui/hierarchy/hierarchy.h"
 #include "gui/inspector/inspector.h"
-#include "window/window.h"
 
 // -- windows
 
@@ -20,6 +21,7 @@ window* inspectorWin;
 // cleans up after termination
 void cleanup() {
 	// free windows
+	freeWindow(mainWin);
 	freeWindow(inspectorWin);
 	freeWindow(hierarchyWin);
 
@@ -35,6 +37,14 @@ void cleanup() {
 int main() {
 	// create scene
 	scene* mainScene = newDefaultScene("Main Scene");
+
+	// create main window
+	mainWin = newWindow(
+		MAIN_WIDTH,
+		MAIN_HEIGHT,
+		"Main",
+		makeRenderCallback(mainScene)
+	);
 
 	// create hierarchy
 	hierarchyWin = newWindow(
@@ -55,6 +65,7 @@ int main() {
 	// update windows
 	for(;;) {
 		updateGl();
+		if(!updateWindow(mainWin)) break;
 		if(!updateWindow(hierarchyWin)) break;
 		if(!updateWindow(inspectorWin)) break;
 	}

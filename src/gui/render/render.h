@@ -116,6 +116,12 @@ struct guiContext {
 
 		// absolute scrolling position
 		float absScroll;
+
+		// data pointer
+		void* dataPtr;
+
+		// data set state
+		int dataSet;
 	} in;
 
 	// GUI layers

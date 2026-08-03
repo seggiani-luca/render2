@@ -234,6 +234,10 @@ mat4 matInv4(mat4 m) {
 	return r;
 }
 
+mat4 matPersp(float fov, float near, float far, float aspect) {
+	// TODO: implement this and finish render()
+}
+
 // -- quaternions
 
 quat quatIdent() {
@@ -438,4 +442,12 @@ mat4 transformToMat4(transform t) {
 		tMat,
 		rMat),
 		sMat);
+}
+
+void transformPrint(transform t) {
+	float3 euler = quatToEuler(t.rotation);
+	printf("Position: %f, %f, %f, Rotation: %f, %f, %f, Scale: %f, %f, %f",
+		t.position.x, t.position.y, t.position.z,
+		euler.x, euler.y, euler.z,
+		t.scale.x, t.scale.y, t.scale.z);
 }

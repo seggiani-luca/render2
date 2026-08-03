@@ -46,12 +46,12 @@ void printGl() {
 	// print platform
 	int platform = glfwGetPlatform();
 	switch(platform) {
-	case     GLFW_PLATFORM_WIN32:   printf("win32"); break;
-	case     GLFW_PLATFORM_COCOA:   printf("cocoa"); break;
-	case     GLFW_PLATFORM_WAYLAND: printf("wayland"); break;
-	case     GLFW_PLATFORM_X11:     printf("x11"); break;
-	case     GLFW_PLATFORM_NULL:    printf("null"); break;
-	default:                        printf("unknown"); break;
+	case GLFW_PLATFORM_WIN32:   printf("win32"); break;
+	case GLFW_PLATFORM_COCOA:   printf("cocoa"); break;
+	case GLFW_PLATFORM_WAYLAND: printf("wayland"); break;
+	case GLFW_PLATFORM_X11:     printf("x11"); break;
+	case GLFW_PLATFORM_NULL:    printf("null"); break;
+	default:                    printf("unknown"); break;
 	}
 
 	// print renderer
@@ -159,6 +159,7 @@ window* newWindow(
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	// inc. window counter
 	windows++;
 	return win;
 }
@@ -171,6 +172,7 @@ void freeWindow(window* win) {
 	glfwDestroyWindow(win->gl);
 	free(win);
 
+	// dec. window counter
 	windows--;
 }
 
@@ -190,9 +192,9 @@ int updateWindow(window* win) {
 }
 
 void resizeWindow(window* win, int width, int height) {
+	// set size
 	win->width = width;
 	win->height = height;
-
 	glfwSetWindowSize(win->gl, width, height);
 	
 	// setup framebuffer

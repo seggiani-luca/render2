@@ -5,29 +5,37 @@
 #include "../data/texture/texture.h"
 #include "../data/mesh/mesh.h"
 #include "../data/material/material.h"
+#include "../window/window.h"
 #include <stdio.h>
 
 // -- constants
 
+// main window size
+#define MAIN_WIDTH  800
+#define MAIN_HEIGHT 600
+
 // rendering transform name
-#define REN_TRANSFORM_NAME "Transform"
+#define REN_TRANSFORM_NAME  "Transform"
 
 // rendering mesh name
-#define REN_MESH_NAME "Mesh"
+#define REN_MESH_NAME       "Mesh"
 
 // rendering material name
-#define REN_MATERIAL_NAME "Material"
+#define REN_MATERIAL_NAME   "Material"
 
 // rendering camera name
-#define REN_CAMERA_NAME "Camera"
+#define REN_CAMERA_NAME     "Camera"
 
 // rendering atmosphere name
 #define REN_ATMOSPHERE_NAME "Atmosphere"
 
 // -- rendering
 
+// forward declaration of scene 
+typedef struct scene scene;
+
 // paths for shaders
-#define VERT_PATH "dat/shader/vert.glsl"
+#define VERT_PATH       "dat/shader/vert.glsl"
 #define PHONG_FRAG_PATH "dat/shader/phong_frag.glsl"
 
 // macro for OpenGL errors
@@ -37,6 +45,9 @@
 	    if(err != GL_NO_ERROR)                           \
 	    printf("OpenGL error 0x%x at %s\n", err, #func); \
 	}
+
+// gets a callback object for scene rendering 
+renderCallback makeRenderCallback(scene* scn);
 
 // -- objects
 
@@ -56,6 +67,9 @@ typedef struct {
 typedef struct {
 	// ambient color
 	color ambient;
+	
+	// background color
+	color background;
 } atmosphere;
 
 // -- views 
@@ -94,10 +108,10 @@ typedef struct {
 	renderEntity* root;
 } renderScene;
 
-// forward declaration for updateRenderScene
-typedef struct scene scene;
-
 // updates rendering view of a scene
 void updateRenderScene(scene* scene);
+
+// prints rendering view of a scene
+void printRenderScene(scene* scene);
 
 #endif

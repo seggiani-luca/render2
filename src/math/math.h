@@ -134,6 +134,9 @@ float matDet4(mat4 m);
 // 4D matrix inverse
 mat4 matInv4(mat4 m);
 
+// gets a projection matrix
+mat4 matPersp(float fov, float near, float far, float aspect);
+
 // -- quaternions
 
 // quaternion
@@ -223,5 +226,8 @@ mat4 scaleToMat4(float3 s);
 
 // transform to 4x4 matrix
 mat4 transformToMat4(transform t);
+
+// prints a transform
+void transformPrint(transform t);
 
 #endif

@@ -1,5 +1,6 @@
 #include "inspector.h"
 #include "../widget/widget.h"
+#include "../../scene/scene.h"
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,7 +31,8 @@ typedef struct {
 // enum for inspector action
 typedef enum {
 	NONE = 0,
-	DELETE = 1
+	MODIFY = 1,
+	DELETE = 2
 } inspAction;
 
 // -- field primitives
@@ -40,7 +42,7 @@ int fieldGui(
 	guiContext* ctx,
 	const char* name,
 	float4 ico,
-	void (*gui)(guiContext* ctx, guiLayerId id, float4 rect, void* val),
+	int (*gui)(guiContext* ctx, guiLayerId id, float4 rect, void* val),
 	void* val,
 	int rows
 ) {
@@ -76,7 +78,7 @@ int fieldGui(
 	// push edit box
 	float vPos = ctx->layers[SCROLL].vPos;
 	float lastHeight = ctx->layers[SCROLL].height;
-	gui(ctx, SCROLL, (float4){
+	int ret = gui(ctx, SCROLL, (float4){
 		2 PAD, 3 PAD + HROW,
 		WIN - 4 PAD, HROW - 1 PAD
 	}, val);
@@ -84,6 +86,9 @@ int fieldGui(
 	ctx->layers[SCROLL].height = lastHeight;
 
 	downGui(ctx, SCROLL, height + 1 PAD);
+
+	// signal if modified
+	if(ret) act = MODIFY;
 
 	return act;
 }
@@ -199,30 +204,35 @@ int quatFieldGui(const field* f, guiContext* ctx) {
 }
 
 // pushes a transform edit box
-void transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+int transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 	rect.x += TRANS_OFF;
 	rect.z -= TRANS_OFF;
 
+	// modify return
+	int ret = 0;
+
 	// position
-	float3Gui(ctx, layId, rect, ((float3*)val));
+	if(float3Gui(ctx, layId, rect, ((float3*)val))) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD
 	}, "Position");
 
 	// rotation
-	float3Gui(ctx, layId, rect, ((float3*)val) + 1);
+	if(float3Gui(ctx, layId, rect, ((float3*)val) + 1)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD 
 	}, "Rotation");
 
 	// scale
-	float3Gui(ctx, layId, rect, ((float3*)val) + 2);
+	if(float3Gui(ctx, layId, rect, ((float3*)val) + 2)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD 
 	}, "Scale");
+
+	return ret;
 }
 
 int transformFieldGui(const field* f, guiContext* ctx) {
@@ -262,32 +272,37 @@ int transformFieldGui(const field* f, guiContext* ctx) {
 }
 
 // pushes a camera edit box
-void cameraGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+int cameraGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 	rect.x += TRANS_OFF;
 	rect.z -= TRANS_OFF;
 
 	camera* c = (camera*)val;
 
+	// modify return
+	int ret = 0;
+
 	// fov
-	floatGui(ctx, layId, rect, &c->fov);
+	if(floatGui(ctx, layId, rect, &c->fov)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD
 	}, "Fov");
 
 	// near
-	floatGui(ctx, layId, rect, &c->nearPlane);
+	if(floatGui(ctx, layId, rect, &c->nearPlane)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD 
 	}, "Near");
 
 	// far
-	floatGui(ctx, layId, rect, &c->farPlane);
+	if(floatGui(ctx, layId, rect, &c->farPlane)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD 
 	}, "Far");
+
+	return ret;
 }
 
 int cameraFieldGui(const field* f, guiContext* ctx) {
@@ -302,18 +317,29 @@ int cameraFieldGui(const field* f, guiContext* ctx) {
 }
 
 // pushes an atmosphere edit box
-void atmosphereGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+int atmosphereGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 	rect.x += TRANS_OFF;
 	rect.z -= TRANS_OFF;
 
 	atmosphere* a = (atmosphere*)val;
+	
+	// modify return
+	int ret = 0;
 
 	// ambient
-	float3Gui(ctx, layId, rect, &a->ambient);
+	if(float3Gui(ctx, layId, rect, &a->ambient)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD
 	}, "Ambient");
+	
+	if(float3Gui(ctx, layId, rect, &a->background)) ret = 1;
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Background");
+
+	return ret;
 }
 
 int atmosphereFieldGui(const field* f, guiContext* ctx) {
@@ -323,7 +349,7 @@ int atmosphereFieldGui(const field* f, guiContext* ctx) {
 		ICO_ATMOS,
 		atmosphereGui,
 		&((atmosphereField*)f)->val,
-		1
+		2
 	);
 }
 
@@ -444,6 +470,10 @@ void addFieldGui(window* win) {
 			// actually construct and append field
 			appendField(ent, f->ctor(name));
 
+			// flag dirty
+			scene* scn = ownerScene(ent);
+			scn->dirty = 1;
+
 			// should close
 			glfwSetWindowShouldClose(win->gl, 1);
 		}
@@ -526,6 +556,15 @@ void entityGui(window* win) {
 		switch(act) {
 			case DELETE: {
 				removeField(ent, f->name);
+				
+				// flag dirty
+				scene* scn = ownerScene(ent);
+				scn->dirty = 1;
+			} break;
+			case MODIFY: {	
+				// flag dirty
+				scene* scn = ownerScene(ent);
+				scn->dirty = 1;
 			} break;
 			default: break;
 		}

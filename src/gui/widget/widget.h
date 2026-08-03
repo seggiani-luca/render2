@@ -147,39 +147,39 @@ int buttonGui(
 void subWindowGui(guiContext* ctx, window* win);
 
 // pushes an int edit box
-void intGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int intGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a float edit box
-void floatGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int floatGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a string edit box
-void stringGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int stringGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a 2D vector edit box
-void float2Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int float2Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a 3D vector edit box
-void float3Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int float3Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a 4D vector edit box
-void float4Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int float4Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a 2x2 matrix edit box
-void mat2Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int mat2Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a 3x3 matrix edit box
-void mat3Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int mat3Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a 4x4 matrix edit box
-void mat4Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int mat4Gui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a texture edit box
-void textureGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int textureGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a mesh edit box
-void meshGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int meshGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a material edit box
-void materialGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+int materialGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 #endif

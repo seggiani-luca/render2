@@ -297,4 +297,7 @@ void removeChild(entity* e, entity* child);
 // moves a child from an entity to another
 void moveChild(entity* e, entity* child);
 
+// gets an entity's scene
+scene* ownerScene(entity* e);
+
 #endif

@@ -7,7 +7,7 @@
 // -- sizing
 
 // hierarchy size
-#define HIERARCHY_WIDTH 400
+#define HIERARCHY_WIDTH  400
 #define HIERARCHY_HEIGHT 800
 
 // width of hierarchy element

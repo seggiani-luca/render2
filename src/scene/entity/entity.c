@@ -1,4 +1,5 @@
 #include "entity.h"
+#include "../scene.h"
 #include "../../gui/inspector/inspector.h"
 #include "../../render/render.h"
 #include <stdio.h>
@@ -243,13 +244,9 @@ void transformFieldWrite(field* f, const void* src) {
 
 // debug prints a transform field
 void transformFieldPrint(const field* f) {
-	transform* t = &((transformField*)f)->val;
-	float3 euler = quatToEuler(t->rotation);
-	printf("%s (Transform): Position: %f, %f, %f, Rotation: %f, %f, %f, Scale: %f, %f, %f",
-		f->name,
-		t->position.x, t->position.y, t->position.z,
-		euler.x, euler.y, euler.z,
-		t->scale.x, t->scale.y, t->scale.z);
+	transform t = ((transformField*)f)->val;
+	printf("%s (Transform): ", f->name);
+	transformPrint(t);
 }
 
 VTABLE(transform)
@@ -431,6 +428,7 @@ void printEntity(const entity* e) {
 
 entity* newEntity(const char* name) {
 	if(*name == '\0') return NULL;
+	if(strcmp(name, ROOT_NAME) == 0) return NULL;
 
 	// allocate entity
 	entity* e = malloc(sizeof(entity));
@@ -622,11 +620,11 @@ void removeChild(entity* e, entity* child) {
 }
 
 // checks if node is descendant of (supposed) parent
-int isDescendant(entity* node, entity* parent) {
-	while(node) {
-		if(parent == node) return 1;
-
-		node = node->parent;
+int isDescendant(entity* e, entity* parent) {
+	// walk up
+	while(e) {
+		if(parent == e) return 1;
+		e = e->parent;
 	}
 
 	return 0;
@@ -640,4 +638,19 @@ void moveChild(entity* e, entity* child) {
 
 	removeChild(child->parent, child);
 	appendChild(e, child);
+}
+
+scene* ownerScene(entity* e) {
+	if(!e) return NULL;
+
+	// walk up
+	while(e->parent) {
+		e = e->parent;
+	}
+
+	// check for root
+	if(strcmp(e->name, ROOT_NAME) != 0) return NULL;
+
+	// is root
+	return container_of(e, scene, root);			
 }

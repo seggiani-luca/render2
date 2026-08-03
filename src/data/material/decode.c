@@ -41,6 +41,7 @@ int materialDecode(material* material, FILE* file) {
 	// get matching shader
 	dataRef* ref = shaderImport(VERT_PATH, PHONG_FRAG_PATH);
 	if(ref) material->shader = ref->data;
+	else return 0;
 
 	return 1;
 }
