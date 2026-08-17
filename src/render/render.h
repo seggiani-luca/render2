@@ -68,6 +68,9 @@ typedef struct {
 	// ambient color
 	color ambient;
 	
+	// sun color
+	color sun;
+	
 	// background color
 	color background;
 } atmosphere;
@@ -101,8 +104,14 @@ typedef struct {
 		mat4 transform;
 	} camera;
 
-	// scene atmosphere 
-	atmosphere* atmosphere;
+	// scene atmosphere
+	struct {
+		// atmosphere field
+		atmosphere* info;
+		
+		// atmosphere transform
+		mat4 transform;
+	} atmosphere;
 
 	// root of scene hierarchy
 	renderEntity* root;
@@ -110,6 +119,9 @@ typedef struct {
 
 // updates rendering view of a scene
 void updateRenderScene(scene* scene);
+
+// frees render scene hierarchy
+void freeRenderScene(scene* scene);
 
 // prints rendering view of a scene
 void printRenderScene(scene* scene);

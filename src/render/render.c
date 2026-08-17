@@ -11,6 +11,141 @@ typedef struct {
 	scene* scn;
 } renderingContext;
 
+// debug print a 4x4 uniform matrix
+void debugUniformMatrix(GLuint program, GLint location, const char *name) {
+    GLfloat m[16];
+
+	// get uniform
+    glGetUniformfv(program, location, m);
+
+	// print matrix
+    printf("%s:\n", name);
+    for (int row = 0; row < 4; row++) {
+        printf("  ");
+        for (int col = 0; col < 4; col++)
+            printf("%g ", m[col * 4 + row]);
+        printf("\n");
+    }
+}
+
+// actually renders an entity
+void doRenderEntity(
+	renderEntity* ent,
+	camera* camInfo __attribute__((unused)),
+	mat4 camTrans,
+	atmosphere* atmInfo,
+	mat4 atmTrans,
+	mat4 view,
+	mat4 proj
+) {
+	// get model matrix
+	mat4 model = ent->transform;
+
+	// get shader and material
+	material* material = ent->material;
+	shader* shader = material->shader;
+
+	// setup program
+	glUseProgram(shader->program);
+	GL_ERR("program selection");
+
+	// send model matrix
+	glUniformMatrix4fv(
+		shader->uniformLocations[MODEL], 
+		1, GL_FALSE, &model.a);
+	GL_ERR("uModel uniform");
+
+	// send view matrix
+	glUniformMatrix4fv(
+		shader->uniformLocations[VIEW], 
+		1, GL_FALSE, &view.a);
+	GL_ERR("uView uniform");
+	
+	// send projection matrix
+	glUniformMatrix4fv(
+		shader->uniformLocations[PROJECTION], 
+		1, GL_FALSE, &proj.a);
+	GL_ERR("uProjection uniform");
+	
+	// send camera position 
+	glUniform3fv(
+		shader->uniformLocations[CAMERA_POSITION], 
+		1, mat4ExPosition(&camTrans));
+	GL_ERR("uCameraPos uniform");
+	
+	// send sun direction
+	glUniform3fv(
+		shader->uniformLocations[SUN_DIRECTION], 
+		1, mat4ExForward(&atmTrans));
+	GL_ERR("uSunDir uniform");
+	
+	// send sun color 
+	glUniform3fv(
+		shader->uniformLocations[SUN_COLOR], 
+		1, &atmInfo->sun.r);
+	GL_ERR("uSunCol uniform");
+	
+	// send ambient color 
+	glUniform3fv(
+		shader->uniformLocations[AMBIENT_COLOR], 
+		1, &atmInfo->ambient.r);
+	GL_ERR("uAmbientCol uniform");
+
+	// send diffuse color
+	glUniform3fv(
+		shader->uniformLocations[DIFFUSE_COLOR], 
+		1, &material->diffuseCol.r);
+	GL_ERR("uDiffuseCol uniform");
+	
+	// send diffuse texture
+	if(material->diffuseMap) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, material->diffuseMap->tex);
+		glUniform1i(
+			shader->uniformLocations[DIFFUSE_MAP],
+			0
+		);
+	}
+	glUniform1i(
+		shader->uniformLocations[HAS_DIFFUSE_MAP],
+		material->diffuseMap ? 1 : 0	
+	);
+
+	// send specular color
+	glUniform3fv(
+		shader->uniformLocations[SPECULAR_COLOR], 
+		1, &material->specularCol.r);
+	GL_ERR("uSpecularCol uniform");
+	
+	// send specular texture
+	if(material->specularMap) {
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, material->specularMap->tex);
+		glUniform1i(
+			shader->uniformLocations[SPECULAR_MAP],
+			1
+		);
+	}
+	glUniform1i(
+		shader->uniformLocations[HAS_SPECULAR_MAP],
+		material->specularMap ? 1 : 0	
+	);
+	
+	// send shininess 
+	glUniform1fv(
+		shader->uniformLocations[SHININESS], 
+		1, &material->shininess);
+	GL_ERR("uSpecularCol uniform");
+
+	// setup VAO
+	glBindVertexArray(ent->mesh->vao);
+	GL_ERR("draw call VAO binding");
+
+	// issue draw call
+	glDrawArrays(GL_TRIANGLES, 0, ent->mesh->vertCount);
+	GL_ERR("draw call issue");
+}
+
 // actually renders a scene
 void render(window* win) {
 	// get context
@@ -21,17 +156,18 @@ void render(window* win) {
 	// get scene data
 	camera* camInfo = rnd->camera.info;
 	mat4 camTrans = rnd->camera.transform;
-	atmosphere* atmos = rnd->atmosphere;
+	atmosphere* atmInfo = rnd->atmosphere.info;
+	mat4 atmTrans = rnd->atmosphere.transform;
 
 	// only if valid
 	if(!camInfo) return;
-	if(!atmos) return;
+	if(!atmInfo) return;
 
 	// clear buffer
 	glClearColor(
-		atmos->background.r,
-		atmos->background.g,
-		atmos->background.b,
+		atmInfo->background.r,
+		atmInfo->background.g,
+		atmInfo->background.b,
 		1.0
 	);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -42,13 +178,22 @@ void render(window* win) {
 		camInfo->fov,
 		camInfo->nearPlane,
 		camInfo->farPlane,
-		win->fbWidth / win->fbHeight
+		(float)win->fbWidth / win->fbHeight
 	);
 
 	// go through all render entities
 	renderEntity* cur = rnd->root;
 	while(cur) {
 		// render entity
+		doRenderEntity(
+			cur,
+			camInfo,
+			camTrans,
+			atmInfo,
+			atmTrans,
+			view,
+			proj
+		);
 
 		cur = cur->next;
 	}
@@ -150,10 +295,11 @@ void appendRenderEntity(renderScene* scn, renderEntity* ent) {
 	*cur = ent;
 }
 
-// frees render scene hierarchy
-void freeRenderScene(renderScene* scn) {
+void freeRenderScene(scene* scene) {
+	renderScene* rnd = &scene->render;
+
 	// go through all entities, freeing
-	renderEntity* cur = scn->root;
+	renderEntity* cur = rnd->root;
 	while(cur) {
 		renderEntity* tmp = cur;
 		cur = cur->next;
@@ -161,14 +307,14 @@ void freeRenderScene(renderScene* scn) {
 	}
 
 	// clear render scene
-	memset(scn, 0, sizeof(renderScene));
+	memset(rnd, 0, sizeof(renderScene));
 }
 
 void updateRenderScene(scene* scene) {
 	renderScene* render = &scene->render;
 
 	// clear scene
-	freeRenderScene(render);
+	freeRenderScene(scene);
 	scene->dirty = 0;
 
 	// go through scene hierarchy
@@ -210,7 +356,8 @@ void updateRenderScene(scene* scene) {
 
 		// get if atmosphere
 		if(atmosphere) {
-			render->atmosphere = atmosphere;
+			render->atmosphere.info = atmosphere;
+			render->atmosphere.transform = curTrans;
 		}
 
 		// get if object
@@ -244,11 +391,14 @@ void printRenderScene(scene* scene) {
 	}
 
 	// atmosphere
-	if(render->atmosphere) {
-		printf("Atmosphere: Ambient: %f, %f, %f\n",
-			render->atmosphere->ambient.r,
-			render->atmosphere->ambient.g,
-			render->atmosphere->ambient.b);
+	if(render->atmosphere.info) {
+		printf("Atmosphere Info: Ambient: %f, %f, %f\n",
+			render->atmosphere.info->ambient.r,
+			render->atmosphere.info->ambient.g,
+			render->atmosphere.info->ambient.b);
+		
+		printf("Atmosphere Transform:\n");
+		matPrint4(render->atmosphere.transform); printf("\n");
 	}
 
 	// render entities

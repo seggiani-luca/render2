@@ -333,6 +333,14 @@ int atmosphereGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 		2 PAD, 3 PAD
 	}, "Ambient");
 	
+	// sun 
+	if(float3Gui(ctx, layId, rect, &a->sun)) ret = 1;
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Sun");
+	
+	// background
 	if(float3Gui(ctx, layId, rect, &a->background)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
@@ -349,7 +357,7 @@ int atmosphereFieldGui(const field* f, guiContext* ctx) {
 		ICO_ATMOS,
 		atmosphereGui,
 		&((atmosphereField*)f)->val,
-		2
+		3
 	);
 }
 
@@ -582,7 +590,8 @@ void entityGui(window* win) {
 			ADD_FIELD_WIDTH,
 			ADD_FIELD_HEIGHT,
 			"Append Field",
-			makeAddFieldCallback(ent)
+			makeAddFieldCallback(ent),
+			0
 		));
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 4 PAD);

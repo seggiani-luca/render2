@@ -1,5 +1,3 @@
-.PHONY: $(EX) run
-
 # -- sources
 LIB := lib
 LIB_C := $(shell find $(LIB) -name "*.c")
@@ -25,7 +23,7 @@ SUPP := LSAN_OPTIONS=suppressions=tst/lsan.supp
 # -- targets
 all: $(EX)
 
-run:
+run: $(EX)
 	@$(SUPP) ./$(EX)
 
 debug:

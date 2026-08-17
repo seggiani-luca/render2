@@ -461,6 +461,17 @@ entity* newRenderableEntity(const char* name) {
 	return e;
 }
 
+entity* newSunEntity(const char* name) {
+	entity* e = newEntity(name);
+	if(!e) return NULL;
+
+	// default fields
+	appendField(e, transformNew(REN_TRANSFORM_NAME));
+	appendField(e, atmosphereNew(REN_ATMOSPHERE_NAME));
+
+	return e;
+}
+
 entity* newCameraEntity(const char* name) {
 	entity* e = newEntity(name);
 	if(!e) return NULL;
@@ -468,7 +479,6 @@ entity* newCameraEntity(const char* name) {
 	// default fields
 	appendField(e, transformNew(REN_TRANSFORM_NAME));
 	appendField(e, cameraNew(REN_CAMERA_NAME));
-	appendField(e, atmosphereNew(REN_ATMOSPHERE_NAME));
 
 	return e;
 }

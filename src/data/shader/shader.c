@@ -92,6 +92,51 @@ void shaderPrint(void* dat) {
 	printf("Shader %d\n", shd->program);
 }
 
+// gets an uniform's associated string
+const char* getUniformString(shaderUniform uniform) {
+	switch (uniform) {
+		// transform matrices
+		case MODEL:            return "uModel";
+		case VIEW:             return "uView";
+		case PROJECTION:       return "uProjection";
+
+		// camera info
+		case CAMERA_POSITION:  return "uCameraPos";
+
+		// sun info
+		case SUN_DIRECTION:    return "uSunDir";
+		case SUN_COLOR:        return "uSunCol";
+
+		// atmosphere info
+		case AMBIENT_COLOR:    return "uAmbientCol";
+
+		// material info
+		case DIFFUSE_COLOR:    return "uDiffuseCol";
+		case DIFFUSE_MAP:      return "uDiffuseMap";
+		case SPECULAR_COLOR:   return "uSpecularCol";
+		case SPECULAR_MAP:     return "uSpecularMap";
+		case SHININESS:        return "uShininess";
+		case HAS_DIFFUSE_MAP:  return "uHasDiffuseMap";
+		case HAS_SPECULAR_MAP: return "uHasSpecularMap";
+
+		default:               return NULL;
+	}
+}
+
+// precalculates uniform locations for shader programs
+void getUniformLocations(shader* shader) {
+	// go through all uniforms
+	for(int i = 0; i < NUM_UNIFORMS; i++) {
+		// get string
+		const char* uniformString = getUniformString(i);
+
+		// find location
+		shader->uniformLocations[i] 
+			= glGetUniformLocation(shader->program, uniformString);
+		GL_ERR(uniformString);
+	}
+}
+
 void shader_free(shader* shader) {
 	if(shader == NULL) return;
 
@@ -147,11 +192,14 @@ dataRef* shaderImport(const char* vert, const char* frag) {
 	// free buffers
 	free(vert_shader);
 	free(frag_shader);
-
+	
 	// create new shader
 	shader* new_shader = malloc(sizeof(shader));
 	memset(new_shader, 0, sizeof(shader));
 	new_shader->program = program;
+
+	// get uniform locations
+	getUniformLocations(new_shader);
 
 	// walk table to end
 	dataRef** cur = &shaderTable.root;

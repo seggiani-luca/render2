@@ -1,6 +1,5 @@
 #include "window.h"
 #include "../../lib/glad/glad.h"
-#include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -34,6 +33,9 @@ int newGl() {
 
 	// GLFW double buffering hints
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+
+	// GLFW depth buffer hints 
+	glfwWindowHint(GLFW_DEPTH_BITS, 24);
 
 	return 1;
 }
@@ -100,7 +102,8 @@ window* newWindow(
 	int width,
 	int height,
 	const char* title,
-	renderCallback cback
+	renderCallback cback,
+	int depth	
 ) {
 	// allocate window data
 	window* win = malloc(sizeof(window));
@@ -158,6 +161,13 @@ window* newWindow(
 	// setup depth
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if(depth) {
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
+	}
 
 	// inc. window counter
 	windows++;

@@ -56,7 +56,8 @@ window* newWindow(
 	int width,
 	int height,
 	const char* title,
-	renderCallback cback
+	renderCallback cback,
+	int depth
 );
 
 // updates a window

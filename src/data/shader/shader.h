@@ -53,9 +53,40 @@
 	    }                                                          \
 	}
 
+// shader uniforms
+typedef enum {
+	// transform matrices 
+	MODEL,
+	VIEW,
+	PROJECTION,
+
+	// camera info	
+	CAMERA_POSITION,
+
+	// sun info
+	SUN_DIRECTION,
+	SUN_COLOR,
+
+	// atmosphere info
+	AMBIENT_COLOR,
+
+	// material info
+	DIFFUSE_COLOR,
+	DIFFUSE_MAP,
+	SPECULAR_COLOR,
+	SPECULAR_MAP,
+	SHININESS,
+	HAS_DIFFUSE_MAP,
+	HAS_SPECULAR_MAP
+} shaderUniform;
+
+// number of shader uniforms
+#define NUM_UNIFORMS (HAS_SPECULAR_MAP + 1)
+
 // shader data
 typedef struct {
 	GLuint program;
+	GLint uniformLocations[NUM_UNIFORMS];
 } shader;
 
 // shader table

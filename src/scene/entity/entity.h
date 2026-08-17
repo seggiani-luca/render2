@@ -266,6 +266,9 @@ entity* newEntity(const char* name);
 // creates a new renderable entity with default fields
 entity* newRenderableEntity(const char* name);
 
+// creates a new sun entity with default fields
+entity* newSunEntity(const char* name);
+
 // creates a new camera entity with default fields
 entity* newCameraEntity(const char* name);
 

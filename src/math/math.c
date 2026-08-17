@@ -235,14 +235,28 @@ mat4 matInv4(mat4 m) {
 }
 
 mat4 matPersp(float fov, float near, float far, float aspect) {
-	// TODO: implement this and finish render()
+	mat4 r = {0};
+	
+	// use degrees
+	fov *= DEG2RAD;
+
+	// FOV term
+	float s = 1.0f / tanf(fov / 2.0f);
+	
+	r.a = s / aspect;
+	r.f = s;
+	r.k = -(far + near) / (far - near);
+	r.o = -1.0f;
+	r.l = -2.0f * far * near / (far - near);
+
+	return r;
 }
 
 // -- quaternions
 
 quat quatIdent() {
 	return (quat) {
-		.w = 1,
+		.w = 1.0f,
 		.x = 0, .y = 0, .z = 0
 	};
 }
@@ -317,7 +331,7 @@ quat quatNormalized(quat q) {
 }
 
 quat quatAngleAxis(float angle, float3 axis) {
-	float hAngle = angle / 2;
+	float hAngle = angle / 2.0f;
 	axis = vecNormalized3(axis);
 
 	return (quat){
@@ -342,9 +356,9 @@ float3 quatRotate(quat q, float3 v) {
 
 mat3 quatToMat3(quat q) {
 	return makeMat3((float[9]){
-		1 - 2 * (q.y * q.y + q.z * q.z), 2 * (q.x * q.y - q.w * q.z),     2 * (q.x * q.z + q.w * q.y), 
-		2 * (q.x * q.y + q.w * q.z),     1 - 2 * (q.x * q.x + q.z * q.z), 2 * (q.y * q.z - q.w * q.x),
-		2 * (q.x * q.z - q.w * q.y),     2 * (q.y * q.z + q.w * q.x),     1 - 2 * (q.x * q.x + q.y * q.y)
+		1.0f - 2.0f * (q.y * q.y + q.z * q.z), 2.0f * (q.x * q.y - q.w * q.z),        2.0f * (q.x * q.z + q.w * q.y), 
+		2.0f * (q.x * q.y + q.w * q.z),        1.0f - 2.0f * (q.x * q.x + q.z * q.z), 2.0f * (q.y * q.z - q.w * q.x),
+		2.0f * (q.x * q.z - q.w * q.y),        2.0f * (q.y * q.z + q.w * q.x),        1.0f - 2.0f * (q.x * q.x + q.y * q.y)
 	});
 }
 
@@ -354,7 +368,7 @@ mat4 quatToMat4(quat q) {
 	mat4 r4 = {0};
 	for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
 		r4.col[i].dat[j] = r3.col[i].dat[j];
-	r4.p = 1;
+	r4.p = 1.0f;
 
 	return r4;
 }
@@ -363,18 +377,18 @@ float3 quatToEuler(quat q) {
 	float3 e;
 
 	// pitch (X)
-	float sinp = 2 * (q.w * q.x + q.y * q.z);
-	float cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+	float sinp = 2.0f * (q.w * q.x + q.y * q.z);
+	float cosp = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
 	e.x = atan2f(sinp, cosp);
 
 	// yaw (Y)
-	float siny = 2 * (q.w * q.y - q.z * q.x);
-	if (fabsf(siny) >= 1) e.y = copysignf(M_PI / 2, siny); // gimbal lock
+	float siny = 2.0f * (q.w * q.y - q.z * q.x);
+	if (fabsf(siny) >= 1.0f) e.y = copysignf(M_PI / 2.0f, siny); // gimbal lock
 	else e.y = asinf(siny);
 
 	// roll (Z)
-	float sinr = 2 * (q.w * q.z + q.x * q.y);
-	float cosr = 1 - 2 * (q.y * q.y + q.z * q.z);
+	float sinr = 2.0f * (q.w * q.z + q.x * q.y);
+	float cosr = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
 	e.z = atan2f(sinr, cosr);
 
 	// convert to degrees 
@@ -450,4 +464,12 @@ void transformPrint(transform t) {
 		t.position.x, t.position.y, t.position.z,
 		euler.x, euler.y, euler.z,
 		t.scale.x, t.scale.y, t.scale.z);
+}
+
+float* mat4ExPosition(mat4* m) {
+	return (float*)(&m->col[3]);
+}
+
+float* mat4ExForward(mat4* m) {
+	return (float*)(&m->col[2]);
 }

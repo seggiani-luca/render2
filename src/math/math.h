@@ -230,4 +230,10 @@ mat4 transformToMat4(transform t);
 // prints a transform
 void transformPrint(transform t);
 
+// extracts position from a transform matrix
+float* mat4ExPosition(mat4* m);
+
+// extracts forward vector from a transform matrix
+float* mat4ExForward(mat4* m);
+
 #endif

@@ -1,8 +1,12 @@
 #include "data.h"
 #include "shader/shader.h"
 #include "texture/texture.h"
+#include "../window/window.h"
 #include <stdlib.h>
 #include <string.h>
+
+// hook into main window
+extern window* mainWin;
 
 // -- data tables 
 
@@ -24,12 +28,18 @@ void printTable(const dataTable* table) {
 }
 
 dataRef* importData(const char* path, dataTable* table) {
+	// move context to main
+	GLFWwindow* old = glfwGetCurrentContext();
+	glfwMakeContextCurrent(mainWin->gl);
+
 	// query table by path
 	dataRef* ref = table->root;
 	while(ref) {
 		// return if found
 		if(strcmp(ref->path, path) == 0) {
 			ref->refCount++;
+
+			glfwMakeContextCurrent(old);
 			return ref; 
 		}
 
@@ -42,12 +52,16 @@ dataRef* importData(const char* path, dataTable* table) {
 	
 	// allocate entry
 	dataRef* newRef = malloc(sizeof(dataRef));
-	if(!newRef) return NULL;
+	if(!newRef) {
+		glfwMakeContextCurrent(old);
+		return NULL;
+	}
 
 	// open file file
 	FILE* file = fopen(path, "rb");
 	if(file == NULL) {
 		free(newRef);
+		glfwMakeContextCurrent(old);
 		return NULL;
 	}
 
@@ -55,6 +69,7 @@ dataRef* importData(const char* path, dataTable* table) {
 	void* data = table->import(file);
 	if(data == NULL) {
 		free(newRef);
+		glfwMakeContextCurrent(old);
 		return NULL;
 	}
 
@@ -72,6 +87,7 @@ dataRef* importData(const char* path, dataTable* table) {
 	newRef->data = data;
 
 	// return data
+	glfwMakeContextCurrent(old);
 	return newRef; 
 }
 

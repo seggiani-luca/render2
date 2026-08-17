@@ -15,11 +15,14 @@ uniform mat4 uProjection;             // projection       matrix
 uniform vec3 uCameraPos;              // camera position  x, y, z
 
 void main() {
+	// calculate world position
+	vec3 worldPos = vec3(uModel * vec4(aPos, 1.0));
+
 	// calculate projected position
-	gl_Position = uProjection * uView * uModel * vec4(aPos, 1.0);
+	gl_Position = uProjection * uView * vec4(worldPos, 1.0);
 
 	// pass over other parameters
 	vUV = aUV;
-	vNormal = mat3(uModel) * aNormal;
-	vViewDir = uCameraPos - aPos;
+	vNormal = mat3(transpose(inverse(uModel))) * aNormal;
+	vViewDir = uCameraPos - worldPos;
 }

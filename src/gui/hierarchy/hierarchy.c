@@ -42,7 +42,7 @@ typedef enum {
 	NONE = 0,
 	DELETE = 1,
 	MOVE = 2,
-	VIEW = 3,
+	INSPECT = 3,
 	NEW = 4
 } hierAction;
 
@@ -95,6 +95,7 @@ void addChildGui(window* win) {
 	} childButton;
 	static const childButton childButtons[] = {
 		{ "New Child",  ICO_ENTITY, newRenderableEntity },
+		{ "New Sun",    ICO_ATMOS,  newSunEntity        },
 		{ "New Camera", ICO_CAMERA, newCameraEntity     },
 		{ "New Empty",  ICO_EMPTY,  newEntity           }
 	};
@@ -162,7 +163,7 @@ hierAction entityHierGui(guiContext* ctx, entity* ent, int depth) {
 		1 PAD + depth * (ICO_SIZ + 1 PAD), 1 PAD,
 		HIER_ELEM_WIDTH, TXT_HEIGHT + 2 PAD
 	}, ICO_ENTITY, ent->name)) {
-		act = VIEW;
+		act = INSPECT;
 	}
 
 	// push new child button
@@ -274,7 +275,7 @@ void sceneGui(window* win) {
 				sCtx->moving = cur;
 			} break;
 
-			case VIEW: {
+			case INSPECT: {
 				entity* moving = sCtx->moving;
 
 				if(moving) {
@@ -303,7 +304,8 @@ void sceneGui(window* win) {
 					ADD_CHILD_WIDTH,
 					ADD_CHILD_HEIGHT,
 					"Append Child",
-					makeAddChildCallback(cur, scn)
+					makeAddChildCallback(cur, scn),
+					0
 				));
 			} break;
 

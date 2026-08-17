@@ -24,12 +24,12 @@ void main() {
 	vec3 L = normalize(-uSunDir);
 	vec3 V = normalize(vViewDir);
 
-	// get ambient
-	vec3 ambient = uAmbientCol;
-
 	// get diffuse color
 	vec3 albedo = uDiffuseCol;
 	if(uHasDiffuseMap) albedo *= texture(uDiffuseMap, vUV).rgb;
+	
+	// get ambient
+	vec3 ambient = uAmbientCol * albedo;
 
 	// calculate lambertian terms
 	float lambertDot = dot(L, N);
@@ -42,7 +42,7 @@ void main() {
 	vec3 specularCol = uSpecularCol;
 	if(uHasSpecularMap) specularCol *= texture(uSpecularMap, vUV).rgb;
 
-	// calcolate specular
+	// calculate specular
 	vec3 halfway = normalize(L + V);
 	vec3 specular =
 		specularCol           *

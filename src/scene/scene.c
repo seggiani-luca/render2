@@ -1,5 +1,6 @@
 #include "scene.h"
 #include "entity/entity.h"
+#include "../render/render.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,12 +38,14 @@ scene* newDefaultScene(const char* name) {
 
 	// default entities
 	appendChild(&s->root, newCameraEntity("Camera"));
+	appendChild(&s->root, newSunEntity("Sun"));
 	appendChild(&s->root, newRenderableEntity("Entity"));
 
 	return s;
 }
 
 void freeScene(scene* s) {
+	freeRenderScene(s);
 	freeEntityChildren(&s->root);
 	free(s);
 }

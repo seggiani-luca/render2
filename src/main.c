@@ -43,7 +43,8 @@ int main() {
 		MAIN_WIDTH,
 		MAIN_HEIGHT,
 		"Main",
-		makeRenderCallback(mainScene)
+		makeRenderCallback(mainScene),
+		1
 	);
 
 	// create hierarchy
@@ -51,7 +52,8 @@ int main() {
 		HIERARCHY_WIDTH,
 		HIERARCHY_HEIGHT,
 		"Hierarchy",
-		makeSceneCallback(mainScene)
+		makeSceneCallback(mainScene),
+		0
 	);
 
 	// create inspector
@@ -59,7 +61,8 @@ int main() {
 		INSPECTOR_WIDTH,
 		INSPECTOR_HEIGHT,
 		"Inspector",
-		makeEntityCallback(NULL)
+		makeEntityCallback(NULL),
+		0
 	);
 
 	// update windows

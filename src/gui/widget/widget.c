@@ -546,7 +546,8 @@ int dataGui(
 			DATASEL_WIDTH,
 			DATASEL_HEIGHT,
 			"Select Data",
-			makeDataselCallback(ref, tab, ctx)
+			makeDataselCallback(ref, tab, ctx),
+			0
 		));
 	}
 
