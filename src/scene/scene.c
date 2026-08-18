@@ -27,21 +27,32 @@ scene* newScene(const char* name) {
 
 	// clear render scene
 	s->render = (renderScene){0};
-	s->dirty = 0;
+	s->dirty = 1;
 
 	return s;
 }
 
-scene* newDefaultScene(const char* name) {
-	scene* s = newScene(name);
-	if(!s) return NULL;
+void initDefaultScene(scene* s) {
+	if(!s) return;
 
-	// default entities
+	// default camera
 	appendChild(&s->root, newCameraEntity("Camera"));
+	
+	// default camera
 	appendChild(&s->root, newSunEntity("Sun"));
-	appendChild(&s->root, newRenderableEntity("Entity"));
+	
+	// default entity
+	entity* ent = newRenderableEntity("Entity");
 
-	return s;
+	// set default mesh
+	meshField* mesh = (meshField*)getField(ent, REN_MESH_NAME);
+	mesh->ref = meshImport(DEF_MESH);
+
+	// set default material
+	materialField* material = (materialField*)getField(ent, REN_MATERIAL_NAME);
+	material->ref = materialImport(DEF_MATERIAL);
+
+	appendChild(&s->root, ent);
 }
 
 void freeScene(scene* s) {

@@ -9,6 +9,12 @@
 
 // -- scenes
 
+// default entity mesh
+#define DEF_MESH "dat/model/sphere.obj"
+
+// default entity material 
+#define DEF_MATERIAL "dat/material/default.mtl"
+
 // name of root entity
 #define ROOT_NAME "Root"
 
@@ -31,8 +37,8 @@ typedef struct scene scene;
 // creates a new scene
 scene* newScene(const char* name);
 
-// creates a new scene with default entities 
-scene* newDefaultScene(const char* name);
+// initializes new scene with default entities 
+void initDefaultScene(scene* s);
 
 // frees a scene
 void freeScene(scene* s);

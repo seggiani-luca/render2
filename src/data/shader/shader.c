@@ -96,30 +96,31 @@ void shaderPrint(void* dat) {
 const char* getUniformString(shaderUniform uniform) {
 	switch (uniform) {
 		// transform matrices
-		case MODEL:            return "uModel";
-		case VIEW:             return "uView";
-		case PROJECTION:       return "uProjection";
+		case MODEL:             return "uModel";
+		case VIEW:              return "uView";
+		case PROJECTION:        return "uProjection";
 
 		// camera info
-		case CAMERA_POSITION:  return "uCameraPos";
+		case CAMERA_POSITION:   return "uCameraPos";
 
 		// sun info
-		case SUN_DIRECTION:    return "uSunDir";
-		case SUN_COLOR:        return "uSunCol";
+		case SUN_DIRECTION:     return "uSunDir";
+		case SUN_COLOR:         return "uSunCol";
 
 		// atmosphere info
-		case AMBIENT_COLOR:    return "uAmbientCol";
+		case AMBIENT_COLOR:     return "uAmbientCol";
 
 		// material info
-		case DIFFUSE_COLOR:    return "uDiffuseCol";
-		case DIFFUSE_MAP:      return "uDiffuseMap";
-		case SPECULAR_COLOR:   return "uSpecularCol";
-		case SPECULAR_MAP:     return "uSpecularMap";
-		case SHININESS:        return "uShininess";
-		case HAS_DIFFUSE_MAP:  return "uHasDiffuseMap";
-		case HAS_SPECULAR_MAP: return "uHasSpecularMap";
-
-		default:               return NULL;
+		case DIFFUSE_COLOR:     return "uDiffuseCol";
+		case DIFFUSE_MAP:       return "uDiffuseMap";
+		case SPECULAR_COLOR:    return "uSpecularCol";
+		case SPECULAR_MAP:      return "uSpecularMap";
+		case SHININESS:         return "uShininess";
+		case SHININESS_MAP:     return "uShininessMap";
+		case HAS_DIFFUSE_MAP:   return "uHasDiffuseMap";
+		case HAS_SPECULAR_MAP:  return "uHasSpecularMap";
+		case HAS_SHININESS_MAP: return "uHasShininessMap";
+		default:                return NULL;
 	}
 }
 

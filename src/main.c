@@ -2,8 +2,6 @@
 #include "window/window.h"
 #include "scene/scene.h"
 #include "render/render.h"
-#include "gui/hierarchy/hierarchy.h"
-#include "gui/inspector/inspector.h"
 
 // -- windows
 
@@ -20,13 +18,13 @@ window* inspectorWin;
 
 // cleans up after termination
 void cleanup() {
+	// free data tables
+	freeTables();
+
 	// free windows
 	freeWindow(mainWin);
 	freeWindow(inspectorWin);
 	freeWindow(hierarchyWin);
-
-	// free data tables
-	freeTables();
 
 	// terminate OpenGL
 	freeGl();
@@ -36,7 +34,7 @@ void cleanup() {
 
 int main() {
 	// create scene
-	scene* mainScene = newDefaultScene("Main Scene");
+	scene* mainScene = newScene("Main Scene");
 
 	// create main window
 	mainWin = newWindow(
@@ -47,23 +45,11 @@ int main() {
 		1
 	);
 
-	// create hierarchy
-	hierarchyWin = newWindow(
-		HIERARCHY_WIDTH,
-		HIERARCHY_HEIGHT,
-		"Hierarchy",
-		makeSceneCallback(mainScene),
-		0
-	);
+	// create editor windows
+	createEditorWindows(mainScene);
 
-	// create inspector
-	inspectorWin = newWindow(
-		INSPECTOR_WIDTH,
-		INSPECTOR_HEIGHT,
-		"Inspector",
-		makeEntityCallback(NULL),
-		0
-	);
+	// init default scene
+	initDefaultScene(mainScene);
 
 	// update windows
 	for(;;) {

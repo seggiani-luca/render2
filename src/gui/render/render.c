@@ -73,18 +73,6 @@ void flushLayer(guiContext* ctx, guiLayer* lay) {
 }
 
 void flushGui(guiContext* ctx) {
-	// update child too if present
-	if(ctx->child) {
-		if(!updateWindow(ctx->child)) {
-			freeWindow(ctx->child);
-			ctx->child = NULL;
-			ctx->inactive = 0;
-		}
-
-		// get context back
-		glfwMakeContextCurrent(ctx->win->gl);
-	}
-
 	// flush all layers
 	for(int i = 0; i < GUI_LAYERS; i++) {
 		guiLayer* lay = &ctx->layers[i];
@@ -266,6 +254,18 @@ guiContext* initGui(window* win) {
 		ctx->in.absScroll = 0.0f;
 		ctx->in.dataPtr = NULL;
 		ctx->in.dataSet = 0;
+	}
+
+	// update child first if present
+	if(ctx->child) {
+		if(!updateWindow(ctx->child)) {
+			freeWindow(ctx->child);
+			ctx->child = NULL;
+			ctx->inactive = 0;
+		}
+
+		// get context back
+		glfwMakeContextCurrent(ctx->win->gl);
 	}
 
 	// reset all layers

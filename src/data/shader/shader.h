@@ -76,12 +76,14 @@ typedef enum {
 	SPECULAR_COLOR,
 	SPECULAR_MAP,
 	SHININESS,
+	SHININESS_MAP,
 	HAS_DIFFUSE_MAP,
-	HAS_SPECULAR_MAP
+	HAS_SPECULAR_MAP,
+	HAS_SHININESS_MAP
 } shaderUniform;
 
 // number of shader uniforms
-#define NUM_UNIFORMS (HAS_SPECULAR_MAP + 1)
+#define NUM_UNIFORMS (HAS_SHININESS_MAP + 1)
 
 // shader data
 typedef struct {

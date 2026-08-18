@@ -137,6 +137,20 @@ void doRenderEntity(
 		1, &material->shininess);
 	GL_ERR("uSpecularCol uniform");
 
+	// send shininess map 
+	if(material->shininessMap) {
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, material->shininessMap->tex);
+		glUniform1i(
+			shader->uniformLocations[SHININESS_MAP],
+			1
+		);
+	}
+	glUniform1i(
+		shader->uniformLocations[HAS_SHININESS_MAP],
+		material->shininessMap ? 1 : 0	
+	);
+
 	// setup VAO
 	glBindVertexArray(ent->mesh->vao);
 	GL_ERR("draw call VAO binding");
@@ -152,6 +166,9 @@ void render(window* win) {
 	renderingContext* rCtx = (renderingContext*) win->cbak.ctx;
 	scene* scn = rCtx->scn;
 	renderScene* rnd = &scn->render;
+
+	// update render scene if modified
+	if(scn->dirty) updateRenderScene(scn);
 
 	// get scene data
 	camera* camInfo = rnd->camera.info;

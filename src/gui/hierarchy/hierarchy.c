@@ -316,9 +316,6 @@ void sceneGui(window* win) {
 	}
 	downGui(ctx, SCROLL, 1 PAD);
 
-	// update render scene if modified
-	if(scn->dirty) updateRenderScene(scn);
-
 	// flush changes
 	flushGui(ctx);
 }

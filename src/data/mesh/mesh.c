@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// hook into main window
+extern window* mainWin;
+
 extern int meshDecode(mesh* mesh, FILE* file);
 
 void meshPrint(void* dat) {
@@ -12,6 +15,10 @@ void meshPrint(void* dat) {
 
 // generates a VBO and a VAO for this mesh
 void generateGLMeshes(mesh* mesh) {
+	// move to main window context
+	GLFWwindow* old = glfwGetCurrentContext();
+	glfwMakeContextCurrent(mainWin->gl);
+
 	// generate VBO
 	glGenBuffers(1, &mesh->vbo);
 	GL_ERR("VBO generation");
@@ -78,12 +85,23 @@ void generateGLMeshes(mesh* mesh) {
 
 	glEnableVertexAttribArray(2);
 	GL_ERR("normal attrib enable");
+
+	// return to old context
+	glfwMakeContextCurrent(old);
 }
 
 // destroys the VBO and the VAO for this mesh
 void destroyGLMeshes(mesh* mesh) {
+	// move to main window context
+	GLFWwindow* old = glfwGetCurrentContext();
+	glfwMakeContextCurrent(mainWin->gl);
+
+	// delete buffers
 	glDeleteBuffers(1, &mesh->vbo);
 	glDeleteVertexArrays(1, &mesh->vao);
+	
+	// return to old context
+	glfwMakeContextCurrent(old);
 }
 
 void* mesh_import(FILE* file) {

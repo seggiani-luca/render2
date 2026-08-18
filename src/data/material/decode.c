@@ -36,6 +36,7 @@ int materialDecode(material* material, FILE* file) {
 		// get maps
 		if(!parseTex(line, "map_Kd", &material->diffuseMap)) return 0;
 		if(!parseTex(line, "map_Ks", &material->specularMap)) return 0;
+		if(!parseTex(line, "map_Ns", &material->shininessMap)) return 0;
 	}
 
 	// get matching shader

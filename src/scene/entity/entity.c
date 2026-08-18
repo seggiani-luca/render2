@@ -34,6 +34,7 @@ int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
 	    .write = type##FieldWrite,                 \
 	    .print = type##FieldPrint,                 \
 	    .gui   = type##FieldGui,                   \
+		.free  = NULL                              \
 	};
 
 // macro for vtable declaration, with free 
@@ -465,9 +466,17 @@ entity* newSunEntity(const char* name) {
 	entity* e = newEntity(name);
 	if(!e) return NULL;
 
-	// default fields
-	appendField(e, transformNew(REN_TRANSFORM_NAME));
-	appendField(e, atmosphereNew(REN_ATMOSPHERE_NAME));
+	// default transform 
+	transformField* trans = (transformField*)transformNew(REN_TRANSFORM_NAME);
+	trans->val.rotation = eulerToQuat((float3){65.0f, 225.0f, 0.0f});
+	appendField(e, trans);
+
+	// default atmosphere 
+	atmosphereField* atmos = (atmosphereField*)atmosphereNew(REN_ATMOSPHERE_NAME);
+	atmos->val.sun = (color){1.0f, 1.0f, 0.9f};
+	atmos->val.ambient = (color){0.1f, 0.2f, 0.3f};
+	atmos->val.background = (color){0.3f, 0.7f, 0.9f};
+	appendField(e, atmos);
 
 	return e;
 }
@@ -476,8 +485,12 @@ entity* newCameraEntity(const char* name) {
 	entity* e = newEntity(name);
 	if(!e) return NULL;
 
-	// default fields
-	appendField(e, transformNew(REN_TRANSFORM_NAME));
+	// default transform 
+	transformField* trans = (transformField*)transformNew(REN_TRANSFORM_NAME);
+	trans->val.position = (float3){0.0f, 0.0f, 2.0f};
+	appendField(e, trans);
+
+	// default camera
 	appendField(e, cameraNew(REN_CAMERA_NAME));
 
 	return e;
@@ -504,6 +517,9 @@ void freeEntity(entity* e) {
 	while(cur) {
 		field* tmp = cur;
 		cur = cur->next;
+
+		// free entity
+		if(tmp->vtable->free) tmp->vtable->free(tmp);
 		free(tmp);
 	}
 
