@@ -21,9 +21,9 @@ int meshDecode(mesh* mesh, FILE* file) {
 	mesh->verts = malloc(sizeof(vertex) * mesh->vertCount);
 
 	// temporary buffers
-	float tVert[mesh->vertCount * 3];
-	float tUv[mesh->vertCount * 2];
-	float tNorm[mesh->vertCount * 3];
+	float* tVert = malloc(mesh->vertCount * 3 * sizeof(float));
+	float* tUv = malloc(mesh->vertCount * 2 * sizeof(float));
+	float* tNorm = malloc(mesh->vertCount * 3 * sizeof(float));
 	int nVert = 0;
 	int nUv = 0;
 	int nNorm = 0;
@@ -55,6 +55,9 @@ int meshDecode(mesh* mesh, FILE* file) {
 		// don't overflow
 		if(cur >= mesh->vertCount) {
 			free(mesh->verts);
+			free(tVert);
+			free(tUv);
+			free(tNorm);
 			return 0;
 		}
 
@@ -94,5 +97,8 @@ int meshDecode(mesh* mesh, FILE* file) {
 		}
 	}
 
+	free(tVert);
+	free(tUv);
+	free(tNorm);
 	return 1;
 }

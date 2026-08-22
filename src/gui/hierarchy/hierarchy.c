@@ -109,6 +109,9 @@ void addChildGui(window* win) {
 			1 PAD, 1 PAD,
 			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
 		}, c->ico, c->label)) {
+			// no objects named the same as root
+			if(strcmp(name, ROOT_NAME) == 0) break; 
+
 			// create and append child
 			entity* new = c->ctor(name);
 			if(new) appendChild(ent, new);
@@ -229,8 +232,28 @@ void sceneGui(window* win) {
 		// push name edit box
 		stringGui(ctx, FIXED, (float4){
 			3 PAD + ICO_SIZ, 1 PAD,
-			WIN - 4 PAD - ICO_SIZ, TXT_HEIGHT + 2 PAD
+			WIN - 10 PAD - 3 * ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, scn ? scn->name : NULL);
+
+		// push load button
+		if(buttonGui(ctx, FIXED, (float4){
+			WIN - 10 PAD - ICO_SIZ, 1 PAD,
+			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		}, ICO_LOAD, "")) {
+			// load scene
+			deserializeScene(scn, getScenePath(scn->name));
+			return; // early quit
+		}
+		
+		// push save button
+		if(buttonGui(ctx, FIXED, (float4){
+			WIN - 3 PAD - ICO_SIZ, 1 PAD,
+			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		}, ICO_SAVE, "")) {
+			// save scene
+			serializeScene(scn, getScenePath(scn->name));
+			return; // early quit
+		}
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 

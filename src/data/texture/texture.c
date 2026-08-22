@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern int textureDecode(texture* texture, FILE* file);
+extern int textureDecode(texture* texture, FILE* file, int* rgba);
 
 // -- textures
 
@@ -13,7 +13,7 @@ void texturePrint(void* dat) {
 }
 
 // generates an OpenGL texture for a texture
-void generateGLTextures(texture* texture) {
+void generateGLTextures(texture* texture, int rgba) {
 	// generate and bind texture
 	glGenTextures(
 		1,
@@ -53,7 +53,7 @@ void generateGLTextures(texture* texture) {
 	glTexImage2D(
 		GL_TEXTURE_2D,
 		0,
-		GL_RGBA,
+		rgba ? GL_RGBA : GL_RGB,
 		texture->width,
 		texture->height,
 		0,
@@ -81,13 +81,15 @@ void* texture_import(FILE* file) {
 	texture* new_texture = malloc(sizeof(texture));
 	memset(new_texture, 0, sizeof(texture));
 
-	if(!textureDecode(new_texture, file)) {
+	// load texture
+	int rgba;
+	if(!textureDecode(new_texture, file, &rgba)) {
 		free(new_texture);
 		return NULL;
 	}
 
 	// generate OpenGL texture
-	generateGLTextures(new_texture);
+	generateGLTextures(new_texture, rgba);
 
 	return new_texture;
 }

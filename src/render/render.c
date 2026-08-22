@@ -143,7 +143,7 @@ void doRenderEntity(
 		glBindTexture(GL_TEXTURE_2D, material->shininessMap->tex);
 		glUniform1i(
 			shader->uniformLocations[SHININESS_MAP],
-			1
+			2
 		);
 	}
 	glUniform1i(

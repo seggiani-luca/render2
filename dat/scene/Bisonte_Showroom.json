@@ -1,0 +1,158 @@
+{
+	"name" : "Bisonte Showroom",
+	"root" : [
+		{
+			"name" : "Sun",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"rotation" : [
+							-0.205616,
+							0.779192,
+							-0.496400,
+							-0.322752
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Atmosphere",
+					"type" : "atmosphere",
+					"value" : {
+						"ambient" : [
+							0.100000,
+							0.200000,
+							0.300000
+						],
+						"sun" : [
+							1.000000,
+							1.000000,
+							0.900000
+						],
+						"background" : [
+							0.100000,
+							0.200000,
+							0.400000
+						]
+					}
+				}
+			],
+			"children" : []
+		},
+		{
+			"name" : "Bisonte",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"rotation" : [
+							0.000000,
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Mesh",
+					"type" : "mesh",
+					"value" : "dat/model/bisonte.obj"
+				},
+				{
+					"name" : "Material",
+					"type" : "material",
+					"value" : "dat/material/bisonte.mtl"
+				}
+			],
+			"children" : []
+		},
+		{
+			"name" : "Pivot",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							-0.500000,
+							-0.100000,
+							0.000000
+						],
+						"rotation" : [
+							-0.041601,
+							0.300420,
+							0.013117,
+							0.952809
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				}
+			],
+			"children" : [
+				{
+					"name" : "Camera",
+					"fields" : [
+						{
+							"name" : "Transform",
+							"type" : "transform",
+							"value" : {
+								"position" : [
+									0.000000,
+									0.000000,
+									5.000000
+								],
+								"rotation" : [
+									0.000000,
+									0.000000,
+									0.000000,
+									0.000000
+								],
+								"scale" : [
+									1.000000,
+									1.000000,
+									1.000000
+								]
+							}
+						},
+						{
+							"name" : "Camera",
+							"type" : "camera",
+							"value" : {
+								"fov" : 50.000000,
+								"nearPlane" : 0.010000,
+								"farPlane" : 300.000000
+							}
+						}
+					],
+					"children" : []
+				}
+			]
+		}
+	]
+}

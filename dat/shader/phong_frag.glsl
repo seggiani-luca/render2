@@ -47,6 +47,10 @@ void main() {
 	// get shininess
 	float shininess = uShininess;
 	if(uHasShininessMap) shininess *= texture(uShininessMap, vUV).r;
+	
+	// remap shininess
+	shininess = clamp(shininess, 0.0, 1.0);
+	shininess = mix(1.0, 256.0, shininess * shininess);
 
 	// calculate specular
 	vec3 halfway = normalize(L + V);

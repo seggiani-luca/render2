@@ -1,4 +1,0 @@
-Kd 1.000000 1.000000 1.000000      # diffuse color
-map_Kd dat/texture/car_diffuse.tga # diffuse map
-Ks 1.000000 1.000000 1.000000      # specular color
-Ns 810.000000                      # shininess

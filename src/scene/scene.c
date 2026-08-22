@@ -23,7 +23,7 @@ scene* newScene(const char* name) {
 	s->root.root = NULL;
 	s->root.fieldCount = 0;
 	s->root.parent = s->root.child = s->root.peer = NULL;
-	s->root.child = 0;
+	s->root.childCount = 0;
 
 	// clear render scene
 	s->render = (renderScene){0};

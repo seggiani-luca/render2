@@ -71,6 +71,8 @@
 #define ICO_ATMOS  ICO(11, 5)
 #define ICO_DIR    ICO(12, 5)
 #define ICO_EMPTY  ICO(13, 5)
+#define ICO_LOAD   ICO(14, 5)
+#define ICO_SAVE   ICO(15, 5)
 
 // -- sizing
 

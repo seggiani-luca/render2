@@ -23,7 +23,7 @@ typedef struct __attribute__((packed)) {
 headerTGA;
 
 // imports a texture in .tga format
-int textureDecode(texture* texture, FILE* file) {
+int textureDecode(texture* texture, FILE* file, int* rgba) {
 	fseek(file, 0, SEEK_SET);
 
 	// read header
@@ -67,6 +67,10 @@ int textureDecode(texture* texture, FILE* file) {
 	// set width and height
 	texture->width = head.width;
 	texture->height = head.height;
+
+	// return if rgba
+	if(bpp == 4) *rgba = 1;
+	else *rgba = 0;
 
 	return 1;
 }

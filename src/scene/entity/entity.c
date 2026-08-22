@@ -2,6 +2,7 @@
 #include "../scene.h"
 #include "../../gui/inspector/inspector.h"
 #include "../../render/render.h"
+#include "../../serial/serial.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,24 +28,28 @@ void writeField(field* f, const void* src) { f->vtable->write(f, src); }
 void printField(const field* f) { f->vtable->print(f); }
 int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
 
-// macro for vtable declaration
+// macro for vtable definition 
 #define VTABLE(type)                               \
-	static const fieldVtable type##FieldVtable = { \
-	    .read  = type##FieldRead,                  \
-	    .write = type##FieldWrite,                 \
-	    .print = type##FieldPrint,                 \
-	    .gui   = type##FieldGui,                   \
-		.free  = NULL                              \
+	const fieldVtable type##FieldVtable = {        \
+	    .read        = type##FieldRead,            \
+	    .write       = type##FieldWrite,           \
+	    .print       = type##FieldPrint,           \
+	    .gui         = type##FieldGui,             \
+	    .free        = NULL,                       \
+	    .serialize   = type##FieldSerialize,       \
+	    .deserialize = type##FieldDeserialize      \
 	};
 
-// macro for vtable declaration, with free 
+// macro for vtable definition, with free 
 #define VTABLE_FREE(type)                          \
-	static const fieldVtable type##FieldVtable = { \
-	    .read  = type##FieldRead,                  \
-	    .write = type##FieldWrite,                 \
-	    .print = type##FieldPrint,                 \
-	    .gui   = type##FieldGui,                   \
-	    .free  = type##FieldFree                   \
+	const fieldVtable type##FieldVtable = {        \
+	    .read        = type##FieldRead,            \
+	    .write       = type##FieldWrite,           \
+	    .print       = type##FieldPrint,           \
+	    .gui         = type##FieldGui,             \
+	    .free        = type##FieldFree,            \
+	    .serialize   = type##FieldSerialize,       \
+	    .deserialize = type##FieldDeserialize      \
 	};
 
 // macro for field allocation
@@ -116,7 +121,7 @@ void stringFieldRead(const field* f, void* dst) {
 // writes a string field
 void stringFieldWrite(field* f, const void* src) {
 	stringField* sf = (stringField*)f;
-	strncpy(sf->str, *(char**)src, ENT_STR_SIZ);
+	strncpy(sf->str, (char*)src, ENT_STR_SIZ);
 	sf->str[ENT_STR_SIZ - 1] = '\0';
 }
 
@@ -429,7 +434,6 @@ void printEntity(const entity* e) {
 
 entity* newEntity(const char* name) {
 	if(*name == '\0') return NULL;
-	if(strcmp(name, ROOT_NAME) == 0) return NULL;
 
 	// allocate entity
 	entity* e = malloc(sizeof(entity));
@@ -506,6 +510,9 @@ void freeEntityChildren(entity* e) {
 		freeEntity(child);
 		child = next;
 	}
+
+	// clear pointer
+	e->child = 0;
 }
 
 void freeEntity(entity* e) {

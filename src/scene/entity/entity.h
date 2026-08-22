@@ -4,6 +4,7 @@
 #include "../../gui/gui.h"
 #include "../../math/math.h"
 #include "../../render/render.h"
+#include "../../serial/serial.h"
 
 // -- fields
 
@@ -32,7 +33,17 @@ typedef struct {
 
 	// freeing method
 	void (*free)(field* f);
+
+	// serialization method
+	jsonElement* (*serialize)(const field* f);
+	
+	// deserialization method
+	void (*deserialize)(field* f, const jsonElement* elem);
 } fieldVtable;
+
+// macro for vtable declaration 
+#define VTABLE_DECL(type) \
+	extern const fieldVtable type##FieldVtable;
 
 // basic field data
 struct field {
@@ -60,6 +71,8 @@ int guiField(const field* f, guiContext* ctx);
 
 // -- integer field
 
+VTABLE_DECL(int)
+
 // integer field data
 typedef struct {
 	field base;
@@ -72,6 +85,8 @@ typedef struct {
 field* intNew(const char* name);
 
 // -- float field
+
+VTABLE_DECL(float)
 
 // float field data
 typedef struct {
@@ -86,6 +101,8 @@ field* floatNew(const char* name);
 
 // -- string field
 
+VTABLE_DECL(string)
+
 // string field data
 typedef struct {
 	field base;
@@ -98,6 +115,10 @@ typedef struct {
 field* stringNew(const char* name);
 
 // -- vector fields 
+
+VTABLE_DECL(float2)
+VTABLE_DECL(float3)
+VTABLE_DECL(float4)
 
 // generic vector field data
 #define VEC_FIELD_DECL(n)                   \
@@ -119,6 +140,10 @@ VEC_FIELD_DECL(4)
 
 // -- matrix fields 
 
+VTABLE_DECL(mat2)
+VTABLE_DECL(mat3)
+VTABLE_DECL(mat4)
+
 // generic matrix field data
 #define MAT_FIELD_DECL(n)                 \
 	typedef struct {                      \
@@ -139,6 +164,8 @@ MAT_FIELD_DECL(4)
 
 // -- quaternion field
 
+VTABLE_DECL(quat)
+
 typedef struct {
 	field base;
 
@@ -150,6 +177,8 @@ typedef struct {
 field* quatNew(const char* name);
 
 // -- transform field
+
+VTABLE_DECL(transform)
 
 // transform field data
 typedef struct {
@@ -167,6 +196,8 @@ field* transformNew(const char* name);
 
 // -- camera field
 
+VTABLE_DECL(camera)
+
 // camera field data
 typedef struct {
 	field base;
@@ -179,6 +210,8 @@ field* cameraNew(const char* name);
 
 // -- atmosphere field
 
+VTABLE_DECL(atmosphere)
+
 // atmosphere field data
 typedef struct {
 	field base;
@@ -190,6 +223,8 @@ typedef struct {
 field* atmosphereNew(const char* name);
 
 // -- texture field
+
+VTABLE_DECL(texture)
 
 // texture field data
 typedef struct {
@@ -204,6 +239,8 @@ field* textureNew(const char* name);
 
 // -- mesh field
 
+VTABLE_DECL(mesh)
+
 // mesh field data
 typedef struct {
 	field base;
@@ -216,6 +253,8 @@ typedef struct {
 field* meshNew(const char* name);
 
 // -- material field
+
+VTABLE_DECL(material)
 
 // material field data
 typedef struct {
