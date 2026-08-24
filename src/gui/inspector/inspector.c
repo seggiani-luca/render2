@@ -591,6 +591,7 @@ void entityGui(window* win) {
 			ADD_FIELD_HEIGHT,
 			"Append Field",
 			makeAddFieldCallback(ent),
+			loadIcon(WIN_NEWITEM_ICO),
 			0
 		));
 	}

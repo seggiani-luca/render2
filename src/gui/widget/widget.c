@@ -547,6 +547,7 @@ int dataGui(
 			DATASEL_HEIGHT,
 			"Select Data",
 			makeDataselCallback(ref, tab, ctx),
+			loadIcon(WIN_DATASEL_ICO),
 			0
 		));
 	}

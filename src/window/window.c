@@ -1,7 +1,9 @@
 #include "window.h"
 #include "../../lib/glad/glad.h"
+#include "../data/texture/texture.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // -- initialization
 
@@ -72,6 +74,42 @@ void freeGl() {
 	if(windows != 0) printf("Warning! Not all windows freed\n");
 }
 
+// -- icons
+
+extern int textureDecode(texture* texture, FILE* file, int* rgba);
+
+// loads a single icon, as a texture
+windowIcon* loadIcon(const char* path) {
+	// open file
+	FILE* file = fopen(path, "rb");
+	if(file == NULL) return NULL;
+	
+	// initialize texture
+	texture* tex = malloc(sizeof(texture));
+	memset(tex, 0, sizeof(texture));
+	
+	// load data
+	int rgba = 0;
+	textureDecode(tex, file, &rgba);
+	if(!rgba) {
+		free(tex);
+		return NULL;
+	}
+
+	// setup struct
+	windowIcon* ico = malloc(sizeof(windowIcon));
+	memset(ico, 0, sizeof(windowIcon));
+	ico->height = tex->height;
+	ico->width = tex->width;
+	ico->pixels = tex->data;
+
+	// cleanup
+	free(tex);
+	fclose(file);
+
+	return ico;
+}
+
 // -- window
 
 // callback for window resizing
@@ -88,6 +126,7 @@ window* newWindow(
 	int height,
 	const char* title,
 	renderCallback cback,
+	windowIcon* ico,
 	int depth	
 ) {
 	// allocate window data
@@ -168,6 +207,10 @@ window* newWindow(
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
 	}
+
+	// setup icon
+	glfwSetWindowIcon(win->gl, 1, ico);
+	free(ico);
 
 	// inc. window counter
 	windows++;

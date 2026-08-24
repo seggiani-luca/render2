@@ -16,6 +16,21 @@ void updateGl();
 // terminate OpenGL
 void freeGl();
 
+// -- icons
+
+// windowIcon definition
+typedef GLFWimage windowIcon;
+
+// icon paths
+#define WIN_DEFAULT_ICO "dat/icon/default.tga"
+#define WIN_HIERCHY_ICO "dat/icon/hierarchy.tga"
+#define WIN_INSPECT_ICO "dat/icon/inspector.tga"
+#define WIN_NEWITEM_ICO "dat/icon/new.tga"
+#define WIN_DATASEL_ICO "dat/icon/datasel.tga"
+
+// loads icons
+windowIcon* loadIcon(const char* path);
+
 // -- windows
 
 // forward declaration for renderCallback
@@ -57,6 +72,7 @@ window* newWindow(
 	int height,
 	const char* title,
 	renderCallback cback,
+	windowIcon* ico,
 	int depth
 );
 

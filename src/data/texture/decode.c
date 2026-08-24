@@ -33,7 +33,6 @@ int textureDecode(texture* texture, FILE* file, int* rgba) {
 	// validate header
 	if(head.imageType != 2
 	|| (head.pixelDepth != 32 && head.pixelDepth != 24)
-	|| ((head.imageDescriptor & 0x20) != 0)
 	|| head.colorMapType != 0) {
 		return 0;
 	}

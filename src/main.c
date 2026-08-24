@@ -79,6 +79,7 @@ int main() {
 		MAIN_HEIGHT,
 		"Main",
 		makeRenderCallback(mainScene),
+		loadIcon(WIN_DEFAULT_ICO),
 		1
 	);
 

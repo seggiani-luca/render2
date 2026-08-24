@@ -330,6 +330,7 @@ void sceneGui(window* win) {
 					ADD_CHILD_HEIGHT,
 					"Append Child",
 					makeAddChildCallback(cur, scn),
+					loadIcon(WIN_NEWITEM_ICO),
 					0
 				));
 			} break;

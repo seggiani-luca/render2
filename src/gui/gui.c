@@ -15,6 +15,7 @@ void createEditorWindows(scene* scn) {
 		HIERARCHY_HEIGHT,
 		"Hierarchy",
 		makeSceneCallback(scn),
+		loadIcon(WIN_HIERCHY_ICO),
 		0
 	);
 
@@ -24,6 +25,7 @@ void createEditorWindows(scene* scn) {
 		INSPECTOR_HEIGHT,
 		"Inspector",
 		makeEntityCallback(NULL),
+		loadIcon(WIN_INSPECT_ICO),
 		0
 	);
 }
