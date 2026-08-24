@@ -20,7 +20,7 @@ typedef struct quad quad;
 #define QUEUE_SIZ 2048
 
 // input buffer size
-#define IN_BUF_SIZ 32
+#define IN_BUF_SIZ 64
 
 // GUI queue
 typedef struct {

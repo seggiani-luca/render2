@@ -252,6 +252,9 @@ jsonElement* atmosphereFieldSerialize(const field* f) {
 	addJsonAtKey(elem, vectorSerialize(
 		&af->val.ambient, 3
 	), "ambient");
+	addJsonAtKey(elem, newJsonString(
+		af->val.ambientMap->path	
+	), "cubemap");
 	addJsonAtKey(elem, vectorSerialize(
 		&af->val.sun, 3
 	), "sun");
@@ -269,6 +272,8 @@ void atmosphereFieldDeserialize(field* f, const jsonElement* elem) {
 	vectorDeserialize(&af->val.ambient, 3, getJsonAtKey(
 		elem, "ambient")
 	);
+	const char* cubemapPath = getJsonString(getJsonAtKey(elem, "cubemap"));
+	af->val.ambientMap = textureImport(cubemapPath);
 	vectorDeserialize(&af->val.sun, 3, getJsonAtKey(
 		elem, "sun")
 	);

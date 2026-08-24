@@ -7,6 +7,26 @@ extern int textureDecode(texture* texture, FILE* file, int* rgba);
 
 // -- textures
 
+void textureFilter(texture* tex, int linear) {
+	glBindTexture(GL_TEXTURE_2D, tex->tex);
+
+	// set the texture filtering options
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexParameteri(
+		GL_TEXTURE_2D,
+		GL_TEXTURE_MIN_FILTER,
+		linear ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST
+	);
+
+	glTexParameteri(
+		GL_TEXTURE_2D,
+		GL_TEXTURE_MAG_FILTER,
+		linear ? GL_LINEAR : GL_NEAREST
+	);
+}
+
 void texturePrint(void* dat) {
 	texture* tex = (texture*)dat;
 	printf("Texture (width: %d, height: %d)", tex->width, tex->height);
@@ -40,12 +60,12 @@ void generateGLTextures(texture* texture, int rgba) {
 	glTexParameteri(
 		GL_TEXTURE_2D,
 		GL_TEXTURE_MIN_FILTER,
-		GL_NEAREST_MIPMAP_NEAREST
+		GL_LINEAR_MIPMAP_LINEAR
 	);
 	glTexParameteri(
 		GL_TEXTURE_2D,
 		GL_TEXTURE_MAG_FILTER,
-		GL_NEAREST
+		GL_LINEAR	
 	);
 	GL_ERR("texture parameters")
 
@@ -57,7 +77,7 @@ void generateGLTextures(texture* texture, int rgba) {
 		texture->width,
 		texture->height,
 		0,
-		GL_RGBA,
+		rgba ? GL_RGBA : GL_RGB,
 		GL_UNSIGNED_BYTE,
 		texture->data
 	);

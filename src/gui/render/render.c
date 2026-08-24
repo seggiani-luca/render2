@@ -200,6 +200,7 @@ int newGui(guiContext* ctx) {
 	// import texture
 	ctx->gl.tex = textureImport(GUI_ATLAS_PATH)->data;
 	if(!ctx->gl.tex) return 0;
+	textureFilter(ctx->gl.tex, 0);
 
 	return 1;
 }
@@ -292,7 +293,7 @@ void charCallback(GLFWwindow* gl, unsigned int codepoint) {
 	// check if should input
 	if(!ctx 
 	|| ctx->in.hotId == 0
-	|| ctx->in.keyBufSiz == IN_BUF_SIZ - 1) {
+	|| ctx->in.keyBufSiz == IN_BUF_SIZ - 2) {
 		return;
 	}
 

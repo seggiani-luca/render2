@@ -69,6 +69,8 @@ typedef enum {
 
 	// atmosphere info
 	AMBIENT_COLOR,
+	AMBIENT_MAP,
+	HAS_AMBIENT_MAP,
 
 	// material info
 	DIFFUSE_COLOR,

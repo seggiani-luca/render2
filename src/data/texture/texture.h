@@ -19,6 +19,9 @@ typedef struct {
 	GLuint tex;
 } texture;
 
+// set the filtering options for a texture
+void textureFilter(texture* tex, int linear);
+
 // print texture info
 void texturePrint(void* dat);
 

@@ -109,6 +109,8 @@ const char* getUniformString(shaderUniform uniform) {
 
 		// atmosphere info
 		case AMBIENT_COLOR:     return "uAmbientCol";
+		case AMBIENT_MAP:       return "uAmbientMap";
+		case HAS_AMBIENT_MAP:   return "uHasAmbientMap";
 
 		// material info
 		case DIFFUSE_COLOR:     return "uDiffuseCol";

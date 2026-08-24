@@ -90,6 +90,20 @@ void doRenderEntity(
 		shader->uniformLocations[AMBIENT_COLOR], 
 		1, &atmInfo->ambient.r);
 	GL_ERR("uAmbientCol uniform");
+	
+	// send ambient map
+	if(atmInfo->ambientMap) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, ((texture*)atmInfo->ambientMap->data)->tex);
+		glUniform1i(
+			shader->uniformLocations[AMBIENT_MAP],
+			0
+		);
+	}
+	glUniform1i(
+		shader->uniformLocations[HAS_AMBIENT_MAP],
+		atmInfo->ambientMap ? 1 : 0	
+	);
 
 	// send diffuse color
 	glUniform3fv(
@@ -99,11 +113,11 @@ void doRenderEntity(
 	
 	// send diffuse texture
 	if(material->diffuseMap) {
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, material->diffuseMap->tex);
 		glUniform1i(
 			shader->uniformLocations[DIFFUSE_MAP],
-			0
+			1
 		);
 	}
 	glUniform1i(
@@ -119,11 +133,11 @@ void doRenderEntity(
 	
 	// send specular texture
 	if(material->specularMap) {
-		glActiveTexture(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, material->specularMap->tex);
 		glUniform1i(
 			shader->uniformLocations[SPECULAR_MAP],
-			1
+			2
 		);
 	}
 	glUniform1i(
@@ -139,11 +153,11 @@ void doRenderEntity(
 
 	// send shininess map 
 	if(material->shininessMap) {
-		glActiveTexture(GL_TEXTURE2);
+		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, material->shininessMap->tex);
 		glUniform1i(
 			shader->uniformLocations[SHININESS_MAP],
-			2
+			3
 		);
 	}
 	glUniform1i(

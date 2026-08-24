@@ -210,6 +210,7 @@ window* newWindow(
 
 	// setup icon
 	glfwSetWindowIcon(win->gl, 1, ico);
+	free(ico->pixels);
 	free(ico);
 
 	// inc. window counter

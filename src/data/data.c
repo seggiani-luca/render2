@@ -1,4 +1,6 @@
 #include "data.h"
+#include "material/material.h"
+#include "mesh/mesh.h"
 #include "shader/shader.h"
 #include "texture/texture.h"
 #include <stdlib.h>
@@ -118,4 +120,6 @@ void freeTable(dataTable* table) {
 void freeTables() {
 	freeTable(&textureTable);
 	freeTable(&shaderTable);
+	freeTable(&meshTable);
+	freeTable(&materialTable);
 }

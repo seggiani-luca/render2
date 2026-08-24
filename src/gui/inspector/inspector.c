@@ -333,6 +333,12 @@ int atmosphereGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 		2 PAD, 3 PAD
 	}, "Ambient");
 	
+	if(textureGui(ctx, layId, rect, &a->ambientMap)) ret = 1;
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Cubemap");
+	
 	// sun 
 	if(float3Gui(ctx, layId, rect, &a->sun)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
@@ -357,7 +363,7 @@ int atmosphereFieldGui(const field* f, guiContext* ctx) {
 		ICO_ATMOS,
 		atmosphereGui,
 		&((atmosphereField*)f)->val,
-		3
+		4
 	);
 }
 

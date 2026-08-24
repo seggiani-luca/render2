@@ -68,9 +68,12 @@ typedef struct {
 	// ambient color
 	color ambient;
 	
+	// ambient cubemap
+	dataRef* ambientMap;
+
 	// sun color
 	color sun;
-	
+
 	// background color
 	color background;
 } atmosphere;
