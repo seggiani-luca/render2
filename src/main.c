@@ -16,6 +16,43 @@ window* inspectorWin;
 
 // -- utils
 
+// nicely centers windows on the screen
+void centerWindows(window* a, window* b, window* c) {
+	// get monitor dimensions
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	int screenX, screenY, screenW, screenH;
+	glfwGetMonitorWorkarea(
+		monitor,
+		&screenX, &screenY,
+		&screenW, &screenH
+	);
+
+	// calculate total width 
+	int gap = 10;
+	int totalW =
+		a->fbWidth +
+		b->fbWidth +
+		c->fbWidth +
+		gap * 2;
+
+	// get all ys
+	int ya = screenY + (screenH - a->fbHeight) / 2;
+	int yb = screenY + (screenH - b->fbHeight) / 2;
+	int yc = screenY + (screenH - c->fbHeight) / 2;
+
+	// get starting x 
+	int x = screenX + (screenW - totalW) / 2;
+
+	// move windows
+	moveWindow(a, x, ya);
+	x += a->fbWidth + gap;
+
+	moveWindow(b, x, yb);
+	x += b->fbWidth + gap;
+
+	moveWindow(c, x, yc);
+}
+
 // cleans up after termination
 void cleanup() {
 	// free data tables
@@ -47,6 +84,9 @@ int main() {
 
 	// create editor windows
 	createEditorWindows(mainScene);
+
+	// center windows
+	centerWindows(hierarchyWin, mainWin, inspectorWin);
 
 	// init default scene
 	initDefaultScene(mainScene);

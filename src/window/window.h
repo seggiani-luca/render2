@@ -69,6 +69,9 @@ void freeWindow(window* win);
 // resizes a window
 void resizeWindow(window* win, int width, int height);
 
+// moves a window
+void moveWindow(window* win, int x, int y);
+
 // width from window coordinate to framebuffer coordinate
 float winToFbW(window* win, float from);
 

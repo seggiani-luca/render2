@@ -16,26 +16,11 @@ static int winInitialized = 0;
 
 // initializes OpenGL window context
 int newGl() {
+	// GLFW platform hints
+	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	
 	// initialize GLFW
 	if(!glfwInit()) return 0;
-
-	// GLFW window hints
-	glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-	// GLFW OpenGL version hints
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_VERSION_MAJOR);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_VERSION_MINOR);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	// GLFW platform hints
-	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
-
-	// GLFW double buffering hints
-	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-
-	// GLFW depth buffer hints 
-	glfwWindowHint(GLFW_DEPTH_BITS, 24);
 
 	return 1;
 }
@@ -121,6 +106,21 @@ window* newWindow(
 		}
 	}
 
+	// GLFW window hints
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+
+	// GLFW OpenGL version hints
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_VERSION_MAJOR);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_VERSION_MINOR);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	// GLFW double buffering hints
+	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+
+	// GLFW depth buffer hints 
+	glfwWindowHint(GLFW_DEPTH_BITS, 24);
+
 	// create GLFW window
 	win->gl = glfwCreateWindow(
 		width,
@@ -202,14 +202,22 @@ int updateWindow(window* win) {
 }
 
 void resizeWindow(window* win, int width, int height) {
+	// get scale
+	float sx, sy;
+	glfwGetWindowContentScale(win->gl, &sx, &sy);
+
 	// set size
 	win->width = width;
 	win->height = height;
-	glfwSetWindowSize(win->gl, width, height);
+	glfwSetWindowSize(win->gl, width * sx, height * sy);
 	
 	// setup framebuffer
 	glfwGetFramebufferSize(win->gl, &win->fbWidth, &win->fbHeight);
 	glViewport(0, 0, win->fbWidth, win->fbHeight);
+}
+
+void moveWindow(window* win, int x, int y) {
+	glfwSetWindowPos(win->gl, x, y);
 }
 
 float winToFbW(window* win, float from) {

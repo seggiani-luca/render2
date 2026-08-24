@@ -240,6 +240,8 @@ void sceneGui(window* win) {
 			WIN - 10 PAD - ICO_SIZ, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ICO_LOAD, "")) {
+			changeEntityCallback(inspectorWin, NULL);
+			
 			// load scene
 			deserializeScene(scn, getScenePath(scn->name));
 			return; // early quit
