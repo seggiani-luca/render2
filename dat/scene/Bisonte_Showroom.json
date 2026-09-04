@@ -2,6 +2,253 @@
 	"name" : "Bisonte Showroom",
 	"root" : [
 		{
+			"name" : "Bisonte",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"rotation" : [
+							0.000000,
+							0.000000,
+							0.000000,
+							1.000000
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Mesh",
+					"type" : "mesh",
+					"value" : "dat/model/bisonte.obj"
+				},
+				{
+					"name" : "Material",
+					"type" : "material",
+					"value" : "dat/material/bisonte.mtl"
+				}
+			],
+			"children" : []
+		},
+		{
+			"name" : "Reiko",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							2.000000,
+							0.000000,
+							0.750000
+						],
+						"rotation" : [
+							0.000000,
+							0.216440,
+							0.000000,
+							0.976296
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				}
+			],
+			"children" : [
+				{
+					"name" : "Body",
+					"fields" : [
+						{
+							"name" : "Transform",
+							"type" : "transform",
+							"value" : {
+								"position" : [
+									0.000000,
+									0.000000,
+									0.000000
+								],
+								"rotation" : [
+									0.000000,
+									0.000000,
+									0.000000,
+									0.000000
+								],
+								"scale" : [
+									1.000000,
+									1.000000,
+									1.000000
+								]
+							}
+						},
+						{
+							"name" : "Mesh",
+							"type" : "mesh",
+							"value" : "dat/model/reiko_body.obj"
+						},
+						{
+							"name" : "Material",
+							"type" : "material",
+							"value" : "dat/material/reiko_body.mtl"
+						}
+					],
+					"children" : []
+				},
+				{
+					"name" : "Hair",
+					"fields" : [
+						{
+							"name" : "Transform",
+							"type" : "transform",
+							"value" : {
+								"position" : [
+									0.000000,
+									0.000000,
+									0.000000
+								],
+								"rotation" : [
+									0.000000,
+									0.000000,
+									0.000000,
+									0.000000
+								],
+								"scale" : [
+									1.000000,
+									1.000000,
+									1.000000
+								]
+							}
+						},
+						{
+							"name" : "Mesh",
+							"type" : "mesh",
+							"value" : "dat/model/reiko_hair.obj"
+						},
+						{
+							"name" : "Material",
+							"type" : "material",
+							"value" : "dat/material/reiko_hair.mtl"
+						}
+					],
+					"children" : []
+				},
+				{
+					"name" : "Dress",
+					"fields" : [
+						{
+							"name" : "Transform",
+							"type" : "transform",
+							"value" : {
+								"position" : [
+									0.000000,
+									0.000000,
+									0.000000
+								],
+								"rotation" : [
+									0.000000,
+									0.000000,
+									0.000000,
+									0.000000
+								],
+								"scale" : [
+									1.000000,
+									1.000000,
+									1.000000
+								]
+							}
+						},
+						{
+							"name" : "Mesh",
+							"type" : "mesh",
+							"value" : "dat/model/reiko_dress.obj"
+						},
+						{
+							"name" : "Material",
+							"type" : "material",
+							"value" : "dat/material/reiko_dress.mtl"
+						}
+					],
+					"children" : []
+				}
+			]
+		},
+		{
+			"name" : "Pivot",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							0.100000,
+							0.000000,
+							0.000000
+						],
+						"rotation" : [
+							-0.206422,
+							0.293578,
+							0.065085,
+							0.931110
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				}
+			],
+			"children" : [
+				{
+					"name" : "Camera",
+					"fields" : [
+						{
+							"name" : "Transform",
+							"type" : "transform",
+							"value" : {
+								"position" : [
+									0.000000,
+									0.000000,
+									5.500000
+								],
+								"rotation" : [
+									0.000000,
+									0.000000,
+									0.000000,
+									0.000000
+								],
+								"scale" : [
+									1.000000,
+									1.000000,
+									1.000000
+								]
+							}
+						},
+						{
+							"name" : "Camera",
+							"type" : "camera",
+							"value" : {
+								"fov" : 50.000000,
+								"nearPlane" : 0.010000,
+								"farPlane" : 300.000000
+							}
+						}
+					],
+					"children" : []
+				}
+			]
+		},
+		{
 			"name" : "Sun",
 			"fields" : [
 				{
@@ -32,128 +279,24 @@
 					"value" : {
 						"ambient" : [
 							0.900000,
-							0.900000,
+							0.930000,
 							1.000000
 						],
 						"cubemap" : "dat/texture/cubemap_showroom.tga",
 						"sun" : [
-							0.600000,
-							0.600000,
-							0.550000
+							0.450000,
+							0.450000,
+							0.380000
 						],
 						"background" : [
-							0.100000,
-							0.200000,
-							0.400000
+							0.050000,
+							0.050000,
+							0.050000
 						]
 					}
 				}
 			],
 			"children" : []
-		},
-		{
-			"name" : "Bisonte",
-			"fields" : [
-				{
-					"name" : "Transform",
-					"type" : "transform",
-					"value" : {
-						"position" : [
-							0.000000,
-							0.000000,
-							0.000000
-						],
-						"rotation" : [
-							0.000000,
-							0.000000,
-							0.000000,
-							0.000000
-						],
-						"scale" : [
-							1.000000,
-							1.000000,
-							1.000000
-						]
-					}
-				},
-				{
-					"name" : "Mesh",
-					"type" : "mesh",
-					"value" : "dat/model/bisonte.obj"
-				},
-				{
-					"name" : "Material",
-					"type" : "material",
-					"value" : "dat/material/bisonte.mtl"
-				}
-			],
-			"children" : []
-		},
-		{
-			"name" : "Pivot",
-			"fields" : [
-				{
-					"name" : "Transform",
-					"type" : "transform",
-					"value" : {
-						"position" : [
-							-0.500000,
-							-0.100000,
-							0.000000
-						],
-						"rotation" : [
-							-0.041601,
-							0.300420,
-							0.013117,
-							0.952809
-						],
-						"scale" : [
-							1.000000,
-							1.000000,
-							1.000000
-						]
-					}
-				}
-			],
-			"children" : [
-				{
-					"name" : "Camera",
-					"fields" : [
-						{
-							"name" : "Transform",
-							"type" : "transform",
-							"value" : {
-								"position" : [
-									0.000000,
-									0.000000,
-									5.000000
-								],
-								"rotation" : [
-									0.000000,
-									0.000000,
-									0.000000,
-									0.000000
-								],
-								"scale" : [
-									1.000000,
-									1.000000,
-									1.000000
-								]
-							}
-						},
-						{
-							"name" : "Camera",
-							"type" : "camera",
-							"value" : {
-								"fov" : 50.000000,
-								"nearPlane" : 0.010000,
-								"farPlane" : 300.000000
-							}
-						}
-					],
-					"children" : []
-				}
-			]
 		}
 	]
 }

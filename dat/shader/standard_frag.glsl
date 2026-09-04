@@ -1,33 +1,41 @@
 #version 420 core
 
-in vec2 vUV;                         // vert                u, v 
-in vec3 vNormal;                     // vert norm.          x, y, z
-in vec3 vViewDir;                    // vert view vector    x, y, z
+in vec2 vUV;                      // vert                u, v 
+in vec3 vNormal;                  // vert norm.          x, y, z
+in vec3 vViewDir;                 // vert view vector    x, y, z
 
-out vec4 oColor;                     // out                 color
+out vec4 oColor;                  // out                 color
 
-uniform vec3 uDiffuseCol;            // diffuse             color
-uniform sampler2D uDiffuseMap;       // diffuse map         texture 
-uniform vec3 uSpecularCol;           // specular            color
-uniform sampler2D uSpecularMap;      // specular map        texture 
-uniform float uShininess;            // shininess value     float
-uniform sampler2D uShininessMap;     // shininess map       texture 
+uniform vec3 uDiffuseCol;         // diffuse             color
+uniform sampler2D uDiffuseMap;    // diffuse map         texture 
+uniform vec3 uSpecularCol;        // specular            color
+uniform sampler2D uSpecularMap;   // specular map        texture 
+uniform float uShininess;         // shininess value     float
+uniform sampler2D uShininessMap;  // shininess map       texture 
 
-uniform vec3 uSunDir;                // sun direction       x, y, z
-uniform vec3 uSunCol;                // sun tint            color
-uniform vec3 uAmbientCol;            // ambient tint        color
-uniform sampler2D uAmbientMap;       // ambient map         texture
+uniform vec3 uSunDir;             // sun direction       x, y, z
+uniform vec3 uSunCol;             // sun tint            color
+uniform vec3 uAmbientCol;         // ambient tint        color
+uniform sampler2D uAmbientMap;    // ambient map         texture
 
-uniform bool uHasAmbientMap;         // ambient map flag    bool
-uniform bool uHasDiffuseMap;         // diffuse map flag    bool
-uniform bool uHasSpecularMap;        // specular map flag   bool
-uniform bool uHasShininessMap;       // shininess map flag  bool
+uniform bool uHasAmbientMap;      // ambient map flag    bool
+uniform bool uHasDiffuseMap;      // diffuse map flag    bool
+uniform bool uHasSpecularMap;     // specular map flag   bool
+uniform bool uHasShininessMap;    // shininess map flag  bool
 
 // diffuse ambient lightning mip level
 #define DIFFUSE_MIP 7
 
 // cubemap reflection intensity
 #define SPECULAR_INTENSITY 0.5
+
+// exponent of fresnel term
+#define FRESNEL_EXPONENT 1.0
+
+// fresnel factor between view direction and normal
+float fresnel(vec3 N, vec3 V) {
+	return pow(1 - dot(N, V), FRESNEL_EXPONENT);
+}
 
 // converts vectors to equirectangular coordinates
 vec2 dirToEquirectUV(vec3 dir) {
@@ -83,19 +91,20 @@ void main() {
 	vec3 ambient = enviro * albedo;
 
 	// calculate specular
-	vec3 halfway = normalize(L + V);
 	vec3 specular =
 		specularCol           *
 		uSunCol               *
 		step(0.0, lambertDot) *
-		pow(max(dot(N, halfway), 0.0), specExponent);
+		pow(max(dot(R, L), 0.0), specExponent);
 	if(uHasAmbientMap) {
 		vec2 specUV = dirToEquirectUV(R);
 		float specMip = (1.0 - shininess) * DIFFUSE_MIP;
 		specular += 
 			textureLod(uAmbientMap, specUV, specMip).rgb *
 			specularCol                                  *
+			uAmbientCol                                  *
 			shininess                                    *
+			fresnel(N, V)                                *
 			SPECULAR_INTENSITY;
 	}
 

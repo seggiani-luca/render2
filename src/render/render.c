@@ -11,23 +11,6 @@ typedef struct {
 	scene* scn;
 } renderingContext;
 
-// debug print a 4x4 uniform matrix
-void debugUniformMatrix(GLuint program, GLint location, const char *name) {
-    GLfloat m[16];
-
-	// get uniform
-    glGetUniformfv(program, location, m);
-
-	// print matrix
-    printf("%s:\n", name);
-    for (int row = 0; row < 4; row++) {
-        printf("  ");
-        for (int col = 0; col < 4; col++)
-            printf("%g ", m[col * 4 + row]);
-        printf("\n");
-    }
-}
-
 // actually renders an entity
 void doRenderEntity(
 	renderEntity* ent,
@@ -164,6 +147,12 @@ void doRenderEntity(
 		shader->uniformLocations[HAS_SHININESS_MAP],
 		material->shininessMap ? 1 : 0	
 	);
+
+	// send subsurface color
+	glUniform3fv(
+		shader->uniformLocations[SUBSURFACE_COLOR], 
+		1, &material->subsurfCol.r);
+	GL_ERR("uSubsurfCol uniform");
 
 	// setup VAO
 	glBindVertexArray(ent->mesh->vao);

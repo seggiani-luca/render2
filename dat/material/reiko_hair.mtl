@@ -1,0 +1,8 @@
+vert dat/shader/vert.glsl                  # vert shader
+frag dat/shader/skin_frag.glsl             # frag shader
+
+Kd 1.000000 1.000000 1.000000              # diffuse color
+map_Kd dat/texture/reiko_hair_diffuse.tga  # diffuse map 
+Ks 0.900000 0.9500000 1.000000             # specular color
+Kb 0.250000 0.150000 0.250000              # subsurface color
+Ns 1.000000                                # shininess

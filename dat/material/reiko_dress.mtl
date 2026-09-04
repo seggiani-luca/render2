@@ -1,0 +1,7 @@
+vert dat/shader/vert.glsl                   # vert shader
+frag dat/shader/standard_frag.glsl          # frag shader
+
+Kd 1.000000 1.000000 1.000000               # diffuse color
+map_Kd dat/texture/reiko_dress_diffuse.tga  # diffuse map 
+Ks 1.000000 1.000000 1.000000               # specular color
+Ns 0.850000                                 # shininess

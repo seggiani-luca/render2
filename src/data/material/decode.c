@@ -28,9 +28,19 @@ int parseTex(char* line, const char* key, texture** tex) {
 int materialDecode(material* material, FILE* file) {
 	char line[MATERIAL_LINE_SIZ];
 
+	// buffers for vert and frag paths
+	char vertPath[DAT_PATH_SIZ];
+	char fragPath[DAT_PATH_SIZ];
+
 	while(fgets(line, MATERIAL_LINE_SIZ, file)) {
+		// get shaders
+		parseStringKey(line, "vert", vertPath);
+		parseStringKey(line, "frag", fragPath);
+
+		// get colors
 		parseFloatKey(line, "Kd ", 3, (float*)&material->diffuseCol);
 		parseFloatKey(line, "Ks ", 3, (float*)&material->specularCol);
+		parseFloatKey(line, "Kb ", 3, (float*)&material->subsurfCol);
 		parseFloatKey(line, "Ns ", 1, &material->shininess);
 
 		// get maps
@@ -40,7 +50,7 @@ int materialDecode(material* material, FILE* file) {
 	}
 
 	// get matching shader
-	dataRef* ref = shaderImport(VERT_PATH, PHONG_FRAG_PATH);
+	dataRef* ref = shaderImport(vertPath, fragPath);
 	if(ref) material->shader = ref->data;
 	else return 0;
 

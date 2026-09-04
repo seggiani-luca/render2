@@ -119,6 +119,7 @@ const char* getUniformString(shaderUniform uniform) {
 		case SPECULAR_MAP:      return "uSpecularMap";
 		case SHININESS:         return "uShininess";
 		case SHININESS_MAP:     return "uShininessMap";
+		case SUBSURFACE_COLOR:  return "uSubsurfCol";
 		case HAS_DIFFUSE_MAP:   return "uHasDiffuseMap";
 		case HAS_SPECULAR_MAP:  return "uHasSpecularMap";
 		case HAS_SHININESS_MAP: return "uHasShininessMap";

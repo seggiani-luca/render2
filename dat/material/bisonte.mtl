@@ -1,6 +1,9 @@
-Kd 1.000000 1.000000 1.000000            # diffuse color
-map_Kd dat/texture/bisonte_diffuse.tga   # diffuse map 
-Ks 1.000000 1.000000 1.000000            # specular color
-map_Ks dat/texture/bisonte_specular.tga  # specular map
-Ns 1.000000                              # shininess
-map_Ns dat/texture/bisonte_shininess.tga # shininess map
+vert dat/shader/vert.glsl                 # vert shader
+frag dat/shader/standard_frag.glsl        # frag shader
+
+Kd 1.000000 1.000000 1.000000             # diffuse color
+map_Kd dat/texture/bisonte_diffuse.tga    # diffuse map 
+Ks 1.000000 1.000000 1.000000             # specular color
+map_Ks dat/texture/bisonte_specular.tga   # specular map
+Ns 1.000000                               # shininess
+map_Ns dat/texture/bisonte_shininess.tga  # shininess map

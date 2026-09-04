@@ -1,3 +1,6 @@
-Kd 1.000000 1.000000 1.000000 # diffuse color
-Ks 0.500000 0.500000 0.500000 # specular color
-Ns 810.000000                 # shininess
+vert dat/shader/vert.glsl           # vert shader
+frag dat/shader/standard_frag.glsl  # frag shader
+
+Kd 1.000000 1.000000 1.000000       # diffuse color
+Ks 0.500000 0.500000 0.500000       # specular color
+Ns 0.500000                         # shininess

@@ -34,10 +34,6 @@
 // forward declaration of scene 
 typedef struct scene scene;
 
-// paths for shaders
-#define VERT_PATH       "dat/shader/vert.glsl"
-#define PHONG_FRAG_PATH "dat/shader/phong_frag.glsl"
-
 // macro for OpenGL errors
 #define GL_ERR(func)                                     \
 	{                                                    \

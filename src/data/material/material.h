@@ -31,6 +31,9 @@ typedef struct {
 	
 	// specular exponent map 
 	texture* shininessMap;
+	
+	// subsurface color
+	color subsurfCol;
 } material;
 
 // print material info
