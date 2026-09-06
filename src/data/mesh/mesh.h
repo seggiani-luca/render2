@@ -19,7 +19,7 @@ typedef struct {
 	vertex* verts;
 
 	// number of vertices
-	int vertCount;
+	size_t vertCount;
 
 	// OpenGL VAO
 	GLuint vao;

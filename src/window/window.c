@@ -76,7 +76,7 @@ void freeGl() {
 
 // -- icons
 
-extern int textureDecode(texture* texture, FILE* file, int* rgba);
+extern int textureDecode(texture* texture, FILE* file);
 
 // loads a single icon, as a texture
 windowIcon* loadIcon(const char* path) {
@@ -89,12 +89,7 @@ windowIcon* loadIcon(const char* path) {
 	memset(tex, 0, sizeof(texture));
 	
 	// load data
-	int rgba = 0;
-	textureDecode(tex, file, &rgba);
-	if(!rgba) {
-		free(tex);
-		return NULL;
-	}
+	textureDecode(tex, file);
 
 	// setup struct
 	windowIcon* ico = malloc(sizeof(windowIcon));
@@ -148,6 +143,7 @@ window* newWindow(
 	// GLFW window hints
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+	glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
 	// GLFW OpenGL version hints
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_VERSION_MAJOR);
@@ -207,6 +203,9 @@ window* newWindow(
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
 	}
+
+	// setup SRGB
+	glEnable(GL_FRAMEBUFFER_SRGB);
 
 	// setup icon
 	glfwSetWindowIcon(win->gl, 1, ico);

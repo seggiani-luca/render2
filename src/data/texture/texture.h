@@ -22,6 +22,9 @@ typedef struct {
 // set the filtering options for a texture
 void textureFilter(texture* tex, int linear);
 
+// set the color format options for a texture
+void textureColor(texture* tex, int srgb);
+
 // print texture info
 void texturePrint(void* dat);
 

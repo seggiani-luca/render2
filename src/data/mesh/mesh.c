@@ -10,7 +10,7 @@ extern int meshDecode(mesh* mesh, FILE* file);
 
 void meshPrint(void* dat) {
 	mesh* msh = (mesh*)dat;
-	printf("Mesh (vertices: %d)", msh->vertCount);
+	printf("Mesh (vertices: %ld)", msh->vertCount);
 }
 
 // generates a VBO and a VAO for this mesh

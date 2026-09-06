@@ -32,127 +32,40 @@ void doRenderEntity(
 	glUseProgram(shader->program);
 	GL_ERR("program selection");
 
-	// send model matrix
-	glUniformMatrix4fv(
-		shader->uniformLocations[MODEL], 
-		1, GL_FALSE, &model.a);
-	GL_ERR("uModel uniform");
+	// reset texture unit allocator for this draw
+	resetTexUnit();
 
-	// send view matrix
-	glUniformMatrix4fv(
-		shader->uniformLocations[VIEW], 
-		1, GL_FALSE, &view.a);
-	GL_ERR("uView uniform");
-	
-	// send projection matrix
-	glUniformMatrix4fv(
-		shader->uniformLocations[PROJECTION], 
-		1, GL_FALSE, &proj.a);
-	GL_ERR("uProjection uniform");
-	
-	// send camera position 
-	glUniform3fv(
-		shader->uniformLocations[CAMERA_POSITION], 
-		1, mat4ExPosition(&camTrans));
-	GL_ERR("uCameraPos uniform");
-	
-	// send sun direction
-	glUniform3fv(
-		shader->uniformLocations[SUN_DIRECTION], 
-		1, mat4ExForward(&atmTrans));
-	GL_ERR("uSunDir uniform");
-	
-	// send sun color 
-	glUniform3fv(
-		shader->uniformLocations[SUN_COLOR], 
-		1, &atmInfo->sun.r);
-	GL_ERR("uSunCol uniform");
-	
-	// send ambient color 
-	glUniform3fv(
-		shader->uniformLocations[AMBIENT_COLOR], 
-		1, &atmInfo->ambient.r);
-	GL_ERR("uAmbientCol uniform");
-	
-	// send ambient map
-	if(atmInfo->ambientMap) {
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, ((texture*)atmInfo->ambientMap->data)->tex);
-		glUniform1i(
-			shader->uniformLocations[AMBIENT_MAP],
-			0
-		);
-	}
-	glUniform1i(
-		shader->uniformLocations[HAS_AMBIENT_MAP],
-		atmInfo->ambientMap ? 1 : 0	
-	);
+	// send transform matrices
+	sendUniform(shader, MODEL,             &model.a);
+	sendUniform(shader, VIEW,              &view.a );
+	sendUniform(shader, PROJECTION,        &proj.a );
 
-	// send diffuse color
-	glUniform3fv(
-		shader->uniformLocations[DIFFUSE_COLOR], 
-		1, &material->diffuseCol.r);
-	GL_ERR("uDiffuseCol uniform");
-	
-	// send diffuse texture
-	if(material->diffuseMap) {
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, material->diffuseMap->tex);
-		glUniform1i(
-			shader->uniformLocations[DIFFUSE_MAP],
-			1
-		);
-	}
-	glUniform1i(
-		shader->uniformLocations[HAS_DIFFUSE_MAP],
-		material->diffuseMap ? 1 : 0	
-	);
+	// send camera
+	sendUniform(shader, CAMERA_POSITION,     mat4ExPosition(&camTrans));
 
-	// send specular color
-	glUniform3fv(
-		shader->uniformLocations[SPECULAR_COLOR], 
-		1, &material->specularCol.r);
-	GL_ERR("uSpecularCol uniform");
-	
-	// send specular texture
-	if(material->specularMap) {
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, material->specularMap->tex);
-		glUniform1i(
-			shader->uniformLocations[SPECULAR_MAP],
-			2
-		);
-	}
-	glUniform1i(
-		shader->uniformLocations[HAS_SPECULAR_MAP],
-		material->specularMap ? 1 : 0	
-	);
-	
-	// send shininess 
-	glUniform1fv(
-		shader->uniformLocations[SHININESS], 
-		1, &material->shininess);
-	GL_ERR("uSpecularCol uniform");
+	// send sun
+	sendUniform(shader, SUN_DIRECTION,      mat4ExForward(&atmTrans));
+	sendUniform(shader, SUN_COLOR,         &atmInfo->sun.r          );
 
-	// send shininess map 
-	if(material->shininessMap) {
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, material->shininessMap->tex);
-		glUniform1i(
-			shader->uniformLocations[SHININESS_MAP],
-			3
-		);
-	}
-	glUniform1i(
-		shader->uniformLocations[HAS_SHININESS_MAP],
-		material->shininessMap ? 1 : 0	
-	);
+	// send ambient
+	sendUniform(shader, AMBIENT_COLOR,     &atmInfo->ambient.r       );
+	sendUniform(shader, AMBIENT_MAP,        atmInfo->ambientMap ? 
+			                                atmInfo->ambientMap->data : NULL);
 
-	// send subsurface color
-	glUniform3fv(
-		shader->uniformLocations[SUBSURFACE_COLOR], 
-		1, &material->subsurfCol.r);
-	GL_ERR("uSubsurfCol uniform");
+	// send diffuse
+	sendUniform(shader, DIFFUSE_COLOR,     &material->diffuseCol.r);
+	sendUniform(shader, DIFFUSE_MAP,        material->diffuseMap  );
+
+	// send specular
+	sendUniform(shader, SPECULAR_COLOR,    &material->specularCol.r);
+	sendUniform(shader, SPECULAR_MAP,       material->specularMap  );
+
+	// send shininess
+	sendUniform(shader, SHININESS,         &material->shininess    );
+	sendUniform(shader, SHININESS_MAP,      material->shininessMap );
+
+	// send subsurface
+	sendUniform(shader, SUBSURFACE_COLOR,  &material->subsurfCol.r);
 
 	// setup VAO
 	glBindVertexArray(ent->mesh->vao);

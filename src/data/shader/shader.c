@@ -92,53 +92,65 @@ void shaderPrint(void* dat) {
 	printf("Shader %d\n", shd->program);
 }
 
-// gets an uniform's associated string
-const char* getUniformString(shaderUniform uniform) {
-	switch (uniform) {
-		// transform matrices
-		case MODEL:             return "uModel";
-		case VIEW:              return "uView";
-		case PROJECTION:        return "uProjection";
-
-		// camera info
-		case CAMERA_POSITION:   return "uCameraPos";
-
-		// sun info
-		case SUN_DIRECTION:     return "uSunDir";
-		case SUN_COLOR:         return "uSunCol";
-
-		// atmosphere info
-		case AMBIENT_COLOR:     return "uAmbientCol";
-		case AMBIENT_MAP:       return "uAmbientMap";
-		case HAS_AMBIENT_MAP:   return "uHasAmbientMap";
-
-		// material info
-		case DIFFUSE_COLOR:     return "uDiffuseCol";
-		case DIFFUSE_MAP:       return "uDiffuseMap";
-		case SPECULAR_COLOR:    return "uSpecularCol";
-		case SPECULAR_MAP:      return "uSpecularMap";
-		case SHININESS:         return "uShininess";
-		case SHININESS_MAP:     return "uShininessMap";
-		case SUBSURFACE_COLOR:  return "uSubsurfCol";
-		case HAS_DIFFUSE_MAP:   return "uHasDiffuseMap";
-		case HAS_SPECULAR_MAP:  return "uHasSpecularMap";
-		case HAS_SHININESS_MAP: return "uHasShininessMap";
-		default:                return NULL;
-	}
-}
-
 // precalculates uniform locations for shader programs
 void getUniformLocations(shader* shader) {
 	// go through all uniforms
 	for(int i = 0; i < NUM_UNIFORMS; i++) {
-		// get string
-		const char* uniformString = getUniformString(i);
-
 		// find location
 		shader->uniformLocations[i] 
-			= glGetUniformLocation(shader->program, uniformString);
-		GL_ERR(uniformString);
+			= glGetUniformLocation(shader->program, uniformInfos[i].name);
+		GL_ERR(uniformInfos[i].name);
 	}
+}
+
+// current texture unit
+static int texUnit = 0;
+
+void resetTexUnit() {
+	texUnit = 0;
+}
+
+void sendUniform(shader* shader, shaderUniform uniform, const void* data) {
+	// get location 
+	GLint location = shader->uniformLocations[uniform];
+
+	// send based on uniform type
+	switch(uniformInfos[uniform].type) {
+		case UNIFORM_1I:
+			glUniform1i(location, *(const GLint*)data);
+			break;
+
+		case UNIFORM_1F:
+			glUniform1f(location, *(const GLfloat*)data);
+			break;
+
+		case UNIFORM_3FV:
+			glUniform3fv(location, 1, data);
+			break;
+
+		case UNIFORM_MAT4:
+			glUniformMatrix4fv(location, 1, GL_FALSE, data);
+			break;
+
+		case UNIFORM_TEX: {
+			// set auxilliary
+			int present = data != NULL;
+			shaderUniform auxil = uniformInfos[uniform].auxil;
+			if(auxil) sendUniform(shader, auxil, &present);
+
+			if(!data) break;
+
+			// set texture
+			glActiveTexture(GL_TEXTURE0 + texUnit);
+			glBindTexture(GL_TEXTURE_2D, ((texture*)data)->tex);
+			glUniform1i(location, texUnit);
+
+			texUnit++;
+			break;
+		}
+	}
+
+	GL_ERR(uniformInfos[uniform].name);
 }
 
 void shader_free(shader* shader) {

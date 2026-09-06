@@ -200,7 +200,10 @@ int newGui(guiContext* ctx) {
 	// import texture
 	ctx->gl.tex = textureImport(GUI_ATLAS_PATH)->data;
 	if(!ctx->gl.tex) return 0;
+
+	// set to nearest-neighbour, SRGB
 	textureFilter(ctx->gl.tex, 0);
+	textureColor(ctx->gl.tex, 1);
 
 	return 1;
 }

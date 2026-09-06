@@ -39,7 +39,7 @@ typedef struct scene scene;
 	{                                                    \
 	    GLenum err = glGetError();                       \
 	    if(err != GL_NO_ERROR)                           \
-	    printf("OpenGL error 0x%x at %s\n", err, #func); \
+	    printf("OpenGL error 0x%x at %s\n", err, func); \
 	}
 
 // gets a callback object for scene rendering 

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern int textureDecode(texture* texture, FILE* file, int* rgba);
+extern int textureDecode(texture* texture, FILE* file);
 
 // -- textures
 
@@ -25,6 +25,29 @@ void textureFilter(texture* tex, int linear) {
 		GL_TEXTURE_MAG_FILTER,
 		linear ? GL_LINEAR : GL_NEAREST
 	);
+
+	GL_ERR("texture filter");
+}
+
+void textureColor(texture* tex, int srgb) {
+	glBindTexture(GL_TEXTURE_2D, tex->tex);
+
+	// set the color format filtering options
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		srgb ? GL_SRGB8_ALPHA8 : GL_RGBA,
+		tex->width,
+		tex->height,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		tex->data
+	);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	GL_ERR("texture color");
 }
 
 void texturePrint(void* dat) {
@@ -33,7 +56,7 @@ void texturePrint(void* dat) {
 }
 
 // generates an OpenGL texture for a texture
-void generateGLTextures(texture* texture, int rgba) {
+void generateGLTextures(texture* texture) {
 	// generate and bind texture
 	glGenTextures(
 		1,
@@ -73,11 +96,11 @@ void generateGLTextures(texture* texture, int rgba) {
 	glTexImage2D(
 		GL_TEXTURE_2D,
 		0,
-		rgba ? GL_RGBA : GL_RGB,
+		GL_RGBA,
 		texture->width,
 		texture->height,
 		0,
-		rgba ? GL_RGBA : GL_RGB,
+		GL_RGBA,
 		GL_UNSIGNED_BYTE,
 		texture->data
 	);
@@ -102,14 +125,13 @@ void* texture_import(FILE* file) {
 	memset(new_texture, 0, sizeof(texture));
 
 	// load texture
-	int rgba;
-	if(!textureDecode(new_texture, file, &rgba)) {
+	if(!textureDecode(new_texture, file)) {
 		free(new_texture);
 		return NULL;
 	}
 
 	// generate OpenGL texture
-	generateGLTextures(new_texture, rgba);
+	generateGLTextures(new_texture);
 
 	return new_texture;
 }

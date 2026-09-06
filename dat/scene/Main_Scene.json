@@ -1,5 +1,5 @@
 {
-	"name" : "Default Scene",
+	"name" : "Main Scene",
 	"root" : [
 		{
 			"name" : "Camera",
