@@ -73,12 +73,20 @@
 #define ICO_EMPTY  ICO(13, 5)
 #define ICO_LOAD   ICO(14, 5)
 #define ICO_SAVE   ICO(15, 5)
+#define ICO_TABLE  ICO(0, 6)
+
+// default data directory
+#define DATA_DIR "dat"
 
 // -- sizing
 
 // data selector size
 #define DATASEL_WIDTH 600
 #define DATASEL_HEIGHT 400
+
+// path selector size
+#define PATHSEL_WIDTH 500
+#define PATHSEL_HEIGHT 500
 
 // offset for import button
 #define IMPORT_OFF 520.0f
@@ -115,6 +123,9 @@ char* bufferGui(
 
 // scrolls GUI
 void scrollGui(guiContext* ctx, guiLayerId layId);
+
+// reads path input 
+int pathGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // -- rendering primitives
 
@@ -191,5 +202,21 @@ int meshGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a material edit box
 int materialGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// -- callback
+
+// makes data selector callback
+renderCallback makeDataselCallback(
+	dataRef** ref,
+	dataTable* tab,
+	guiContext* orig
+);
+
+// makes path selector callback
+renderCallback makePathselCallback(
+	char* path,
+	guiContext* orig,
+	char* curPath
+);
 
 #endif

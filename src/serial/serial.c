@@ -636,6 +636,7 @@ const char* getEntityPath(const char* name) {
 
 	// build path name
 	strcat(path, ENTITY_DIR);
+	strcat(path, "/");
 	strcat(path, name);
 	strcat(path, ENTITY_EXT);
 
@@ -654,6 +655,7 @@ const char* getScenePath(const char* name) {
 
 	// build path name
 	strcat(path, SCENE_DIR);
+	strcat(path, "/");
 	strcat(path, name);
 	strcat(path, SCENE_EXT);
 

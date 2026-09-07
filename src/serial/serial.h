@@ -12,13 +12,13 @@ typedef struct entity entity;
 typedef struct jsonElement jsonElement;
 
 // default scene directory
-#define SCENE_DIR "dat/scene/"
+#define SCENE_DIR "dat/scene"
 
 // default scene extension 
 #define SCENE_EXT ".json" 
 
 // default entity directory
-#define ENTITY_DIR "dat/entity/"
+#define ENTITY_DIR "dat/entity"
 
 // default entity extension 
 #define ENTITY_EXT ".json" 

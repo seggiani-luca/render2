@@ -17,6 +17,9 @@ typedef struct {
 
 	// entity to move
 	entity* moving;
+
+	// path of scene to load
+	char load[DAT_PATH_SIZ];
 } sceneGuiContext;
 
 // context for new child GUI callback
@@ -33,8 +36,8 @@ typedef struct {
 	// name buffer
 	char name[ENT_NAME_SIZ];
 
-	// path buffer
-	char path[DAT_PATH_SIZ];
+	// path of entity to load 
+	char load[DAT_PATH_SIZ];
 } addChildGuiContext;
 
 // hook into inspector window
@@ -59,10 +62,25 @@ void addChildGui(window* win) {
 	entity* ent = aCtx->ent;
 	scene* scn = aCtx->scn;
 	char* name = aCtx->name;
-	char* path = aCtx->path;
 
 	// update input state
-	inputGui(win);
+	inputGui(win)
+		;
+	// realize early if entity path changed
+	if(ctx->in.dataPtr == aCtx->load && ctx->in.dataSet) {
+		changeEntityCallback(inspectorWin, NULL);
+
+		// load entity 
+		entity* new = deserializeEntityFile(aCtx->load);
+		if(new) appendChild(ent, new);
+		ctx->in.dataSet = 0;
+		
+		// flag dirty
+		scn->dirty = 1;
+
+		// should close
+		glfwSetWindowShouldClose(win->gl, 1);
+	}
 
 	// push background
 	quadGui(ctx, BACKGROUND, (float4){
@@ -93,11 +111,16 @@ void addChildGui(window* win) {
 			WIN - 7 PAD, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ICO_LOAD, "")) {	
-			// load entity
-			// TODO
-
-			// should close
-			glfwSetWindowShouldClose(win->gl, 1);
+			// prepare to load entity 
+			ctx->in.dataPtr = aCtx->load;
+			subWindowGui(ctx, newWindow(
+				PATHSEL_WIDTH,
+				PATHSEL_HEIGHT,
+				"Select Entity",
+				makePathselCallback(aCtx->load, ctx, ENTITY_DIR),
+				loadIcon(WIN_PATHSEL_ICO),
+				0
+			));
 		}
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
@@ -156,7 +179,6 @@ renderCallback makeAddChildCallback(entity* ent, scene* scn) {
 	aCtx->ent = ent;
 	aCtx->scn = scn;
 	*aCtx->name = '\0';
-	*aCtx->path = '\0';
 
 	// return callback
 	return (renderCallback){
@@ -226,6 +248,15 @@ void sceneGui(window* win) {
 	// update input state
 	inputGui(win);
 
+	// realize early if scene path changed
+	if(ctx->in.dataPtr == sCtx->load && ctx->in.dataSet) {
+		changeEntityCallback(inspectorWin, NULL);
+
+		// load scene
+		deserializeSceneFile(scn, sCtx->load);
+		ctx->in.dataSet = 0;
+	}
+
 	// push background
 	quadGui(ctx, BACKGROUND, (float4){
 		0, 0,
@@ -255,11 +286,17 @@ void sceneGui(window* win) {
 		if(buttonGui(ctx, FIXED, (float4){
 			WIN - 10 PAD - ICO_SIZ, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
-		}, ICO_LOAD, "")) {
-			changeEntityCallback(inspectorWin, NULL);
-			
-			// load scene
-			// TODO
+		}, ICO_LOAD, "")) {	
+			// prepare to load scene 
+			ctx->in.dataPtr = sCtx->load;
+			subWindowGui(ctx, newWindow(
+				PATHSEL_WIDTH,
+				PATHSEL_HEIGHT,
+				"Select Scene",
+				makePathselCallback(sCtx->load, ctx, SCENE_DIR),
+				loadIcon(WIN_PATHSEL_ICO),
+				0
+			));
 		}
 		
 		// push save button

@@ -210,6 +210,9 @@ int newGui(guiContext* ctx) {
 
 void freeGui(void* vCtx) {
 	guiContext* ctx = (guiContext*)vCtx;
+	
+	// free child first if present
+	if(ctx->child) freeWindow(ctx->child);
 
 	// free VBOs and VAO
 	glDeleteBuffers(

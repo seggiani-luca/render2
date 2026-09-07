@@ -1,12 +1,13 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include <linux/limits.h>
 #include <stdio.h>
 
 // -- data references
 
 // data reference path size
-#define DAT_PATH_SIZ 256
+#define DAT_PATH_SIZ PATH_MAX 
 
 // data reference
 struct dataRef {

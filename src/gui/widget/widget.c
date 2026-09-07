@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 // -- contexts
 
@@ -26,6 +27,24 @@ typedef struct {
 	// original GUI context
 	guiContext* orig;
 } dataselGuiContext;
+
+// context for path selector GUI callback
+typedef struct {
+	// GUI context
+	guiContext gui;
+
+	// path to update 
+	char* path;
+	
+	// current directory 
+	DIR* cur;
+
+	// current directory patih
+	char curPath[DAT_PATH_SIZ];	
+
+	// original GUI context
+	guiContext* orig;
+} pathselGuiContext;
 
 // -- data
 
@@ -59,7 +78,7 @@ void dataselGui(window* win) {
 	}, "Path:");
 
 	// push path edit box
-	stringGui(ctx, FIXED, (float4){
+	pathGui(ctx, FIXED, (float4){
 		1 PAD + PATH_OFF, HEIG - TXT_HEIGHT - 3 PAD,
 		IMPORT_OFF - 2 PAD - PATH_OFF, TXT_HEIGHT + 2 PAD
 	}, path);
@@ -79,6 +98,9 @@ void dataselGui(window* win) {
 		// should close
 		glfwSetWindowShouldClose(win->gl, 1);
 	}
+	
+	// scroll reference layer
+	scrollGui(ctx, SCROLL);
 
 	// go through references, pushing to gui
 	dataRef* cur = tab->root;
@@ -108,8 +130,136 @@ void dataselGui(window* win) {
 
 	downGui(ctx, SCROLL, 1 PAD);
 
-	// scroll reference layer
+	// flush changes
+	flushGui(ctx);
+}
+
+// renders the path selector GUI
+void pathselGui(window* win) {
+	// get context
+	pathselGuiContext* pCtx = (pathselGuiContext*)initGui(win);
+	guiContext* ctx = &pCtx->gui;
+	char* path = pCtx->path;
+	guiContext* orig = pCtx->orig;
+	char* curPath = pCtx->curPath;
+
+	// update input state
+	inputGui(win);
+
+	// push background
+	quadGui(ctx, BACKGROUND, (float4){
+		0, 0,
+		WIN, HEIG 
+	}, BG_ABS);
+
+	// open data directory if needed
+	if(!pCtx->cur) pCtx->cur = opendir(curPath);
+	DIR* cur = pCtx->cur;
+	
+	// scroll explorer layer
 	scrollGui(ctx, SCROLL);
+
+	// push upwards button
+	if(buttonGui(ctx, SCROLL, (float4){
+		1 PAD, 1 PAD,
+		WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+	}, ICO_MOVE, "..")) {
+		// remove last directory from path
+		char *slash = strrchr(pCtx->curPath, '/');
+
+		// don't go above the filesystem root
+		if(slash && slash != pCtx->curPath) *slash = '\0';
+
+		// open new directory
+		DIR *next = opendir(pCtx->curPath);
+		if(!next) return;
+
+		// close old directory
+		closedir(pCtx->cur);
+		
+		pCtx->cur = next;
+
+		return; // early exit;
+	}	
+	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+
+	// go through entries, pushing to gui
+	struct dirent *ent;
+	while ((ent = readdir(cur)) != NULL) {
+		// skip . and ..
+		if(strcmp(ent->d_name, "." ) == 0
+		|| strcmp(ent->d_name, "..") == 0) continue;
+
+		// file or directory?
+		if(ent->d_type != DT_REG
+		&& ent->d_type != DT_DIR) continue;
+		int dir = ent->d_type == DT_DIR;
+
+		// name of entry
+		char str[DAT_PATH_SIZ + 16];
+		snprintf(
+			str,
+			DAT_PATH_SIZ,
+			"%s",
+			ent->d_name
+		);
+
+		if(buttonGui(ctx, SCROLL, (float4){
+			1 PAD, 1 PAD,
+			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+		}, dir ? ICO_DIR : ICO_FILE, str)) {
+			if(dir) {
+				// build new directory path
+				char newPath[DAT_PATH_SIZ + sizeof(ent->d_name) + 1];
+				snprintf(
+					newPath,
+					sizeof(newPath),
+					"%s/%s",
+					curPath,
+					ent->d_name
+				);
+				if(strlen(newPath) >= DAT_PATH_SIZ - 1) return;
+
+				// open new directory
+				DIR *next = opendir(newPath);
+				if(!next) return;
+
+				// close old directory
+				closedir(pCtx->cur);
+				
+				pCtx->cur = next;
+				strncpy(pCtx->curPath, newPath, DAT_PATH_SIZ);
+				pCtx->curPath[DAT_PATH_SIZ - 1] = '\0';
+
+				return; // early exit;
+			} else {
+				// build final path
+				char newPath[DAT_PATH_SIZ + sizeof(ent->d_name) + 1];
+				snprintf(
+					newPath,
+					sizeof(newPath),
+					"%s/%s",
+					curPath,
+					ent->d_name
+				);
+				if(strlen(newPath) >= DAT_PATH_SIZ - 1) return;
+
+				// select this file
+				orig->in.dataSet = 1;
+				strncpy(path, newPath, DAT_PATH_SIZ);
+				path[DAT_PATH_SIZ - 1] = '\0';
+				
+				glfwSetWindowShouldClose(ctx->win->gl, 1);
+			}
+		}
+
+		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	}
+
+	// rewind directory
+	rewinddir(cur);
+
+	downGui(ctx, SCROLL, 1 PAD);
 
 	// flush changes
 	flushGui(ctx);
@@ -134,6 +284,41 @@ renderCallback makeDataselCallback(
 		dataselGui,
 		dCtx,
 		freeGui
+	};
+}
+
+// frees path selector context
+void freePathsel(void* vCtx) {
+	pathselGuiContext* ctx = (pathselGuiContext*)vCtx;
+	
+	// close open directory
+	if(ctx->cur) closedir(ctx->cur);
+	
+	freeGui(vCtx);
+}
+
+renderCallback makePathselCallback(
+	char* path,
+	guiContext* orig,
+	char* curPath
+) {
+	// initialize context
+	pathselGuiContext* pCtx = malloc(sizeof(pathselGuiContext));
+	pCtx->gui.win = NULL;
+	pCtx->gui.child = NULL;
+	pCtx->path = path;
+	pCtx->cur = NULL;
+	pCtx->orig = orig;
+	
+	// init path
+	strncpy(pCtx->curPath, curPath, DAT_PATH_SIZ);
+	pCtx->curPath[DAT_PATH_SIZ - 1] = '\0';
+
+	// return callback
+	return (renderCallback){
+		pathselGui,
+		pCtx,
+		freePathsel	
 	};
 }
 
@@ -240,6 +425,41 @@ void scrollGui(guiContext* ctx, guiLayerId layId) {
 
 	// consume scroll
 	ctx->in.scroll = 0.0f;
+}
+
+// forward declaration for pathGui
+void editBoxGui(
+	guiContext* ctx,
+	guiLayerId layId,
+	float4 rect,
+	const char* str
+);
+
+int pathGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	// push non-interactive box
+	editBoxGui(ctx, layId, rect, (char*)val);
+
+	if(pressGui(ctx, layId, rect)) {
+		// set data pointer in context
+		ctx->in.dataPtr = val;
+
+		subWindowGui(ctx, newWindow(
+			PATHSEL_WIDTH,
+			PATHSEL_HEIGHT,
+			"Select File",
+			makePathselCallback(val, ctx, DATA_DIR),
+			loadIcon(WIN_PATHSEL_ICO),
+			0
+		));
+	}
+		
+	// return if found
+	if(ctx->in.dataPtr == val && ctx->in.dataSet) {
+		ctx->in.dataSet = 0;
+		return 1;
+	}
+
+	return 0;
 }
 
 // -- rendering primitives
@@ -446,6 +666,7 @@ int stringGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 	char* in = editorGui(ctx, layId, rect, str, (uint64_t)val + 1);
 	if(in && val) {
 		strncpy(val, in, IN_BUF_SIZ);
+		((char*)val)[IN_BUF_SIZ - 1] = '\0';
 		return 1;
 	}
 
@@ -553,7 +774,7 @@ int dataGui(
 	if(buttonGui(ctx, SCROLL, (float4){
 		rect.x + rect.z + 1 PAD, rect.y,
 		2 PAD + ICO_SIZ, 1 PAD + ICO_SIZ 
-	}, ICO_SEARCH, "")) {
+	}, ICO_TABLE, "")) {
 		// set data pointer in context
 		ctx->in.dataPtr = ref;
 

@@ -30,6 +30,7 @@ typedef GLFWimage windowIcon;
 #define WIN_INSPECT_ICO "dat/icon/inspector.tga"
 #define WIN_NEWITEM_ICO "dat/icon/new.tga"
 #define WIN_DATASEL_ICO "dat/icon/datasel.tga"
+#define WIN_PATHSEL_ICO "dat/icon/pathsel.tga"
 
 // loads icons
 windowIcon* loadIcon(const char* path);
