@@ -9,7 +9,163 @@
 typedef struct {
 	// scene
 	scene* scn;
+
+	// substruct for OpenGL specific context
+	struct {
+		// VAO for sky cube 
+		GLuint skyVAO;
+
+		// VBO for basic cube 
+		GLuint skyVBO;
+		
+		// skybox shader 
+		shader* shd;
+	} gl;
 } renderingContext;
+
+// initializes render OpenGL data
+int newRender(renderingContext* rCtx) {
+	float cubeTris[] = {
+		// back
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		// front
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		// left
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+
+		// right
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+
+		// bottom
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+
+		// top
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f
+	};
+
+	// initialize basic cube VAO
+	glGenVertexArrays(
+		1,
+		&rCtx->gl.skyVAO
+	);
+	GL_ERR("skybox VAO generation");
+	glBindVertexArray(rCtx->gl.skyVAO);
+	GL_ERR("skybox VAO binding");
+
+	// initialize basic cube VBO
+	glGenBuffers(
+		1,
+		&rCtx->gl.skyVBO
+	);
+	GL_ERR("skybox VBO generation");
+	glBindBuffer(
+		GL_ARRAY_BUFFER,
+		rCtx->gl.skyVBO
+	);
+	GL_ERR("skybox VBO binding");
+
+	glBufferData(
+		GL_ARRAY_BUFFER,
+		sizeof(cubeTris),
+		cubeTris,
+		GL_STATIC_DRAW
+	);
+	GL_ERR("skybox VBO data");
+
+	// cube vertex attribute
+	glVertexAttribPointer(
+		0,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		3 * sizeof(float),
+		(void*)0
+	);
+	GL_ERR("skybox vertex attrib");
+	glEnableVertexAttribArray(0);
+	GL_ERR("skybox vertex attrib enable");
+	
+	// import shader
+	rCtx->gl.shd = shaderImport(SKY_VERT_PATH, SKY_FRAG_PATH)->data;
+	if(!rCtx->gl.shd) return 0;
+
+	return 1;
+}
+
+// renders the skybox
+void doRenderSkybox(
+	renderingContext* ctx,
+	atmosphere* atmInfo,
+	mat4 view,
+	mat4 proj
+) {
+	// get shader and material
+	shader* shader = ctx->gl.shd;
+
+	// extract translation from view matrix
+	view.d = 0.0;
+	view.h = 0.0;
+	view.l = 0.0;
+
+	// setup program
+	glUseProgram(shader->program);
+	GL_ERR("sky program selection");
+
+	// reset texture unit allocator for this draw
+	resetTexUnit();
+
+	// send transform matrices
+	sendUniform(shader, VIEW,          &view.a);
+	sendUniform(shader, PROJECTION,    &proj.a);
+
+	// send cubemap
+	sendUniform(shader, DIFFUSE_COLOR, &atmInfo->background.r              );
+	sendUniform(shader, DIFFUSE_MAP,    atmInfo->backgroundMap ? 
+	                                    atmInfo->backgroundMap->data : NULL);
+
+
+	// setup VAO
+	glBindVertexArray(ctx->gl.skyVAO);
+	GL_ERR("sky draw call VAO binding");
+
+	// issue draw call
+	glDisable(GL_CULL_FACE);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glEnable(GL_CULL_FACE);
+	GL_ERR("sky draw call issue");
+}
 
 // actually renders an entity
 void doRenderEntity(
@@ -50,7 +206,7 @@ void doRenderEntity(
 	// send ambient
 	sendUniform(shader, AMBIENT_COLOR,     &atmInfo->ambient.r       );
 	sendUniform(shader, AMBIENT_MAP,        atmInfo->ambientMap ? 
-			                                atmInfo->ambientMap->data : NULL);
+	                                        atmInfo->ambientMap->data : NULL);
 
 	// send diffuse
 	sendUniform(shader, DIFFUSE_COLOR,     &material->diffuseCol.r);
@@ -83,6 +239,9 @@ void render(window* win) {
 	scene* scn = rCtx->scn;
 	renderScene* rnd = &scn->render;
 
+	// create OpenGL objects if needed
+	if(!rCtx->gl.shd) newRender(rCtx);
+
 	// update render scene if modified
 	if(scn->dirty) updateRenderScene(scn);
 
@@ -114,6 +273,10 @@ void render(window* win) {
 		(float)win->fbWidth / win->fbHeight
 	);
 
+	// set entity depth
+	glDepthFunc(GL_LESS);
+	glDepthMask(GL_TRUE);
+
 	// go through all render entities
 	renderEntity* cur = rnd->root;
 	while(cur) {
@@ -130,18 +293,50 @@ void render(window* win) {
 
 		cur = cur->next;
 	}
+
+	// set skybox depth
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_FALSE);
+
+	// render skybox
+	doRenderSkybox(rCtx, atmInfo, view, proj);
+
+	// set entity depth again
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
+}
+
+// frees a render context
+void freeRender(void* vCtx) {
+	renderingContext* rCtx = (renderingContext*)vCtx;
+
+	// free VBOs and VAO
+	glDeleteBuffers(
+		1,
+		&rCtx->gl.skyVBO
+	);
+	glDeleteVertexArrays(
+		1,
+		&rCtx->gl.skyVAO
+	);
+
+	// free shader
+	shaderFree(rCtx->gl.shd);
+
+	free(rCtx);
 }
 
 renderCallback makeRenderCallback(scene* scn) {
 	// initialize context
 	renderingContext* rCtx = malloc(sizeof(renderingContext));
 	rCtx->scn = scn;
+	rCtx->gl.shd = NULL; // flag via shader
 
 	// return callback
 	return (renderCallback){
 		render,
 		rCtx,
-		free
+		freeRender
 	};
 }
 

@@ -133,6 +133,14 @@ void borderGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv);
 // pushes elements to make up a text string
 void textGui(guiContext* ctx, guiLayerId layId, float2 pos, const char* str);
 
+// pushes elements to make up a text separator 
+void separatorGui(
+	guiContext* ctx,
+	guiLayerId layId,
+	float4 rect,
+	const char* str
+);
+
 // pushes an icon
 void iconGui(guiContext* ctx, guiLayerId layId, float2 pos, float4 uv);
 

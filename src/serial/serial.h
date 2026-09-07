@@ -4,8 +4,9 @@
 // forward declaration of field
 typedef struct field field;
 
-// forward declaration of scene 
+// forward declaration of scene and entity 
 typedef struct scene scene;
+typedef struct entity entity;
 
 // forward declaration of jsonElement
 typedef struct jsonElement jsonElement;
@@ -15,6 +16,12 @@ typedef struct jsonElement jsonElement;
 
 // default scene extension 
 #define SCENE_EXT ".json" 
+
+// default entity directory
+#define ENTITY_DIR "dat/entity/"
+
+// default entity extension 
+#define ENTITY_EXT ".json" 
 
 // -- fields
 
@@ -106,14 +113,28 @@ jsonElement* materialFieldSerialize(const field* f);
 // deserializes a material field
 void materialFieldDeserialize(field* f, const jsonElement* elem);
 
+// -- entities 
+
+// serialize entity to file
+void serializeEntityFile(const entity* ent, const char* path);
+
+// deserialize entity from file
+entity* deserializeEntityFile(const char* path);
+
 // -- scenes
 
-// serializes a scene into a file
-void serializeScene(const scene* scn, const char* path);
+// serialize scene to file
+void serializeSceneFile(const scene* scn, const char* path);
 
-// deserializes a scene from a file
-void deserializeScene(scene* scn, const char* path);
+// deserialize scene from file
+void deserializeSceneFile(scene* scn, const char* path);
 
+// -- paths 
+
+// get default path for entity
+const char* getEntityPath(const char* name);
+
+// get default path for scene
 const char* getScenePath(const char* name);
 
 #endif

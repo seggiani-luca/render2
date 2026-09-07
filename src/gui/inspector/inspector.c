@@ -326,32 +326,50 @@ int atmosphereGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 	// modify return
 	int ret = 0;
 
+	// sun 
+	if(float3Gui(ctx, layId, rect, &a->sun)) ret = 1;
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Sun Color");
+
 	// ambient
+	downGui(ctx, SCROLL, TXT_HEIGHT + 2 PAD);
+	separatorGui(ctx, SCROLL, (float4){
+		2 PAD, 3 PAD,
+		WIN - 4 PAD, TXT_HEIGHT
+	}, "Ambient");
+
 	if(float3Gui(ctx, layId, rect, &a->ambient)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD
-	}, "Ambient");
+	}, "Color");
 	
 	if(textureGui(ctx, layId, rect, &a->ambientMap)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD
 	}, "Cubemap");
-	
-	// sun 
-	if(float3Gui(ctx, layId, rect, &a->sun)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Sun");
-	
+		
 	// background
+	downGui(ctx, SCROLL, TXT_HEIGHT + 2 PAD);
+	separatorGui(ctx, SCROLL, (float4){
+		2 PAD, 3 PAD,
+		WIN - 4 PAD, TXT_HEIGHT
+	}, "Sky");
+	
 	if(float3Gui(ctx, layId, rect, &a->background)) ret = 1;
 	downGui(ctx, layId, rect.w + 1 PAD);
 	textGui(ctx, SCROLL, (float2){
 		2 PAD, 3 PAD
-	}, "Background");
+	}, "Color");
+	
+	if(textureGui(ctx, layId, rect, &a->backgroundMap)) ret = 1;
+	downGui(ctx, layId, rect.w + 1 PAD);
+	textGui(ctx, SCROLL, (float2){
+		2 PAD, 3 PAD
+	}, "Cubemap");
 
 	return ret;
 }
@@ -363,7 +381,7 @@ int atmosphereFieldGui(const field* f, guiContext* ctx) {
 		ICO_ATMOS,
 		atmosphereGui,
 		&((atmosphereField*)f)->val,
-		4
+		7
 	);
 }
 
@@ -551,8 +569,18 @@ void entityGui(window* win) {
 		// push name edit box
 		stringGui(ctx, FIXED, (float4){
 			3 PAD + ICO_SIZ, 1 PAD,
-			WIN - 4 PAD - ICO_SIZ, TXT_HEIGHT + 2 PAD
+			WIN - 7 PAD - 2 * ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ent ? ent->name : NULL);
+
+		// push save button
+		if(buttonGui(ctx, FIXED, (float4){
+			WIN - 3 PAD - ICO_SIZ, 1 PAD,
+			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		}, ICO_SAVE, "")) {
+			// save entity
+			serializeEntityFile(ent, getEntityPath(ent->name));
+			return; // early quit
+		}
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 

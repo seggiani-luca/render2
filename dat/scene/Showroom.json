@@ -15,9 +15,9 @@
 						],
 						"rotation" : [
 							0.000000,
-							-0.043619,
+							-0.300706,
 							0.000000,
-							0.999048
+							0.953717
 						],
 						"scale" : [
 							1.000000,
@@ -152,7 +152,7 @@
 								"position" : [
 									1.100000,
 									0.340000,
-									-1.840000
+									-1.720000
 								],
 								"rotation" : [
 									0.000000,
@@ -190,7 +190,7 @@
 								"position" : [
 									-1.100000,
 									0.340000,
-									-1.840000
+									-1.720000
 								],
 								"rotation" : [
 									-0.000000,
@@ -217,91 +217,24 @@
 						}
 					],
 					"children" : []
-				}
-			]
-		},
-		{
-			"name" : "Reiko",
-			"fields" : [
-				{
-					"name" : "Transform",
-					"type" : "transform",
-					"value" : {
-						"position" : [
-							0.650000,
-							0.840000,
-							1.600000
-						],
-						"rotation" : [
-							0.000000,
-							-0.130526,
-							0.000000,
-							0.991445
-						],
-						"scale" : [
-							1.000000,
-							1.000000,
-							1.000000
-						]
-					}
-				}
-			],
-			"children" : [
-				{
-					"name" : "Body",
-					"fields" : [
-						{
-							"name" : "Transform",
-							"type" : "transform",
-							"value" : {
-								"position" : [
-									0.000000,
-									0.000000,
-									0.000000
-								],
-								"rotation" : [
-									0.000000,
-									0.000000,
-									0.000000,
-									0.000000
-								],
-								"scale" : [
-									1.000000,
-									1.000000,
-									1.000000
-								]
-							}
-						},
-						{
-							"name" : "Mesh",
-							"type" : "mesh",
-							"value" : "dat/model/reiko_body.obj"
-						},
-						{
-							"name" : "Material",
-							"type" : "material",
-							"value" : "dat/material/reiko_body.mtl"
-						}
-					],
-					"children" : []
 				},
 				{
-					"name" : "Hair",
+					"name" : "Reiko",
 					"fields" : [
 						{
 							"name" : "Transform",
 							"type" : "transform",
 							"value" : {
 								"position" : [
-									0.000000,
-									0.000000,
-									0.000000
+									0.650000,
+									0.840000,
+									1.600000
 								],
 								"rotation" : [
 									0.000000,
+									-0.130526,
 									0.000000,
-									0.000000,
-									0.000000
+									0.991445
 								],
 								"scale" : [
 									1.000000,
@@ -309,97 +242,170 @@
 									1.000000
 								]
 							}
-						},
-						{
-							"name" : "Mesh",
-							"type" : "mesh",
-							"value" : "dat/model/reiko_hair.obj"
-						},
-						{
-							"name" : "Material",
-							"type" : "material",
-							"value" : "dat/material/reiko_hair.mtl"
 						}
 					],
-					"children" : []
-				},
-				{
-					"name" : "Dress",
-					"fields" : [
+					"children" : [
 						{
-							"name" : "Transform",
-							"type" : "transform",
-							"value" : {
-								"position" : [
-									0.000000,
-									0.000000,
-									0.000000
-								],
-								"rotation" : [
-									0.000000,
-									0.000000,
-									0.000000,
-									0.000000
-								],
-								"scale" : [
-									1.000000,
-									1.000000,
-									1.000000
-								]
-							}
+							"name" : "Body",
+							"fields" : [
+								{
+									"name" : "Transform",
+									"type" : "transform",
+									"value" : {
+										"position" : [
+											0.000000,
+											0.000000,
+											0.000000
+										],
+										"rotation" : [
+											0.000000,
+											0.000000,
+											0.000000,
+											0.000000
+										],
+										"scale" : [
+											1.000000,
+											1.000000,
+											1.000000
+										]
+									}
+								},
+								{
+									"name" : "Mesh",
+									"type" : "mesh",
+									"value" : "dat/model/reiko_body.obj"
+								},
+								{
+									"name" : "Material",
+									"type" : "material",
+									"value" : "dat/material/reiko_body.mtl"
+								}
+							],
+							"children" : []
 						},
 						{
-							"name" : "Mesh",
-							"type" : "mesh",
-							"value" : "dat/model/reiko_dress.obj"
+							"name" : "Hair",
+							"fields" : [
+								{
+									"name" : "Transform",
+									"type" : "transform",
+									"value" : {
+										"position" : [
+											0.000000,
+											0.000000,
+											0.000000
+										],
+										"rotation" : [
+											0.000000,
+											0.000000,
+											0.000000,
+											0.000000
+										],
+										"scale" : [
+											1.000000,
+											1.000000,
+											1.000000
+										]
+									}
+								},
+								{
+									"name" : "Mesh",
+									"type" : "mesh",
+									"value" : "dat/model/reiko_hair.obj"
+								},
+								{
+									"name" : "Material",
+									"type" : "material",
+									"value" : "dat/material/reiko_hair.mtl"
+								}
+							],
+							"children" : []
 						},
 						{
-							"name" : "Material",
-							"type" : "material",
-							"value" : "dat/material/reiko_dress.mtl"
+							"name" : "Dress",
+							"fields" : [
+								{
+									"name" : "Transform",
+									"type" : "transform",
+									"value" : {
+										"position" : [
+											0.000000,
+											0.000000,
+											0.000000
+										],
+										"rotation" : [
+											0.000000,
+											0.000000,
+											0.000000,
+											0.000000
+										],
+										"scale" : [
+											1.000000,
+											1.000000,
+											1.000000
+										]
+									}
+								},
+								{
+									"name" : "Mesh",
+									"type" : "mesh",
+									"value" : "dat/model/reiko_dress.obj"
+								},
+								{
+									"name" : "Material",
+									"type" : "material",
+									"value" : "dat/material/reiko_dress.mtl"
+								}
+							],
+							"children" : []
 						}
-					],
-					"children" : []
+					]
 				}
 			]
 		},
 		{
 			"name" : "Background",
-			"fields" : [
+			"fields" : [],
+			"children" : [
 				{
-					"name" : "Transform",
-					"type" : "transform",
-					"value" : {
-						"position" : [
-							0.000000,
-							0.000000,
-							0.000000
-						],
-						"rotation" : [
-							0.000000,
-							0.707107,
-							0.000000,
-							0.707107
-						],
-						"scale" : [
-							4.000000,
-							2.000000,
-							3.000000
-						]
-					}
-				},
-				{
-					"name" : "Mesh",
-					"type" : "mesh",
-					"value" : "dat/model/background.obj"
-				},
-				{
-					"name" : "Material",
-					"type" : "material",
-					"value" : "dat/material/default.mtl"
+					"name" : "Bottom",
+					"fields" : [
+						{
+							"name" : "Transform",
+							"type" : "transform",
+							"value" : {
+								"position" : [
+									0.000000,
+									-0.100000,
+									0.000000
+								],
+								"rotation" : [
+									0.000000,
+									0.707107,
+									0.000000,
+									0.707107
+								],
+								"scale" : [
+									32.000000,
+									0.100000,
+									32.000000
+								]
+							}
+						},
+						{
+							"name" : "Mesh",
+							"type" : "mesh",
+							"value" : "dat/model/cube.obj"
+						},
+						{
+							"name" : "Material",
+							"type" : "material",
+							"value" : "dat/material/default.mtl"
+						}
+					],
+					"children" : []
 				}
-			],
-			"children" : []
+			]
 		},
 		{
 			"name" : "Pivot",
@@ -414,10 +420,10 @@
 							0.000000
 						],
 						"rotation" : [
-							-0.127432,
-							0.214588,
-							0.028251,
-							0.967944
+							-0.130526,
+							0.000000,
+							-0.000000,
+							0.991445
 						],
 						"scale" : [
 							1.000000,
@@ -438,7 +444,7 @@
 								"position" : [
 									0.000000,
 									0.000000,
-									5.000000
+									4.000000
 								],
 								"rotation" : [
 									0.000000,
@@ -457,7 +463,7 @@
 							"name" : "Camera",
 							"type" : "camera",
 							"value" : {
-								"fov" : 50.000000,
+								"fov" : 90.000000,
 								"nearPlane" : 0.010000,
 								"farPlane" : 300.000000
 							}
@@ -497,21 +503,22 @@
 					"type" : "atmosphere",
 					"value" : {
 						"ambient" : [
-							0.900000,
-							0.930000,
+							0.800000,
+							0.820000,
 							1.000000
 						],
 						"cubemap" : "dat/texture/cubemap_showroom.tga",
 						"sun" : [
-							0.520000,
-							0.520000,
-							0.500000
+							0.320000,
+							0.320000,
+							0.280000
 						],
 						"background" : [
-							0.050000,
-							0.050000,
-							0.080000
-						]
+							1.000000,
+							1.000000,
+							1.000000
+						],
+						"skybox" : "dat/texture/cubemap_sunset.tga"
 					}
 				}
 			],

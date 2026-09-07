@@ -10,6 +10,9 @@
 #define GL_VERSION_MAJOR 3
 #define GL_VERSION_MINOR 3
 
+// should wayland be used?
+#define USE_WAYLAND 0 // hell no
+
 // update OpenGL events
 void updateGl();
 
@@ -99,5 +102,8 @@ float fbToWinW(window* win, float from);
 
 // height from framebuffer coordinate to window coordinate
 float fbToWinH(window* win, float from);
+
+// nicely centers three windows on the screen, needs X11 target
+void centerWindows(window* a, window* b, window* c);
 
 #endif

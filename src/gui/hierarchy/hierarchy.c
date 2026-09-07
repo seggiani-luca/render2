@@ -32,6 +32,9 @@ typedef struct {
 
 	// name buffer
 	char name[ENT_NAME_SIZ];
+
+	// path buffer
+	char path[DAT_PATH_SIZ];
 } addChildGuiContext;
 
 // hook into inspector window
@@ -56,6 +59,7 @@ void addChildGui(window* win) {
 	entity* ent = aCtx->ent;
 	scene* scn = aCtx->scn;
 	char* name = aCtx->name;
+	char* path = aCtx->path;
 
 	// update input state
 	inputGui(win);
@@ -69,21 +73,32 @@ void addChildGui(window* win) {
 	// push name edit box
 	{
 		// mask
-		quadGui(ctx, FIXED, (float4){
+		quadGui(ctx, SCROLL, (float4){
 			0, 0,
 			WIN, TXT_HEIGHT + 4 PAD
 		}, BG_ABS);
 
 		// push label
-		textGui(ctx, FIXED, (float2){
+		textGui(ctx, SCROLL, (float2){
 			1 PAD, 2 PAD
 		}, "Name:");
 
 		// push name edit box
-		stringGui(ctx, FIXED, (float4){
+		stringGui(ctx, SCROLL, (float4){
 			1 PAD + CHILD_OFF, 1 PAD,
-			WIN - 2 PAD - CHILD_OFF, TXT_HEIGHT + 2 PAD
+			WIN - 5 PAD - ICO_SIZ - CHILD_OFF, TXT_HEIGHT + 2 PAD
 		}, name);
+
+		if(buttonGui(ctx, SCROLL, (float4){
+			WIN - 7 PAD, 1 PAD,
+			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		}, ICO_LOAD, "")) {	
+			// load entity
+			// TODO
+
+			// should close
+			glfwSetWindowShouldClose(win->gl, 1);
+		}
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
 
@@ -141,6 +156,7 @@ renderCallback makeAddChildCallback(entity* ent, scene* scn) {
 	aCtx->ent = ent;
 	aCtx->scn = scn;
 	*aCtx->name = '\0';
+	*aCtx->path = '\0';
 
 	// return callback
 	return (renderCallback){
@@ -243,8 +259,7 @@ void sceneGui(window* win) {
 			changeEntityCallback(inspectorWin, NULL);
 			
 			// load scene
-			deserializeScene(scn, getScenePath(scn->name));
-			return; // early quit
+			// TODO
 		}
 		
 		// push save button
@@ -253,7 +268,7 @@ void sceneGui(window* win) {
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ICO_SAVE, "")) {
 			// save scene
-			serializeScene(scn, getScenePath(scn->name));
+			serializeSceneFile(scn, getScenePath(scn->name));
 			return; // early quit
 		}
 	}

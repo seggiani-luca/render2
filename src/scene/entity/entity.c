@@ -314,6 +314,13 @@ void atmosphereFieldPrint(const field* f) {
 		f->name, a->ambient.r, a->ambient.g, a->ambient.b);
 }
 
+// frees an atmosphere field
+void atmosphereFieldFree(field* f) {
+	atmosphereField* af = (atmosphereField*)f;
+	if(af->val.ambientMap)    textureFree(af->val.ambientMap->data);
+	if(af->val.backgroundMap) textureFree(af->val.backgroundMap->data);
+}
+
 VTABLE(atmosphere)
 
 field* atmosphereNew(const char* name) {
@@ -335,11 +342,13 @@ void textureFieldWrite(field* f, const void* src) {
 	((textureField*)f)->ref = *(dataRef**)src;
 }
 
+// debug prints a texture field
 void textureFieldPrint(const field* f) {
 	dataRef* ref = ((textureField*)f)->ref;
 	printf("%s (Texture): %s (%d refs)", f->name, ref->path, ref->refCount);
 }
 
+// frees a texture field
 void textureFieldFree(field* f) {
 	textureField* tf = (textureField*)f;
 	if(tf->ref) textureFree(tf->ref->data);
@@ -366,11 +375,13 @@ void meshFieldWrite(field* f, const void* src) {
 	((meshField*)f)->ref = *(dataRef**)src;
 }
 
+// debug prints a mesh field
 void meshFieldPrint(const field* f) {
 	dataRef* ref = ((meshField*)f)->ref;
 	printf("%s (Mesh): %s (%d refs)", f->name, ref->path, ref->refCount);
 }
 
+// frees a mesh field
 void meshFieldFree(field* f) {
 	meshField* mf = (meshField*)f;
 	if(mf->ref) meshFree(mf->ref->data);
@@ -397,11 +408,13 @@ void materialFieldWrite(field* f, const void* src) {
 	((materialField*)f)->ref = *(dataRef**)src;
 }
 
+// debug prints a material field
 void materialFieldPrint(const field* f) {
 	dataRef* ref = ((materialField*)f)->ref;
 	printf("%s (Material): %s (%d refs)", f->name, ref->path, ref->refCount);
 }
 
+// frees a material field
 void materialFieldFree(field* f) {
 	materialField* mf = (materialField*)f;
 	if(mf->ref) materialFree(mf->ref->data);

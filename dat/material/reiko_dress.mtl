@@ -1,4 +1,4 @@
-vert dat/shader/vert.glsl                   # vert shader
+vert dat/shader/standard_vert.glsl          # vert shader
 frag dat/shader/standard_frag.glsl          # frag shader
 
 Kd 1.000000 1.000000 1.000000               # diffuse color

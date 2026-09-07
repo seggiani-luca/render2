@@ -1,0 +1,219 @@
+{
+	"name" : "Bisonte",
+	"fields" : [
+		{
+			"name" : "Transform",
+			"type" : "transform",
+			"value" : {
+				"position" : [
+					0.000000,
+					0.000000,
+					1.000000
+				],
+				"rotation" : [
+					0.000000,
+					0.000000,
+					0.000000,
+					1.000000	
+				],
+				"scale" : [
+					1.000000,
+					1.000000,
+					1.000000
+				]
+			}
+		}
+	],
+	"children" : [
+		{
+			"name" : "Body",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"rotation" : [
+							0.000000,
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Mesh",
+					"type" : "mesh",
+					"value" : "dat/model/bisonte_body.obj"
+				},
+				{
+					"name" : "Material",
+					"type" : "material",
+					"value" : "dat/material/bisonte.mtl"
+				}
+			],
+			"children" : []
+		},
+		{
+			"name" : "Wheel FL",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							1.100000,
+							0.340000,
+							1.320000
+						],
+						"rotation" : [
+							0.000000,
+							-0.300706,
+							0.000000,
+							0.953717
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Mesh",
+					"type" : "mesh",
+					"value" : "dat/model/bisonte_wheel.obj"
+				},
+				{
+					"name" : "Material",
+					"type" : "material",
+					"value" : "dat/material/bisonte.mtl"
+				}
+			],
+			"children" : []
+		},
+		{
+			"name" : "Wheel FR",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							-1.100000,
+							0.340000,
+							1.320000
+						],
+						"rotation" : [
+							0.000000,
+							0.953717,
+							0.000000,
+							0.300706
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Mesh",
+					"type" : "mesh",
+					"value" : "dat/model/bisonte_wheel.obj"
+				},
+				{
+					"name" : "Material",
+					"type" : "material",
+					"value" : "dat/material/bisonte.mtl"
+				}
+			],
+			"children" : []
+		},
+		{
+			"name" : "Wheel BL",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							1.100000,
+							0.340000,
+							-1.720000
+						],
+						"rotation" : [
+							0.000000,
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Mesh",
+					"type" : "mesh",
+					"value" : "dat/model/bisonte_wheel.obj"
+				},
+				{
+					"name" : "Material",
+					"type" : "material",
+					"value" : "dat/material/bisonte.mtl"
+				}
+			],
+			"children" : []
+		},
+		{
+			"name" : "Wheel BR",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							-1.100000,
+							0.340000,
+							-1.720000
+						],
+						"rotation" : [
+							-0.000000,
+							1.000000,
+							-0.000000,
+							-0.000000
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Mesh",
+					"type" : "mesh",
+					"value" : "dat/model/bisonte_wheel.obj"
+				},
+				{
+					"name" : "Material",
+					"type" : "material",
+					"value" : "dat/material/bisonte.mtl"
+				}
+			],
+			"children" : []
+		}
+	]
+}

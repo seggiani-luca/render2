@@ -343,9 +343,10 @@ void inputGui(window* win) {
 	// get mouse position
 	double x, y;
 	glfwGetCursorPos(win->gl, &x, &y);
-	ctx->in.xCur = fbToWinW(win, x);
-	ctx->in.yCur = fbToWinW(win, y);
+	ctx->in.xCur = USE_WAYLAND ? x : fbToWinW(win, x);
+	ctx->in.yCur = USE_WAYLAND ? y : fbToWinW(win, y);
 
+	// reset all on inactive window
 	if(ctx->inactive) {
 		ctx->in.curPress = ctx->in.curReles = ctx->in.curDown = 0;
 		ctx->in.enter = 0;

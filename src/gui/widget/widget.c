@@ -300,6 +300,21 @@ void textGui(guiContext* ctx, guiLayerId layId, float2 pos, const char* str) {
 	}
 }
 
+void separatorGui(guiContext* ctx, guiLayerId layId, float4 rect, const char* str) {
+	float txtWidth = TXT_WIDTH * (strlen(str) + 1);
+
+	// background line
+	quadGui(ctx, layId, (float4){
+		rect.x + txtWidth, rect.y + rect.w / 2,
+		rect.z - txtWidth, BORDER
+	}, FG_DARK);
+
+	// text
+	textGui(ctx, layId, (float2){
+		rect.x, rect.y
+	}, str);
+}
+
 void iconGui(guiContext* ctx, guiLayerId layId, float2 pos, float4 uv) {
 	pushGui(&ctx->layers[layId], (quad){
 		pos.x, pos.y + ctx->layers[layId].vPos, 

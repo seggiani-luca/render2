@@ -1,6 +1,7 @@
 #include "window.h"
 #include "../../lib/glad/glad.h"
 #include "../data/texture/texture.h"
+#include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +20,8 @@ static int winInitialized = 0;
 // initializes OpenGL window context
 int newGl() {
 	// GLFW platform hints
-	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	glfwInitHint(GLFW_PLATFORM, USE_WAYLAND ? 
+		GLFW_PLATFORM_WAYLAND : GLFW_PLATFORM_X11);
 	
 	// initialize GLFW
 	if(!glfwInit()) return 0;
@@ -86,6 +88,7 @@ windowIcon* loadIcon(const char* path) {
 	
 	// initialize texture
 	texture* tex = malloc(sizeof(texture));
+	if(!tex) return NULL;
 	memset(tex, 0, sizeof(texture));
 	
 	// load data
@@ -93,6 +96,10 @@ windowIcon* loadIcon(const char* path) {
 
 	// setup struct
 	windowIcon* ico = malloc(sizeof(windowIcon));
+	if(!ico) {
+		free(tex);
+		return NULL;
+	}
 	memset(ico, 0, sizeof(windowIcon));
 	ico->height = tex->height;
 	ico->width = tex->width;
@@ -219,6 +226,7 @@ window* newWindow(
 
 void freeWindow(window* win) {
 	// free context if present
+	glfwMakeContextCurrent(win->gl);
 	if(win->cbak.ctx) win->cbak.free(win->cbak.ctx);
 
 	// destroy window
@@ -256,7 +264,6 @@ void resizeWindow(window* win, int width, int height) {
 	
 	// setup framebuffer
 	glfwGetFramebufferSize(win->gl, &win->fbWidth, &win->fbHeight);
-	glViewport(0, 0, win->fbWidth, win->fbHeight);
 }
 
 void moveWindow(window* win, int x, int y) {
@@ -277,4 +284,38 @@ float fbToWinW(window* win, float from) {
 
 float fbToWinH(window* win, float from) {
 	return from / ((float)win->fbHeight  / win->height);
+}
+
+void centerWindows(window* a, window* b, window* c) {
+	// get monitor dimensions
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	int screenX, screenY, screenW, screenH;
+	glfwGetMonitorWorkarea(
+		monitor,
+		&screenX, &screenY,
+		&screenW, &screenH
+	);
+
+	// calculate total width 
+	int gap = 10;
+	int totalW =
+		a->fbWidth +
+		b->fbWidth +
+		c->fbWidth +
+		gap * 2;
+
+	// get all y coordinates
+	int ya = screenY + (screenH - a->fbHeight) / 2;
+	int yb = screenY + (screenH - b->fbHeight) / 2;
+	int yc = screenY + (screenH - c->fbHeight) / 2;
+
+	// get starting x coordinate
+	int x = screenX + (screenW - totalW) / 2;
+
+	// move windows
+	moveWindow(a, x, ya);
+	x += a->fbWidth + gap;
+	moveWindow(b, x, yb);
+	x += b->fbWidth + gap;
+	moveWindow(c, x, yc);
 }

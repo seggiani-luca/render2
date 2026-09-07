@@ -1,3 +1,0 @@
-- Rivedi sistema entità, read / write con tipizzazione valori, controlla se vale la pena modificare anche accessori GUI
-- Campo script
-- Aggiungi clock a main.c, calcola delta e chiama eventi di start, update e destroy

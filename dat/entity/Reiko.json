@@ -1,95 +1,32 @@
 {
-	"name" : "Main Scene",
-	"root" : [
+	"name" : "Reiko",
+	"fields" : [
 		{
-			"name" : "Camera",
-			"fields" : [
-				{
-					"name" : "Transform",
-					"type" : "transform",
-					"value" : {
-						"position" : [
-							0.000000,
-							0.000000,
-							2.000000
-						],
-						"rotation" : [
-							0.000000,
-							0.000000,
-							0.000000,
-							0.000000
-						],
-						"scale" : [
-							1.000000,
-							1.000000,
-							1.000000
-						]
-					}
-				},
-				{
-					"name" : "Camera",
-					"type" : "camera",
-					"value" : {
-						"fov" : 90.000000,
-						"nearPlane" : 0.020000,
-						"farPlane" : 3000.000000
-					}
-				}
-			],
-			"children" : []
-		},
+			"name" : "Transform",
+			"type" : "transform",
+			"value" : {
+				"position" : [
+					0.000000,
+					0.000000,
+					1.000000
+				],
+				"rotation" : [
+					0.000000,
+					0.000000,
+					0.000000,
+					1.000000	
+				],
+				"scale" : [
+					1.000000,
+					1.000000,
+					1.000000
+				]
+			}
+		}
+	],
+	"children" : [
 		{
-			"name" : "Sun",
-			"fields" : [
-				{
-					"name" : "Transform",
-					"type" : "transform",
-					"value" : {
-						"position" : [
-							0.000000,
-							0.000000,
-							0.000000
-						],
-						"rotation" : [
-							-0.205616,
-							0.779192,
-							-0.496400,
-							-0.322752
-						],
-						"scale" : [
-							1.000000,
-							1.000000,
-							1.000000
-						]
-					}
-				},
-				{
-					"name" : "Atmosphere",
-					"type" : "atmosphere",
-					"value" : {
-						"ambient" : [
-							0.100000,
-							0.200000,
-							0.300000
-						],
-						"cubemap" : "(null)",
-						"sun" : [
-							1.000000,
-							1.000000,
-							0.900000
-						],
-						"background" : [
-							0.300000,
-							0.700000,
-							0.900000
-						]
-					}
-				}
-			],
-			"children" : []
-		},
-		{
-			"name" : "Entity",
+			"name" : "Body",
 			"fields" : [
 				{
 					"name" : "Transform",
@@ -116,12 +53,88 @@
 				{
 					"name" : "Mesh",
 					"type" : "mesh",
-					"value" : "dat/model/sphere.obj"
+					"value" : "dat/model/reiko_body.obj"
 				},
 				{
 					"name" : "Material",
 					"type" : "material",
-					"value" : "dat/material/default.mtl"
+					"value" : "dat/material/reiko_body.mtl"
+				}
+			],
+			"children" : []
+		},
+		{
+			"name" : "Hair",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"rotation" : [
+							0.000000,
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Mesh",
+					"type" : "mesh",
+					"value" : "dat/model/reiko_hair.obj"
+				},
+				{
+					"name" : "Material",
+					"type" : "material",
+					"value" : "dat/material/reiko_hair.mtl"
+				}
+			],
+			"children" : []
+		},
+		{
+			"name" : "Dress",
+			"fields" : [
+				{
+					"name" : "Transform",
+					"type" : "transform",
+					"value" : {
+						"position" : [
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"rotation" : [
+							0.000000,
+							0.000000,
+							0.000000,
+							0.000000
+						],
+						"scale" : [
+							1.000000,
+							1.000000,
+							1.000000
+						]
+					}
+				},
+				{
+					"name" : "Mesh",
+					"type" : "mesh",
+					"value" : "dat/model/reiko_dress.obj"
+				},
+				{
+					"name" : "Material",
+					"type" : "material",
+					"value" : "dat/material/reiko_dress.mtl"
 				}
 			],
 			"children" : []

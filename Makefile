@@ -26,10 +26,10 @@ all: $(EX)
 run: $(EX)
 	@$(SUPP) ./$(EX)
 
-debug:
+debug: $(EX)
 	@$(SUPP) gdb ./$(EX)
 
-asan:
+asan: $(EX)
 	@$(SUPP) ./$(EX) 2> tst/asan.txt
 
 $(EX): $(SRC_OUT_C) $(LIB_OUT_C)
@@ -44,7 +44,7 @@ $(OUT)/%.o: $(SRC)/%.c | $(OUT)
 $(OUT)/%.o: $(LIB)/%.c | $(OUT)
 	@echo "Compiling lib source $< ..."
 	@mkdir -p $(dir $@)
-	@$(C) $(CFLAGS) -c $< -o $@
+	@$(C) $(CFLAGS) $(OFLAGS) -c $< -o $@
 
 $(OUT):
 	@mkdir -p $(OUT)

@@ -261,6 +261,9 @@ jsonElement* atmosphereFieldSerialize(const field* f) {
 	addJsonAtKey(elem, vectorSerialize(
 		&af->val.background, 3
 	), "background");
+	addJsonAtKey(elem, newJsonString(
+		af->val.backgroundMap->path	
+	), "skybox");
 
 	return elem;
 }
@@ -280,6 +283,8 @@ void atmosphereFieldDeserialize(field* f, const jsonElement* elem) {
 	vectorDeserialize(&af->val.background, 3, getJsonAtKey(
 		elem, "background")
 	);
+	const char* skyboxPath = getJsonString(getJsonAtKey(elem, "skybox"));
+	af->val.backgroundMap = textureImport(skyboxPath);
 }
 
 jsonElement* textureFieldSerialize(const field* f) {
@@ -502,9 +507,48 @@ entity* deserializeEntity(jsonElement* elem) {
 	return ent;
 }
 
+void serializeEntityFile(const entity* ent, const char* path) {
+	// serialize entity to JSON
+	jsonElement* obj = serializeEntity(ent);
+
+	// open file
+	FILE* file = fopen(path, "wb");
+	if(!file) {
+		freeJsonObject(obj);
+		return;
+	}
+
+	// write JSON to file
+	serializeJsonObject(file, obj);
+
+	// cleanup
+	fclose(file);
+	freeJsonObject(obj);
+}
+
+entity* deserializeEntityFile(const char* path) {
+	// get file buffer
+	char* buf = slurpBuffer(path);
+	if(!buf) return NULL;
+
+	// parse JSON from file
+	char* ptr = buf;
+	jsonElement* obj = deserializeJsonObject(&ptr);
+
+	// deserialize entity from JSON
+	entity* ent = deserializeEntity(obj);
+
+	// cleanup
+	freeJsonObject(obj);
+	free(buf);
+
+	return ent;
+}
+
 // -- scenes
 
-void serializeScene(const scene* scn, const char* path) {
+// serializes a scene into a JSON element
+jsonElement* serializeScene(const scene* scn) {
 	// build scene object
 	jsonElement* obj = newJsonObject();
 	addJsonAtKey(obj, newJsonString(
@@ -521,54 +565,86 @@ void serializeScene(const scene* scn, const char* path) {
 	}
 	addJsonAtKey(obj, root, "root");
 
-	// open file
-	FILE *file = fopen(path, "wb");
-	if(!file) return; 
-
-	// serialize to file
-	serializeJsonObject(file, obj);
-
-	// cleanup
-	freeJsonObject(obj);
-	fclose(file);
+	return obj;
 }
 
-void deserializeScene(scene* scn, const char* path){
-	// file to buffer
-	char* buf = slurpBuffer(path);
-	if(!buf) return;
-
-	// temporary pointer, for caller saving
-	char* ptr = buf;
-
-	// parse JSON from buffer
-	jsonElement* obj = deserializeJsonObject(&ptr);
-
+// deserializes a scene from a JSON element 
+void deserializeScene(scene* scn, const jsonElement* elem) {
 	// free render scene and set as dirty
 	freeRenderScene(scn);
 	scn->dirty = 1;
 	
-	// free scene
+	// free scene children
 	freeEntityChildren(&scn->root);
 
 	// parse scene object
-	const char* name = getJsonString(getJsonAtKey(obj, "name"));
+	const char* name = getJsonString(getJsonAtKey(elem, "name"));
 
 	// copy over
 	strncpy(scn->name, name, ENT_NAME_SIZ);
 	scn->name[ENT_NAME_SIZ - 1] = '\0';
 
 	// rebuild root
-	jsonElement* cur = getJsonHead(getJsonAtKey(obj, "root"));
+	jsonElement* cur = getJsonHead(getJsonAtKey(elem, "root"));
 	while(cur) {
 		appendChild(&scn->root, deserializeEntity(cur));
 
 		cur = getJsonNext(cur);
 	}
+}
+
+void serializeSceneFile(const scene* scn, const char* path) {
+	// serialize scene to JSON
+	jsonElement* obj = serializeScene(scn);
+
+	// open file
+	FILE* file = fopen(path, "wb");
+	if(!file) {
+		freeJsonObject(obj);
+		return;
+	}
+
+	// write JSON to file
+	serializeJsonObject(file, obj);
+
+	// cleanup
+	fclose(file);
+	freeJsonObject(obj);
+}
+
+void deserializeSceneFile(scene* scn, const char* path) {
+	// get file buffer
+	char* buf = slurpBuffer(path);
+	if(!buf) return;
+
+	// parse JSON from file
+	char* ptr = buf;
+	jsonElement* obj = deserializeJsonObject(&ptr);
+
+	// deserialize scene from JSON
+	deserializeScene(scn, obj);
 
 	// cleanup
 	freeJsonObject(obj);
 	free(buf);
+}
+
+const char* getEntityPath(const char* name) {
+	// static path string
+	static char path[DAT_PATH_SIZ];
+	path[0] = '\0';
+
+	// build path name
+	strcat(path, ENTITY_DIR);
+	strcat(path, name);
+	strcat(path, ENTITY_EXT);
+
+	// remove silly spaces
+	for(int i = 0; i < DAT_PATH_SIZ; i++) {
+		if(path[i] == ' ') path[i] = '_';
+	}
+
+	return path;
 }
 
 const char* getScenePath(const char* name) {
