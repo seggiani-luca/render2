@@ -1,34 +1,9 @@
 #include "serial.h"
 #include "../scene/scene.h"
+#include "../parse/parse.h"
 #include "json/json.h"
 #include <stdlib.h>
 #include <string.h>
-
-// -- utils
-
-// reads a file into a buffer
-char* slurpBuffer(const char* path) {
-	// open file
-	FILE *f = fopen(path, "rb");
-	if(!f) return NULL;
-
-	// read file size
-	fseek(f, 0, SEEK_END);
-	long size = ftell(f);
-	rewind(f);
-
-	// allocate buffer
-	char *buf = malloc(size + 1);
-
-	// store file in buffer and terminate
-	fread(buf, 1, size, f);
-	buf[size] = '\0';
-
-	// close file
-	fclose(f);
-
-	return buf;
-}
 
 // -- fields
 

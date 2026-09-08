@@ -1,4 +1,5 @@
 #include "json.h"
+#include "../../parse/parse.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -262,58 +263,6 @@ void serializeJsonValue(FILE* file, jsonElement* elem, int depth) {
 }
 
 // -- deserialization 
-
-// eats up the whitespace in the given buffer
-void eatWhitespace(char** buf) {
-	while(**buf == '\n'
-	|| **buf == '\r'
-	|| **buf == '\t'
-	|| **buf == ' ') {
-		(*buf)++;
-	}
-}
-
-// strictly expects a certain keyword in the given buffer and consumes it
-void expect(char** buf, const char* key) {
-	int len = strlen(key);
-	if(strncmp(*buf, key, len)) {
-		printf("JSON parsing error near %.20s\n", *buf);
-		exit(1);
-	} 
-	
-	*buf += len;
-}
-
-// expects a certain keyword in the given buffer and consumes it
-int consume(char** buf, const char* key) {
-	int len = strlen(key);
-	if(strncmp(*buf, key, len)) return 0;
-	
-	*buf += len;
-	return 1;
-}
-
-// expects a string in the given buffer, consumes it and returns it 
-const char* readString(char** buf) {
-	// begin string
-	expect(buf, "\"");
-
-	// find end of string
-	char* next = strchr(*buf, '\"');
-	if(next == NULL) {
-		printf("Non terminated string in JSON near %.20s\n", *buf);
-		exit(1);
-	} 
-
-	// get return
-	const char* ret = *buf;
-	*next = '\0';
-
-	// advance
-	*buf = next + 1;
-
-	return ret;
-}
 
 // forward declarations for JSON object parsing
 const char* deserializeJsonKey(char** buf);
