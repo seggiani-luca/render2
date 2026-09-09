@@ -1,8 +1,9 @@
-; define numerical constants
-(define a 12)
-(define b 13) ; one higher than 12
+; recursive factorial implementation
+(define factorial
+	(lambda (n)
+		(if (= n 0)
+			1
+			(* n (factorial (- n 1))))))
 
-; define a custom function
-(define add (lambda (x y) (+ x y)))
-
-(define r (add a b)) ; evaluates the function
+; evaluate factorial of 6
+(define result (factorial 6))

@@ -12,7 +12,7 @@ int main() {
 
 	// parse script from file
 	char* ptr = buf;
-	script scr = parseScript(&ptr);
+	script* scr = parseScript(&ptr);
 
 	// first print the script
 	printf("== PARSING SCRIPT ==\n");
@@ -28,7 +28,6 @@ int main() {
 	// inspect the environment
 	printf("== INSPECTING ENVIRONMENT ==\n");
 	printEnvironment(env);
-	printf("\n");
 
 	// cleanup
 	freeEnvironment(env);

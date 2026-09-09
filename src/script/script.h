@@ -26,8 +26,10 @@ typedef struct function {
 
 // enum of value types
 typedef enum {
-	VAL_NUMBER,
 	VAL_SYMBOL,
+	VAL_NUMBER,
+	VAL_BOOL,
+	VAL_STRING,
 	VAL_CONS,
 	VAL_FUNCTION,
 	VAL_NATIVE,
@@ -36,9 +38,6 @@ typedef enum {
 
 // represents any Scheme value
 struct value {
-	// owner environment, if it exists
-	environment* owner;
-
 	// type of value
 	valueType type;
 
@@ -49,6 +48,12 @@ struct value {
 
 		// floating-point number value
 	    float number;
+		
+		// integer (boolean) value 
+		int boolean;
+
+		// string value
+		const char* string;
 
 		// CAR/CDR CONS list element
 	    struct {
@@ -64,7 +69,7 @@ struct value {
 	};
 };
 
-// -- environments
+// -- environment entries 
 
 // size of environment arena allocator
 #define ARENA_SIZ (sizeof(value) * 512)
@@ -82,57 +87,96 @@ struct envEntry {
 };
 typedef struct envEntry envEntry;
 
-// represents an environment 
-struct environment {
+// -- environment frames
+
+// represents an environment frame
+struct envFrame {
+	// owner of frame
+	void* owner;
+
+	// are values owned?
+	int valuesOwned; 
+
 	// root of environment entries
 	envEntry* root;
-	
-	// arena allocator for execution
-	arena arena;	
 };
+typedef struct envFrame envFrame;
+
+// gets a new environment frame
+envFrame* newFrame(void* owner, int valuesOwned);
+
+// frees an environment frame
+void freeFrame(envFrame* frame);
+
+// gets an entry from an environment frame
+envEntry* queryFrame(envFrame* frame, const char* key);
+
+// adds an a key-value to an environment frame
+void addToFrame(envFrame* frame, const char* key, value* val);
+
+// -- environments
+
+// represents an environment frame link to an environment
+struct envLink {
+	// the frame to link
+	envFrame* frame;
+
+	// pointer of next frame
+    struct envLink* next;
+};
+typedef struct envLink envLink;
+
+// represents an environment
+struct environment {
+	// root of environment frames
+	envLink* root;
+
+	// own frame of this environment's script 
+	envFrame* scriptFrame;
+
+	// arena allocator for execution
+	arena arena;
+};
+
+// pushes a top frame to an environment
+void pushFrame(environment* env, envFrame* frame);
+
+// pops the top frame from an environment
+envFrame* popFrame(environment* env);
 
 // gets an entry from an environment
-envEntry* queryEnv(environment* env, const char* key);
+envEntry* queryEnvironment(environment* env, const char* key);
 
-// adds an entry to an environment
-void addEnv(environment* env, const char* key, value* val);
+// forward declaration for initEnvironment
+typedef struct script script;
 
-// -- scripts
+// initializes an environment from a script
+environment* initEnvironment(script* scr); 
 
-// represents a Scheme expression within a script
-struct expression {
-	// actual expression value
-	value* val;
-
-	// next expression in script 
-	struct expression* next;
-};
-typedef struct expression expression; 
-
-// represents a Scheme script
-typedef expression* script;
-
-// parses a Scheme script 
-script parseScript(char** buf);
-
-// frees a Scheme script
-void freeScript(script scr);
-
-// -- printing
-
-// prints a Scheme script
-void printScript(script scr);
+// frees a script's environment 
+void freeEnvironment(environment* env); 
 
 // prints an environment
 void printEnvironment(environment* env);
 
+// -- scripts
+
+// represents a Scheme script
+struct script {
+	// root of CONS making up script
+	value* root;
+};
+
+// parses a Scheme script 
+script* parseScript(char** buf);
+
+// frees a Scheme script
+void freeScript(script* scr);
+
+// prints a Scheme script
+void printScript(script* scr);
+
 // -- evaluating
-
-// initializes an environment from a script
-environment* initEnvironment(script scr); 
-
-// frees a script's environment 
-void freeEnvironment(environment* env); 
 
 // evaluates a script value
 value* evaluateValue(environment* env, value* val);
