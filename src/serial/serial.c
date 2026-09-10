@@ -502,9 +502,14 @@ void serializeEntityFile(const entity* ent, const char* path) {
 }
 
 entity* deserializeEntityFile(const char* path) {
+	// open file
+	FILE *f = fopen(path, "rb");
+	if(!f) return NULL; 
+	
 	// get file buffer
-	char* buf = slurpBuffer(path);
+	char* buf = slurpBuffer(f);
 	if(!buf) return NULL;
+	fclose(f);
 
 	// parse JSON from file
 	char* ptr = buf;
@@ -588,9 +593,14 @@ void serializeSceneFile(const scene* scn, const char* path) {
 }
 
 void deserializeSceneFile(scene* scn, const char* path) {
+	// open file
+	FILE *f = fopen(path, "rb");
+	if(!f) return; 
+	
 	// get file buffer
-	char* buf = slurpBuffer(path);
+	char* buf = slurpBuffer(f);
 	if(!buf) return;
+	fclose(f);
 
 	// parse JSON from file
 	char* ptr = buf;

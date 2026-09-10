@@ -144,12 +144,12 @@ jsonElement* newJsonNull() {
 // -- serialization
 
 // inserts tabs to reach given depth
-void tabulate(FILE* file, int depth) {
+void ftabulate(FILE* file, int depth) {
 	for(int i = 0; i < depth; i++) fprintf(file, "\t");
 }
 
 // prints a string to a file 
-void printString(FILE* file, const char* str) {
+void fprintString(FILE* file, const char* str) {
 	fprintf(file, "\"%s\"", str);
 }
 
@@ -170,7 +170,7 @@ void doSerializeJsonObject(FILE* file, jsonElement* elem, int depth) {
 	// go through all elements in object
 	jsonElement* cur = elem->value.head;
 	while(cur) {
-		tabulate(file, depth + 1);
+		ftabulate(file, depth + 1);
 
 		// serialize key and value
 		serializeJsonKey(file, cur);
@@ -185,7 +185,7 @@ void doSerializeJsonObject(FILE* file, jsonElement* elem, int depth) {
 	}
 
 	// close object
-	tabulate(file, depth);
+	ftabulate(file, depth);
 	fprintf(file, "}");
 }
 
@@ -206,7 +206,7 @@ void serializeJsonArray(FILE* file, jsonElement* elem, int depth) {
 	// go through all elements in array 
 	jsonElement* cur = elem->value.head;
 	while(cur) {
-		tabulate(file, depth + 1);
+		ftabulate(file, depth + 1);
 		
 		// serialize value
 		serializeJsonValue(file, cur, depth + 1);
@@ -219,13 +219,13 @@ void serializeJsonArray(FILE* file, jsonElement* elem, int depth) {
 	}
 
 	// close array
-	tabulate(file, depth);
+	ftabulate(file, depth);
 	fprintf(file, "]");	
 }
 
 // serializes a JSON string to a file
 void serializeJsonString(FILE* file, jsonElement* elem) {
-	printString(file, elem->value.string);
+	fprintString(file, elem->value.string);
 }
 
 // serializes a JSON boolean to a file
@@ -245,7 +245,7 @@ void serializeJsonNumber(FILE* file, jsonElement* elem) {
 
 // serializes a JSON key to a file
 void serializeJsonKey(FILE* file, jsonElement* elem) {
-	printString(file, elem->key);
+	fprintString(file, elem->key);
 }
 
 // serializes a JSON value to a file

@@ -1,7 +1,9 @@
 #include "data/data.h"
+#include "script/lisp/lisp.h"
 #include "window/window.h"
 #include "scene/scene.h"
 #include "render/render.h"
+#include "data/script/script.h"
 
 // -- windows
 
@@ -32,7 +34,13 @@ void cleanup() {
 
 // -- main
 
+#define TEST_SCRIPT "dat/script/test.scm"
 int main() {
+	script* scr = scriptImport(TEST_SCRIPT)->data;
+	printEnvironment(scr->env);
+	scriptFree(scr);
+	return 0;
+
 	// create scene
 	scene* mainScene = newScene("Main Scene");
 

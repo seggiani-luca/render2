@@ -5,11 +5,7 @@
 
 // -- utils
 
-char* slurpBuffer(const char* path) {
-	// open file
-	FILE *f = fopen(path, "rb");
-	if(!f) return NULL;
-
+char* slurpBuffer(FILE* f) {
 	// read file size
 	fseek(f, 0, SEEK_END);
 	long size = ftell(f);
@@ -21,9 +17,6 @@ char* slurpBuffer(const char* path) {
 	// store file in buffer and terminate
 	fread(buf, 1, size, f);
 	buf[size] = '\0';
-
-	// close file
-	fclose(f);
 
 	return buf;
 }
@@ -37,8 +30,17 @@ int isWhitespace(char c) {
 	    || c == ' ';
 }
 
-int isDigit(char c) {
-	return c >= '0' && c <= '9';
+int isDigit(char* buf) {
+	// first check this digit
+	char c0 = *buf;
+	if(c0 >= '0' && c0 <= '9') return 1;
+
+	// then check if positive/negative
+	char c1 = *(buf + 1);
+	if(c0 == '+' || c0 == '-')
+		if(c1 >= '0' && c1 <= '9') return 1;
+
+	return 0;
 }
 
 void eatWhitespace(char** buf) {
