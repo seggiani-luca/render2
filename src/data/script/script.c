@@ -15,7 +15,7 @@ void* script_import(FILE* file) {
 	memset(new_script, 0, sizeof(script));
 
 	// load buffer		
-	new_script->buf = slurpBuffer(file);
+	new_script->buf = slurpBufferPreprocess(file);
 	if(!new_script->buf) return NULL;
 	
 	// parse script from buffer 

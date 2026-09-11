@@ -8,6 +8,9 @@
 // reads a file into a buffer
 char* slurpBuffer(FILE* f);
 
+// reads a file into a buffer, preprocessing
+char* slurpBufferPreprocess(FILE* f);
+
 // -- parsing
 
 // checks if character is whitespace

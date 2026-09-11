@@ -1,9 +1,16 @@
 #include "parse.h"
+#include "../data/data.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 // -- utils
+
+// size of file line
+#define FILE_LINE_SIZ 1024
+
+// steps for file buffer increase
+#define BUF_SIZE_STEP 1024
 
 char* slurpBuffer(FILE* f) {
 	// read file size
@@ -17,6 +24,65 @@ char* slurpBuffer(FILE* f) {
 	// store file in buffer and terminate
 	fread(buf, 1, size, f);
 	buf[size] = '\0';
+
+	return buf;
+}
+
+char* slurpBufferPreprocess(FILE* f) {
+	char line[FILE_LINE_SIZ];
+	
+	size_t capacity = BUF_SIZE_STEP;
+	size_t used = 0;
+	
+	// buffer for file
+	char* buf = malloc(sizeof(char) * capacity);
+
+	while(fgets(line, FILE_LINE_SIZ, f)) {
+		char* ptr = line;
+
+		// check if preprocessor directive
+		int shouldFree = 0;
+		if(consume(&ptr, "#include")) {
+			// get path
+			eatWhitespace(&ptr);
+			const char* path = readString(&ptr);
+
+			// open file
+			FILE* includeFile = fopen(path, "r");
+			if(!includeFile) {
+				printf("Include %s not found\n", path);
+				exit(1);
+			}
+
+			// recursive includes
+			char* includeBuf = slurpBufferPreprocess(includeFile);
+			if(!includeBuf) {
+				printf("Can't include %s\n", path);
+				exit(1);
+			}
+			shouldFree = 1;
+			ptr = includeBuf;
+		}
+
+		// line length
+		size_t len = strlen(ptr);
+
+		// realloc if needed 
+		while(used + len + 1 > capacity) {
+			capacity += BUF_SIZE_STEP;
+			buf = realloc(buf, sizeof(char) * capacity);
+		}
+
+		// copy over
+		memcpy(buf + used, ptr, len);
+		used += len;
+	
+		// free if needed
+		if(shouldFree) free(ptr);
+	}
+
+	// terminate
+	buf[used] = '\0';
 
 	return buf;
 }

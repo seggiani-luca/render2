@@ -1,5 +1,6 @@
 #include "shader.h"
 #include "../../render/render.h"
+#include "../../parse/parse.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,17 +11,8 @@ char* readShader(const char* path) {
 	FILE* shaderFile = fopen(path, "r");
 	if(shaderFile == NULL) return NULL;
 
-	// read file to end
-	fseek(shaderFile, 0, SEEK_END);
-	long size = ftell(shaderFile);
-	fseek(shaderFile, 0, SEEK_SET);
-
-	// allocate buffer
-	char* shader = malloc(size + 1);
-
-	// read file from beginning
-	fread(shader, 1, size, shaderFile);
-	shader[size] = '\0';
+	// load buffer		
+	char* shader = slurpBufferPreprocess(shaderFile);
 
 	// close file
 	fclose(shaderFile);

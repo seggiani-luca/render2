@@ -1,3 +1,5 @@
+#include "dat/script/include.scm"
+
 (define (inc x)
   (+ x 1))
 

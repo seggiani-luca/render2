@@ -1,5 +1,7 @@
 #version 420 core
 
+#include "dat/shader/includes/includes_frag.glsl"
+
 in vec2 vUV;                      // vert                u, v 
 in vec3 vNormal;                  // vert norm.          x, y, z
 in vec3 vViewDir;                 // vert view vector    x, y, z
@@ -22,35 +24,6 @@ uniform bool uHasAmbientMap;      // ambient map flag    bool
 uniform bool uHasDiffuseMap;      // diffuse map flag    bool
 uniform bool uHasSpecularMap;     // specular map flag   bool
 uniform bool uHasShininessMap;    // shininess map flag  bool
-
-// diffuse ambient lightning mip level
-#define DIFFUSE_MIP 7
-
-// cubemap reflection intensity
-#define SPECULAR_INTENSITY 0.5
-
-// exponent of fresnel term
-#define FRESNEL_EXPONENT 1.0
-
-// fresnel factor between view direction and normal
-float fresnel(vec3 N, vec3 V) {
-	return pow(1 - dot(N, V), FRESNEL_EXPONENT);
-}
-
-// converts vectors to equirectangular coordinates
-vec2 dirToEquirectUV(vec3 dir) {
-	const float PI = 3.14159265359;
-
-	// equirectangular map
-	float phi = atan(dir.z, dir.x);
-	float theta = asin(dir.y);
-
-	// rescale and return
-	return vec2(
-		phi / (2.0 * PI) + 0.5,
-		theta / PI + 0.5
-	);
-}
 
 void main() {
 	// normalize vectors

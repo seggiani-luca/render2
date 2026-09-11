@@ -36,10 +36,11 @@ void cleanup() {
 
 #define TEST_SCRIPT "dat/script/test.scm"
 int main() {
-	script* scr = scriptImport(TEST_SCRIPT)->data;
-	printEnvironment(scr->env);
-	scriptFree(scr);
-	return 0;
+	// script* scr = scriptImport(TEST_SCRIPT)->data;
+	// printf("%s\n", scr->buf);
+	// printEnvironment(scr->env);
+	// scriptFree(scr);
+	// return 0;
 
 	// create scene
 	scene* mainScene = newScene("Main Scene");
