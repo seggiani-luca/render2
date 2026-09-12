@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "entity/entity.h"
 #include "../render/render.h"
+#include "../exception/exception.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,8 +12,7 @@ scene* newScene(const char* name) {
 	if(*name == '\0') return NULL;
 
 	// allocate scene
-	scene* s = malloc(sizeof(scene));
-	if(!s) return NULL;
+	scene* s = xmalloc(sizeof(scene));
 
 	// copy name and clear root
 	strncpy(s->name, name, ENT_NAME_SIZ);
@@ -38,7 +38,7 @@ void initDefaultScene(scene* s) {
 	// default camera
 	appendChild(&s->root, newCameraEntity("Camera"));
 	
-	// default camera
+	// default sun 
 	appendChild(&s->root, newSunEntity("Sun"));
 	
 	// default entity
@@ -47,15 +47,27 @@ void initDefaultScene(scene* s) {
 	// set default mesh
 	meshField* mesh = (meshField*)getField(ent, REN_MESH_NAME);
 	mesh->ref = meshImport(DEF_MESH);
+	if(!mesh->ref) {
+		logEvent(FATAL, IO, "Couldn't load default mesh");
+		dumpEvents();
+		exit(0);
+	}
 
 	// set default material
 	materialField* material = (materialField*)getField(ent, REN_MATERIAL_NAME);
 	material->ref = materialImport(DEF_MATERIAL);
+	if(!material->ref) {
+		logEvent(FATAL, IO, "Couldn't load default material");
+		dumpEvents();
+		exit(0);
+	}
 
 	appendChild(&s->root, ent);
 }
 
 void freeScene(scene* s) {
+	if(!s) return;
+
 	freeRenderScene(s);
 	freeEntityChildren(&s->root);
 	free(s);

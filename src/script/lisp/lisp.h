@@ -1,7 +1,7 @@
 #ifndef LISP_H
 #define LISP_H
 
-#include "../arena/arena.h"
+#include "../../arena/arena.h"
 
 // -- values
 
@@ -69,13 +69,7 @@ struct value {
 	};
 };
 
-// frees a value
-void freeValue(value* val);
-
 // -- environment entries 
-
-// size of environment arena allocator
-#define ARENA_SIZ (sizeof(value) * 512)
 
 // represents an environment entry
 struct envEntry {
@@ -161,8 +155,20 @@ void printEnvironment(environment* env);
 
 // -- scripts
 
+// store a script as a value
+typedef struct {
+	// allocation arena
+	arena arena;
+
+	// root of script
+	value* root;
+} scriptVal;
+
 // parses a Scheme script 
-value* parseScript(char** buf);
+scriptVal* parseScript(char** buf);
+
+// frees a Scheme script
+void freeScript(scriptVal* scr);
 
 // -- evaluating
 

@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "../../render/render.h"
+#include "../../exception/exception.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -106,10 +107,11 @@ void destroyGLMeshes(mesh* mesh) {
 
 void* mesh_import(FILE* file) {
 	// initialize mesh 
-	mesh* new_mesh = malloc(sizeof(mesh));
+	mesh* new_mesh = xmalloc(sizeof(mesh));
 	memset(new_mesh, 0, sizeof(mesh));
 
 	if(!meshDecode(new_mesh, file)) {
+		logEvent(ERROR, IO, "Couldn't parse mesh");
 		free(new_mesh);
 		return NULL;
 	}

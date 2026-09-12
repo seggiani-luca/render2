@@ -5,20 +5,19 @@
 
 // -- arena allocator
 
+typedef struct arenaChunk arenaChunk;
+
 // basic arena allocator
 typedef struct {
-	// allocated data
-	void* data;
+	// first arena chunk
+	arenaChunk* first;
 
-	// capacity of arena 
-	size_t capacity;
-
-	// bump pointer
-	size_t offset;
+	// current arena chunk
+	arenaChunk* current;
 } arena;
 
 // allocates a new arena 
-arena newArena(size_t capacity);
+arena newArena();
 
 // allocates from the arena 
 void* arenaAlloc(arena* a, size_t size);

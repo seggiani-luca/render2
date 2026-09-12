@@ -1,5 +1,7 @@
 #include "dat/script/include.scm"
 
+fuckyou
+
 (define (inc x)
   (+ x 1))
 

@@ -1,6 +1,7 @@
 #include "gui.h"
 #include "hierarchy/hierarchy.h"
 #include "inspector/inspector.h"
+#include "../exception/exception.h"
 
 // hook into entity hierarchy
 extern window* hierarchyWin;
@@ -18,6 +19,7 @@ void createEditorWindows(scene* scn) {
 		loadIcon(WIN_HIERCHY_ICO),
 		0
 	);
+	if(!hierarchyWin) logEvent(ERROR, GUI, "Couldn't create hierarchy window");
 
 	// create inspector
 	inspectorWin = newWindow(
@@ -28,4 +30,5 @@ void createEditorWindows(scene* scn) {
 		loadIcon(WIN_INSPECT_ICO),
 		0
 	);
+	if(!inspectorWin) logEvent(ERROR, GUI, "Couldn't create inspector window");
 }

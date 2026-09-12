@@ -1,5 +1,6 @@
 #include "lisp.h"
 #include "../../parse/parse.h"
+#include "../../exception/exception.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,8 +10,7 @@
 // copies a value
 value* copyValue(value* orig) {
 	// allocate copy
-	value* new = malloc(sizeof(value));
-	if(!new) return NULL;
+	value* new = xmalloc(sizeof(value));
 
 	// copy over
 	memcpy(new, orig, sizeof(value));
@@ -100,14 +100,13 @@ value* makeNil(value* new) {
 // -- parsing
 
 // foward declarations for list parsing
-value* parseValue(char** buf);
+value* parseValue(arena* a, char** buf);
 void freeValue(value* val);
 
 // parses a symbol value 
-value* parseSymbol(char** buf) {
+value* parseSymbol(arena* a, char** buf) {
 	// allocate value 
-	value* new = malloc(sizeof(value));
-	if(!new) return NULL;
+	value* new = arenaAlloc(a, sizeof(value));
 	
 	// setup value 
 	new->type = VAL_SYMBOL;
@@ -133,13 +132,13 @@ value* parseSymbol(char** buf) {
 }
 
 // parses a list value 
-value* parseList(char** buf) {
+value* parseList(arena* a, char** buf) {
 	// begin list
 	expect(buf, "(");
 	eatWhitespace(buf);
 	
 	// check for empty lists (nils)
-	if(consume(buf, ")")) return makeNil(malloc(sizeof(value)));
+	if(consume(buf, ")")) return makeNil(arenaAlloc(a, sizeof(value)));
 
 	value* head = NULL;
     value** tail = &head;
@@ -147,19 +146,14 @@ value* parseList(char** buf) {
 	// until end of list 
 	for(;;) {
 		// get value
-		value* val = parseValue(buf);
+		value* val = parseValue(a, buf);
 		if(!val) {
-			printf("Malformed CONS near %.20s\n", *buf);
-			exit(1);
+			logEvent(ERROR, LISP, "Malformed CONS near %.20s", *buf);
+			throw;
 		}
 
 		// allocate cell
-        value* cell = malloc(sizeof(value));
-        if(!cell) {
-			freeValue(val);
-			freeValue(head);
-			return NULL;
-		}
+        value* cell = arenaAlloc(a, sizeof(value));
 
 		// setup cell
 		cell->type = VAL_CONS;
@@ -176,16 +170,15 @@ value* parseList(char** buf) {
 	}
 
 	// terminate list
-	*tail = makeNil(malloc(sizeof(value)));
+	*tail = makeNil(arenaAlloc(a, sizeof(value)));
 
 	return head;
 }
 
 // parses a number value 
-value* parseNumber(char** buf) {
+value* parseNumber(arena* a, char** buf) {
 	// allocate value 
-	value* new = malloc(sizeof(value));
-	if(!new) return NULL;
+	value* new = arenaAlloc(a, sizeof(value));
 	
 	// setup value 
 	new->type = VAL_NUMBER;
@@ -196,8 +189,8 @@ value* parseNumber(char** buf) {
 
 	// validate trash reads
 	if (end == *buf) {
-		printf("Invalid number in script near %.20s\n", *buf);
-		exit(1);
+		logEvent(ERROR, LISP, "Invalid number in script near %.20s", *buf);
+		throw;
 	}
 	
 	// advance 
@@ -207,10 +200,9 @@ value* parseNumber(char** buf) {
 }
 
 // parses a boolean value 
-value* parseBool(char** buf) {
+value* parseBool(arena* a, char** buf) {
 	// allocate value 
-	value* new = malloc(sizeof(value));
-	if(!new) return NULL;
+	value* new = arenaAlloc(a, sizeof(value));
 	
 	// setup value 
 	new->type = VAL_BOOL;
@@ -221,18 +213,17 @@ value* parseBool(char** buf) {
 	} else if(consume(buf, "#f")) {
 		new->boolean = 0;
 	} else {
-		printf("Invalid boolean value near %.20s\n", *buf);
-		exit(1);
+		logEvent(ERROR, LISP, "Invalid boolean value near %.20s", *buf);
+		throw;
 	}
 
 	return new;
 }
 
 // parses a string value
-value* parseString(char** buf) {
+value* parseString(arena* a, char** buf) {
 	// allocate value 
-	value* new = malloc(sizeof(value));
-	if(!new) return NULL;
+	value* new = arenaAlloc(a, sizeof(value));
 	
 	// setup value 
 	new->type = VAL_STRING;
@@ -251,7 +242,7 @@ void eatComment(char** buf) {
 }
 
 // parses a value
-value* parseValue(char** buf) {
+value* parseValue(arena* a, char** buf) {
 	eatWhitespace(buf);
 
 	// eat comments if present
@@ -262,16 +253,17 @@ value* parseValue(char** buf) {
 
 	// distinguish value type
 	switch(**buf) {
-		case '#':              return parseBool(buf);
-		case '"':              return parseString(buf); 
-		case '(':              return parseList(buf);
+		case '#':              return parseBool(a, buf);
+		case '"':              return parseString(a, buf); 
+		case '(':              return parseList(a, buf);
 		case '\0':             return NULL;
 		default:
-			if(isDigit(*buf))  return parseNumber(buf);
-			else               return parseSymbol(buf);
+			if(isDigit(*buf))  return parseNumber(a, buf);
+			else               return parseSymbol(a, buf);
 	}
 }
 
+// frees a value
 void freeValue(value* val) {
 	if(!val) return;
 
@@ -293,45 +285,65 @@ void freeValue(value* val) {
 
 // -- scripts
 
-value* parseScript(char** buf) {
-	// consider a script as a list
-	value* head = NULL;
-    value** tail = &head;
-	
-	// until end of list 
-	for(;;) {
-		// get value
-		value* val = parseValue(buf);
-		if(!val) break; 
+scriptVal* parseScript(char** buf) {
+	INIT_JUMPS;
 
-		// allocate cell
-        value* cell = malloc(sizeof(value));
-        if(!cell) {
-			freeValue(val);
-			freeValue(head);
-			return NULL;
+	// allocate script
+	scriptVal* scr = malloc(sizeof(scriptVal));
+
+	// initialize arena
+	scr->arena = newArena();
+
+	value* begin = NULL;
+	try {
+		// consider a script as a list
+		value* head = NULL;
+		value** tail = &head;
+		
+		// until end of list 
+		for(;;) {
+			// get value
+			value* val = parseValue(&scr->arena, buf);
+			if(!val) break; 
+
+			// allocate cell
+			value* cell = arenaAlloc(&scr->arena, sizeof(value));
+
+			// setup cell
+			cell->type = VAL_CONS;
+			cell->cons.car = val;
+			cell->cons.cdr = NULL;
+
+			// append cell 
+			*tail = cell;
+			tail = &cell->cons.cdr;
 		}
 
-		// setup cell
-		cell->type = VAL_CONS;
-		cell->cons.car = val;
-		cell->cons.cdr = NULL;
+		// terminate list
+		*tail = makeNil(arenaAlloc(&scr->arena, sizeof(value)));
 
-		// append cell 
-        *tail = cell;
-        tail = &cell->cons.cdr;
+		// sugar begin
+		begin = makeBegin(
+			arenaAlloc(&scr->arena, sizeof(value)), 
+			arenaAlloc(&scr->arena, sizeof(value)),
+			head);
+	} catch {
+		freeArena(&scr->arena);
+		free(scr);
+		return NULL;
 	}
 
-	// terminate list
-	*tail = makeNil(malloc(sizeof(value)));
+	// setup script
+	scr->root = begin;
 
-	// sugar begin
-	value* begin = makeBegin(
-		malloc(sizeof(value)), 
-		malloc(sizeof(value)),
-		head);
+	return scr;
+}
 
-	return begin;
+void freeScript(scriptVal* scr) {
+	if(!scr) return;
+
+	freeArena(&scr->arena);
+	free(scr);
 }
 
 // -- printing
@@ -463,8 +475,7 @@ void prettyPrintValue(value* val) {
 
 envFrame* newFrame(void* owner, int valuesOwned) {
 	// allocate frame
-	envFrame* frame = malloc(sizeof(envFrame));
-	if(!frame) return NULL;
+	envFrame* frame = xmalloc(sizeof(envFrame));
 
 	// setup frame
 	frame->root = NULL;
@@ -534,11 +545,7 @@ void addToFrame(envFrame* frame, const char* key, value* val) {
 	// entry doesn't exist 
 
 	// create new entry 
-	envEntry* new = malloc(sizeof(envEntry));
-	if(!new) {
-		if(frame->valuesOwned) freeValue(val);
-		return;
-	} 
+	envEntry* new = xmalloc(sizeof(envEntry));
 	
 	// setup entry
 	new->next = NULL;
@@ -572,8 +579,7 @@ void printFrame(envFrame* frame) {
 
 void pushFrame(environment* env, envFrame* frame) {
 	// allocate link
-	envLink* link = malloc(sizeof(envLink));
-	if(!link) return;
+	envLink* link = xmalloc(sizeof(envLink));
     
 	// setup link
 	link->frame = frame;
@@ -621,14 +627,13 @@ envEntry* queryEnvironment(environment* env, const char* key) {
 // get a new environment
 environment* newEnvironment() {
 	// allocate environment
-	environment* env = malloc(sizeof(environment));
-	if(!env) return NULL;
+	environment* env = xmalloc(sizeof(environment));
 
 	// setup environment
 	env->root = NULL;
 
 	// initialize arena
-	env->arena = newArena(ARENA_SIZ);
+	env->arena = newArena();
 
 	return env;
 }
@@ -709,8 +714,8 @@ typedef float (*arithmFunc)(float a, float b);
 // definition of native arithmetic function
 value* nativeArithm(environment* env, value* args, arithmFunc func) {
 	if(args->type != VAL_CONS) {
-		printf("Arithmetic op. requires first argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Arithmetic op. requires first argument");
+		throw;
 	}
 
 	// get arguments
@@ -718,16 +723,16 @@ value* nativeArithm(environment* env, value* args, arithmFunc func) {
 	args = args->cons.cdr;
 
 	if(lhs->type != VAL_NUMBER || args->type != VAL_CONS) {
-		printf("Invalid lhs arguments to arithmetic op.\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Invalid lhs arguments to arithmetic op.");
+		throw;
 	}
 
 	value* rhs = evaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 
 	if(rhs->type != VAL_NUMBER || args->type != VAL_NIL) {
-		printf("Invalid rhs arguments to arithmetic op.\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Invalid rhs arguments to arithmetic op.");
+		throw;
 	}
 
 	// allocate result
@@ -768,8 +773,8 @@ typedef int (*relateFunc)(float a, float b);
 // definition of native relational function
 value* nativeRelate(environment* env, value* args, relateFunc func) {
 	if(args->type != VAL_CONS) {
-		printf("Relational op. requires first argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Relational op. requires first argument");
+		throw;
 	}
 	
 	// get arguments
@@ -777,16 +782,16 @@ value* nativeRelate(environment* env, value* args, relateFunc func) {
 	args = args->cons.cdr;
 
 	if(lhs->type != VAL_NUMBER || args->type != VAL_CONS) {
-		printf("Invalid lhs arguments to relational op.\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Invalid lhs arguments to relational op.");
+		throw;
 	}
 
 	value* rhs = evaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 
 	if(rhs->type != VAL_NUMBER || args->type != VAL_NIL) {
-		printf("Invalid rhs arguments to relational op.\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Invalid rhs arguments to relational op.");
+		throw;
 	}
 
 	// allocate result
@@ -836,8 +841,8 @@ value* nativeNotEqual(environment* env, value* args) {
 // definition of native define function
 value* nativeDefine(environment* env, value* args) {
 	if(args->type != VAL_CONS) {
-		printf("Define requires symbol to define\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Define requires symbol to define");
+		throw;
 	}
 
 	// get and validate key
@@ -852,8 +857,8 @@ value* nativeDefine(environment* env, value* args) {
 
 		// validate
 		if(key->type != VAL_SYMBOL) {
-			printf("Trying to define a desugared non-symbolic key\n");
-			exit(1);
+			logEvent(ERROR, EXEC, "Trying to define a desugared non-symbolic key");
+			throw;
     	}
 
 		// make lambda
@@ -879,18 +884,18 @@ value* nativeDefine(environment* env, value* args) {
 	}
 
 	if(key->type != VAL_SYMBOL) {
-		printf("Trying to define a non-symbolic key\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Trying to define a non-symbolic key");
+		throw;
 	}
 
 	// get definition 
 	if(args->type != VAL_CONS) {
-		printf("Define requires symbol definition\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Define requires symbol definition");
+		throw;
 	}
 	if(args->cons.cdr->type != VAL_NIL) {
-		printf("Define takes exactly two arguments\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Define takes exactly two arguments");
+		throw;
 	}
 	value* val = evaluateValue(env, args->cons.car);
 
@@ -904,8 +909,8 @@ value* nativeDefine(environment* env, value* args) {
 // definition of native lambda function
 value* nativeLambda(environment* env, value* args) {
 	if(args->type != VAL_CONS) {
-		printf("Lambda requires a parameter list\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Lambda requires a parameter list");
+		throw;
 	}
 
 	// get parameter list
@@ -915,15 +920,15 @@ value* nativeLambda(environment* env, value* args) {
 	value* head = params;
 	while(head->type != VAL_NIL) {
 		if(head->type != VAL_CONS) {
-			printf("Malformed lambda parameter list\n");
-			exit(1);
+			logEvent(ERROR, EXEC, "Malformed lambda parameter list");
+			throw;
 		}
 
 		// make sure it's symbol
 		value* param = head->cons.car;
 		if(param->type != VAL_SYMBOL) {
-			printf("Lambda parameter is not a symbol\n");
-			exit(1);
+			logEvent(ERROR, EXEC, "Lambda parameter is not a symbol");
+			throw;
 		}
 
 		head = head->cons.cdr;
@@ -932,8 +937,8 @@ value* nativeLambda(environment* env, value* args) {
 	// body starts after parameter list
 	value* body = args->cons.cdr;
 	if(body->type == VAL_NIL) {
-		printf("Lambda requires a body\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Lambda requires a body");
+		throw;
 	}
 
 	// allocate function
@@ -966,8 +971,8 @@ value* nativeBegin(environment* env, value* args) {
 
 	// make sure is end
 	if(args->type != VAL_NIL) {
-		printf("Malformed begin body\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Malformed begin body");
+		throw;
 	}
 
 	return result;
@@ -976,8 +981,8 @@ value* nativeBegin(environment* env, value* args) {
 // definition of native quote function
 value* nativeQuote(environment* env __attribute__((unused)), value* args) {
 	if(args->type != VAL_CONS) {
-		printf("Quote requires data\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Quote requires data");
+		throw;
 	}
 
 	// get quoted data
@@ -985,8 +990,8 @@ value* nativeQuote(environment* env __attribute__((unused)), value* args) {
 
 	// exactly one argument
 	if(args->cons.cdr->type != VAL_NIL) {
-		printf("Quote takes exactly one argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Quote takes exactly one argument");
+		throw;
 	}
 
 	return quote;
@@ -1019,8 +1024,8 @@ value* nativeList(environment* env __attribute__((unused)), value* args) {
 	}
 
 	if(args->type != VAL_NIL) {
-		printf("Malformed list arguments\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Malformed list arguments");
+		throw;
 	}
 
 	return result;
@@ -1030,8 +1035,8 @@ value* nativeList(environment* env __attribute__((unused)), value* args) {
 value* nativeCons(environment* env, value* args) {
 	// first value 
 	if(args->type != VAL_CONS) {
-		printf("Cons requires first argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Cons requires first argument");
+		throw;
 	}
 
 	value* first = evaluateValue(env, args->cons.car); 
@@ -1039,8 +1044,8 @@ value* nativeCons(environment* env, value* args) {
 
 	// second value 
 	if(args->type != VAL_CONS) {
-		printf("Cons requires second argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Cons requires second argument");
+		throw;
 	}
 
 	value* second = evaluateValue(env, args->cons.car); 
@@ -1048,8 +1053,8 @@ value* nativeCons(environment* env, value* args) {
 
 	// exactly two arguments
 	if(args->type != VAL_NIL) {
-		printf("Cons takes exactly two arguments\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Cons takes exactly two arguments");
+		throw;
 	}
 
 	return makeCons(
@@ -1063,20 +1068,20 @@ value* nativeCons(environment* env, value* args) {
 value* nativeCar(environment* env, value* args) {
 	// exactly one argument
 	if(args->type != VAL_CONS) {
-		printf("Car requires an argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Car requires an argument");
+		throw;
 	}
 
 	// take pair
 	value* pair = evaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 	if(args->type != VAL_NIL) {
-		printf("Car takes exactly one argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Car takes exactly one argument");
+		throw;
 	}
 	if(pair->type != VAL_CONS) {
-		printf("Car requires a pair\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Car requires a pair");
+		throw;
 	}
 
 	// car
@@ -1087,20 +1092,20 @@ value* nativeCar(environment* env, value* args) {
 value* nativeCdr(environment* env, value* args) {
 	// exactly one argument
 	if(args->type != VAL_CONS) {
-		printf("Cdr requires an argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Cdr requires an argument");
+		throw;
 	}
 
 	// take pair
 	value* pair = evaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 	if(args->type != VAL_NIL) {
-		printf("Cdr takes exactly one argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Cdr takes exactly one argument");
+		throw;
 	}
 	if(pair->type != VAL_CONS) {
-		printf("Cdr requires a pair\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Cdr requires a pair");
+		throw;
 	}
 
 	// cdr
@@ -1111,16 +1116,16 @@ value* nativeCdr(environment* env, value* args) {
 value* nativeEval(environment* env, value* args) {
 	// exactly one argument
 	if(args->type != VAL_CONS) {
-		printf("Eval requires an argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Eval requires an argument");
+		throw;
 	}
 
 	// take value 
 	value* value = evaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 	if(args->type != VAL_NIL) {
-		printf("Eval takes exactly one argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Eval takes exactly one argument");
+		throw;
 	}
 
 	// actually evaluate
@@ -1136,8 +1141,8 @@ int isTrue(value* val) {
 // definition of native if function
 value* nativeIf(environment* env, value* args) {
 	if(args->type != VAL_CONS) {
-		printf("If requires condition\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "If requires condition");
+		throw;
 	}
 
 	// get condition first
@@ -1146,8 +1151,8 @@ value* nativeIf(environment* env, value* args) {
 
 	// first branch
 	if(args->type != VAL_CONS) {
-		printf("If requires first branch\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "If requires first branch");
+		throw;
 	}
 
 	value* branch1 = args->cons.car;
@@ -1155,8 +1160,8 @@ value* nativeIf(environment* env, value* args) {
 
 	// second branch
 	if(args->type != VAL_CONS) {
-		printf("If requires second branch\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "If requires second branch");
+		throw;
 	}
 
 	value* branch2 = args->cons.car;
@@ -1164,8 +1169,8 @@ value* nativeIf(environment* env, value* args) {
 
 	// exactly three arguments
 	if(args->type != VAL_NIL) {
-		printf("If takes exactly three arguments\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "If takes exactly three arguments");
+		throw;
 	}
 
 	// execute appropiate branch
@@ -1177,8 +1182,8 @@ value* nativeIf(environment* env, value* args) {
 value* nativeAnd(environment* env, value* args) {
 	// first value
 	if(args->type != VAL_CONS) {
-		printf("And requires first argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "And requires first argument");
+		throw;
 	}
 
 	value* first = args->cons.car; 
@@ -1186,8 +1191,8 @@ value* nativeAnd(environment* env, value* args) {
 
 	// second value
 	if(args->type != VAL_CONS) {
-		printf("And requires second argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "And requires second argument");
+		throw;
 	}
 
 	value* second = args->cons.car;
@@ -1195,8 +1200,8 @@ value* nativeAnd(environment* env, value* args) {
 
 	// exactly two arguments
 	if(args->type != VAL_NIL) {
-		printf("And takes exactly two arguments\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "And takes exactly two arguments");
+		throw;
 	}
 
 	// short circuit
@@ -1210,8 +1215,8 @@ value* nativeAnd(environment* env, value* args) {
 value* nativeOr(environment* env, value* args) {
 	// first value
 	if(args->type != VAL_CONS) {
-		printf("Or requires first argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Or requires first argument");
+		throw;
 	}
 
 	value* first = args->cons.car; 
@@ -1219,8 +1224,8 @@ value* nativeOr(environment* env, value* args) {
 
 	// second value
 	if(args->type != VAL_CONS) {
-		printf("Or requires second argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Or requires second argument");
+		throw;
 	}
 
 	value* second = args->cons.car;
@@ -1228,8 +1233,8 @@ value* nativeOr(environment* env, value* args) {
 
 	// exactly two arguments
 	if(args->type != VAL_NIL) {
-		printf("Or takes exactly two arguments\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Or takes exactly two arguments");
+		throw;
 	}
 
 	// short circuit
@@ -1243,16 +1248,16 @@ value* nativeOr(environment* env, value* args) {
 value* nativeNot(environment* env, value* args) {
 	// exactly one argument
 	if(args->type != VAL_CONS) {
-		printf("Not requires an argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Not requires an argument");
+		throw;
 	}
 
 	// take value 
 	value* val = evaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 	if(args->type != VAL_NIL) {
-		printf("Not takes exactly one argument\n");
-		exit(1);
+		logEvent(ERROR, EXEC, "Not takes exactly one argument");
+		throw;
 	}
 
 	// take the opposite
@@ -1354,8 +1359,8 @@ value* evaluateSymbol(environment* env, value* val) {
 	envEntry* entry = queryEnvironment(env, val->symbol);
 	if(entry) return entry->value;
 
-	printf("Symbol \"%s\" unknown\n", val->symbol);
-	exit(1);
+	logEvent(ERROR, EXEC, "Symbol \"%s\" unknown", val->symbol);
+	throw;
 }
 
 // evaluates a number
@@ -1400,9 +1405,9 @@ value* applyFunction(environment* env, function func, value* args) {
 	// check sizes match
 	if((params && params->type != VAL_NIL)
 	|| (args   && args->type   != VAL_NIL)) {
-		printf("Wrong number of arguments\n");
+		logEvent(ERROR, EXEC, "Wrong number of arguments");
 		freeFrame(local);
-		exit(1);
+		throw;
 	}
 
 	// push local frame
@@ -1435,8 +1440,8 @@ value* evaluateList(environment* env, value* val) {
 		default: break;
 	}
 
-	printf("Trying to call non-callable value\n");
-	exit(1);
+	logEvent(ERROR, EXEC, "Trying to call non-callable value");
+	throw;
 }
 
 // evaluates a function 
@@ -1455,16 +1460,23 @@ value* evaluateNil(environment* env __attribute__((unused)), value* val) {
 }
 
 value* evaluateValue(environment* env, value* val) {
-	// distinguish value type
-	switch(val->type) {
-		case VAL_SYMBOL:   return evaluateSymbol(env, val);  
-		case VAL_NUMBER:   return evaluateNumber(env, val);  
-		case VAL_BOOL:     return evaluateBool(env, val);  
-		case VAL_STRING:   return evaluateString(env, val);  
-		case VAL_CONS:     return evaluateList(env, val);    
-		case VAL_FUNCTION: return evaluateFunction(env, val);
-		case VAL_NATIVE:   return evaluateNative(env, val);
-		case VAL_NIL:      return evaluateNil(env, val);     
-		default: return NULL;
+	INIT_JUMPS;
+
+	try {
+		// distinguish value type
+		switch(val->type) {
+			case VAL_SYMBOL:   return evaluateSymbol(env, val);  
+			case VAL_NUMBER:   return evaluateNumber(env, val);  
+			case VAL_BOOL:     return evaluateBool(env, val);  
+			case VAL_STRING:   return evaluateString(env, val);  
+			case VAL_CONS:     return evaluateList(env, val);    
+			case VAL_FUNCTION: return evaluateFunction(env, val);
+			case VAL_NATIVE:   return evaluateNative(env, val);
+			case VAL_NIL:      return evaluateNil(env, val);     
+			default: return NULL;
+		}
+	} catch {
+		logEvent(ERROR, EXEC, "Couldn't evaluate value");
+		return NULL;
 	}
 }

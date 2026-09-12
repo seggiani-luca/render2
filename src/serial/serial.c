@@ -1,6 +1,7 @@
 #include "serial.h"
 #include "../scene/scene.h"
 #include "../parse/parse.h"
+#include "../exception/exception.h"
 #include "json/json.h"
 #include <stdlib.h>
 #include <string.h>
@@ -482,13 +483,14 @@ entity* deserializeEntity(jsonElement* elem) {
 	return ent;
 }
 
-void serializeEntityFile(const entity* ent, const char* path) {
+void serializeEntityFile(const entity* ent, const char* path) {	
 	// serialize entity to JSON
 	jsonElement* obj = serializeEntity(ent);
 
 	// open file
 	FILE* file = fopen(path, "wb");
 	if(!file) {
+		logEvent(ERROR, IO, "Couldn't open entity file at \"%s\"", path);
 		freeJsonObject(obj);
 		return;
 	}
@@ -504,22 +506,27 @@ void serializeEntityFile(const entity* ent, const char* path) {
 entity* deserializeEntityFile(const char* path) {
 	// open file
 	FILE *f = fopen(path, "rb");
-	if(!f) return NULL; 
+	if(!f) {
+		logEvent(ERROR, IO, "Couldn't open entity file at \"%s\"", path);
+		return NULL;
+	}
 	
 	// get file buffer
 	char* buf = slurpBuffer(f);
-	if(!buf) return NULL;
 	fclose(f);
+	
+	// initialize arena
+	arena a = newArena();
 
 	// parse JSON from file
 	char* ptr = buf;
-	jsonElement* obj = deserializeJsonObject(&ptr);
+	jsonElement* obj = deserializeJsonObject(&a, &ptr);
 
 	// deserialize entity from JSON
 	entity* ent = deserializeEntity(obj);
 
 	// cleanup
-	freeJsonObject(obj);
+	freeArena(&a);
 	free(buf);
 
 	return ent;
@@ -580,6 +587,7 @@ void serializeSceneFile(const scene* scn, const char* path) {
 	// open file
 	FILE* file = fopen(path, "wb");
 	if(!file) {
+		logEvent(ERROR, IO, "Couldn't open scene file at \"%s\"", path);
 		freeJsonObject(obj);
 		return;
 	}
@@ -593,24 +601,39 @@ void serializeSceneFile(const scene* scn, const char* path) {
 }
 
 void deserializeSceneFile(scene* scn, const char* path) {
+	INIT_JUMPS;
+
 	// open file
 	FILE *f = fopen(path, "rb");
-	if(!f) return; 
+	if(!f) {
+		logEvent(ERROR, IO, "Couldn't open scene file at \"%s\"", path);
+		return;
+	} 
 	
 	// get file buffer
 	char* buf = slurpBuffer(f);
-	if(!buf) return;
 	fclose(f);
+
+	// initialize arena
+	arena a = newArena();
 
 	// parse JSON from file
 	char* ptr = buf;
-	jsonElement* obj = deserializeJsonObject(&ptr);
+	jsonElement* obj = NULL;
+	try {
+		obj = deserializeJsonObject(&a, &ptr);
+	} catch {
+		logEvent(ERROR, JSON, "Couldn't parse JSON for scene at \"%s\"", path);
+		freeArena(&a);
+		free(buf);
+		return;
+	}
 
 	// deserialize scene from JSON
 	deserializeScene(scn, obj);
 
 	// cleanup
-	freeJsonObject(obj);
+	freeArena(&a);
 	free(buf);
 }
 

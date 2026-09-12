@@ -8,11 +8,8 @@
 
 // material data type
 typedef struct {
-	// buffer of code
-	char* buf;
-
 	// AST of script 
-	value* root;
+	scriptVal* scr;
 
 	// script environment
 	environment* env;

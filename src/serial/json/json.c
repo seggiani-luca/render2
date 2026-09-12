@@ -1,5 +1,6 @@
 #include "json.h"
 #include "../../parse/parse.h"
+#include "../../exception/exception.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -66,8 +67,7 @@ jsonElement* addJsonAtTail(jsonElement* elem, jsonElement* n) {
 
 jsonElement* newJsonString(const char* val) {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = xmalloc(sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_STRING;
@@ -79,8 +79,7 @@ jsonElement* newJsonString(const char* val) {
 
 jsonElement* newJsonNumber(float val) {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = xmalloc(sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_NUMBER;
@@ -92,8 +91,7 @@ jsonElement* newJsonNumber(float val) {
 
 jsonElement* newJsonObject() {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = xmalloc(sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_OBJECT;
@@ -105,8 +103,7 @@ jsonElement* newJsonObject() {
 
 jsonElement* newJsonArray() {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = xmalloc(sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_ARRAY;
@@ -118,8 +115,7 @@ jsonElement* newJsonArray() {
 
 jsonElement* newJsonBoolean(int val) {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = xmalloc(sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_BOOLEAN;
@@ -131,8 +127,7 @@ jsonElement* newJsonBoolean(int val) {
 
 jsonElement* newJsonNull() {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = xmalloc(sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_NULL;
@@ -265,13 +260,12 @@ void serializeJsonValue(FILE* file, jsonElement* elem, int depth) {
 // -- deserialization 
 
 // forward declarations for JSON object parsing
-const char* deserializeJsonKey(char** buf);
-jsonElement* deserializeJsonValue(char** buf);
+const char* deserializeJsonKey(arena* a, char** buf);
+jsonElement* deserializeJsonValue(arena* a, char** buf);
 
-jsonElement* deserializeJsonObject(char** buf) {
+jsonElement* deserializeJsonObject(arena* a, char** buf) {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_OBJECT;
@@ -291,7 +285,7 @@ jsonElement* deserializeJsonObject(char** buf) {
 	// until end of object
 	for(;;) {
 		// get element key
-		const char* key = deserializeJsonKey(buf);
+		const char* key = deserializeJsonKey(a, buf);
 
 		// key-value separator
 		eatWhitespace(buf);
@@ -299,7 +293,7 @@ jsonElement* deserializeJsonObject(char** buf) {
 		eatWhitespace(buf);
 
 		// get element value
-		jsonElement* elem = deserializeJsonValue(buf);
+		jsonElement* elem = deserializeJsonValue(a, buf);
 		elem->key = key;
 
 		// append element to object
@@ -320,10 +314,9 @@ jsonElement* deserializeJsonObject(char** buf) {
 }
 
 // parses a JSON array from a buffer
-jsonElement* deserializeJsonArray(char** buf) {
+jsonElement* deserializeJsonArray(arena* a, char** buf) {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_ARRAY;
@@ -340,7 +333,7 @@ jsonElement* deserializeJsonArray(char** buf) {
 	// until end of array 
 	for(;;) {
 		// get element value
-		jsonElement* elem = deserializeJsonValue(buf);
+		jsonElement* elem = deserializeJsonValue(a, buf);
 		elem->key = NULL;
 
 		// append element to array 
@@ -361,10 +354,9 @@ jsonElement* deserializeJsonArray(char** buf) {
 }
 
 // parses a JSON string from a buffer
-jsonElement* deserializeJsonString(char** buf) {
+jsonElement* deserializeJsonString(arena* a, char** buf) {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_STRING;
@@ -378,10 +370,9 @@ jsonElement* deserializeJsonString(char** buf) {
 }
 
 // parses a JSON boolean from a buffer
-jsonElement* deserializeJsonBool(char** buf) {
+jsonElement* deserializeJsonBool(arena* a, char** buf) {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_BOOLEAN;
@@ -393,18 +384,17 @@ jsonElement* deserializeJsonBool(char** buf) {
 	} else if(consume(buf, "false")) {
 		new->value.boolean = 0;
 	} else {
-		printf("Invalid JSON boolean value near %.20s\n", *buf);
-		exit(1);
+		logEvent(ERROR, JSON, "Invalid JSON boolean value near %.20s", *buf);
+		throw;
 	}
 	
 	return new;
 }
 
 // parses a JSON null from a buffer
-jsonElement* deserializeJsonNull(char** buf) {
+jsonElement* deserializeJsonNull(arena* a, char** buf) {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_NULL;
@@ -417,10 +407,9 @@ jsonElement* deserializeJsonNull(char** buf) {
 }
 
 // parses a JSON numbe from a buffer
-jsonElement* deserializeJsonNumber(char** buf) {
+jsonElement* deserializeJsonNumber(arena* a, char** buf) {
 	// allocate element
-	jsonElement* new = malloc(sizeof(jsonElement));
-	if(!new) return NULL;
+	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
 	
 	// setup element 
 	new->type = JSON_NUMBER;
@@ -432,8 +421,8 @@ jsonElement* deserializeJsonNumber(char** buf) {
 
 	// validate trash reads
 	if (end == *buf) {
-		printf("Invalid number in JSON near %.20s\n", *buf);
-		exit(1);
+		logEvent(ERROR, JSON, "Invalid number in JSON near %.20s", *buf);
+		throw;
 	}
 
 	// advance 
@@ -443,23 +432,23 @@ jsonElement* deserializeJsonNumber(char** buf) {
 }
 
 // parses a JSON key from a buffer
-const char* deserializeJsonKey(char** buf) {
+const char* deserializeJsonKey(arena* a __attribute__((unused)), char** buf) {
 	return readString(buf);	
 }
 
 // parses a JSON value from a buffer
-jsonElement* deserializeJsonValue(char** buf) {
+jsonElement* deserializeJsonValue(arena* a, char** buf) {
 	eatWhitespace(buf);
 
 	// distinguish value type
 	switch(**buf) {
-		case '{': return deserializeJsonObject(buf);
-		case '[': return deserializeJsonArray(buf);
-		case '"': return deserializeJsonString(buf);
+		case '{': return deserializeJsonObject(a, buf);
+		case '[': return deserializeJsonArray(a, buf);
+		case '"': return deserializeJsonString(a, buf);
 		case 't':
-		case 'f': return deserializeJsonBool(buf);
-		case 'n': return deserializeJsonNull(buf);
-		default:  return deserializeJsonNumber(buf);
+		case 'f': return deserializeJsonBool(a, buf);
+		case 'n': return deserializeJsonNull(a, buf);
+		default:  return deserializeJsonNumber(a, buf);
 	}
 }
 

@@ -1,4 +1,5 @@
 #include "material.h"
+#include "../../exception/exception.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,10 +12,11 @@ void materialPrint(void* dat) {
 
 void* material_import(FILE* file) {
 	// initialize material 
-	material* new_material = malloc(sizeof(material));
+	material* new_material = xmalloc(sizeof(material));
 	memset(new_material, 0, sizeof(material));
 
 	if(!materialDecode(new_material, file)) {
+		logEvent(ERROR, IO, "Couldn't parse material");
 		free(new_material);
 		return NULL;
 	}

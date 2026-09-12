@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "../../exception/exception.h"
 #include <stdlib.h>
 
 // .tga image header
@@ -37,6 +38,7 @@ int textureDecode(texture* texture, FILE* file) {
     || head.width == 0
     || head.height == 0
     || (head.imageDescriptor & 0xC0) != 0) {
+		logEvent(ERROR, IO, ".tga header invalid");
 		return 0;
 	}
 
@@ -47,8 +49,7 @@ int textureDecode(texture* texture, FILE* file) {
 	size_t bpp = head.pixelDepth / 8;
 	size_t pixels = head.width * head.height;
 	size_t size = pixels * 4;
-	texture->data = malloc(size);
-	if(!texture->data) return 0;
+	texture->data = xmalloc(size);
 
 	// read texture
 	for(size_t i = 0; i < pixels; i++) {
@@ -58,6 +59,7 @@ int textureDecode(texture* texture, FILE* file) {
 		if (fread(data, bpp, 1, file) != 1) {
 			free(texture->data);
 			texture->data = NULL;
+			logEvent(ERROR, IO, ".tga data section too short");
 			return 0;
 		}
 

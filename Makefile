@@ -19,18 +19,21 @@ CFLAGS := -Wall -Wextra -Wno-missing-braces -g
 LFLAGS := -lglfw -lGL -lm
 OFLAGS := -fsanitize=address
 SUPP := LSAN_OPTIONS=suppressions=tst/lsan.supp
+TABS := 12
 
 # -- targets
 all: $(EX)
 
 run: $(EX)
-	@$(SUPP) ./$(EX)
+	@tabs $(TABS)
+	@$(SUPP) ./$(EX) $(ARGS)
 
 debug: $(EX)
-	@$(SUPP) gdb ./$(EX)
+	@$(SUPP) gdb ./$(EX) $(ARGS)
 
 asan: $(EX)
-	@$(SUPP) ./$(EX) 2> tst/asan.txt
+	@tabs $(TABS)
+	@$(SUPP) ./$(EX) $(ARGS) 2> tst/asan.txt
 
 $(EX): $(SRC_OUT_C) $(LIB_OUT_C)
 	@echo "Linking objects ..."

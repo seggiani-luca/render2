@@ -1,6 +1,7 @@
 #include "window.h"
 #include "../../lib/glad/glad.h"
 #include "../data/texture/texture.h"
+#include "../exception/exception.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,28 +32,36 @@ int newGl() {
 
 // prints OpenGL information
 void printGl() {
-	// print OpenGL version
-	printf("Loaded OpenGL version: %s\n", glGetString(GL_VERSION));
-
 	// print platform
 	int platform = glfwGetPlatform();
+	char platfString[32];
 	switch(platform) {
-	case GLFW_PLATFORM_WIN32:   printf("win32"); break;
-	case GLFW_PLATFORM_COCOA:   printf("cocoa"); break;
-	case GLFW_PLATFORM_WAYLAND: printf("wayland"); break;
-	case GLFW_PLATFORM_X11:     printf("x11"); break;
-	case GLFW_PLATFORM_NULL:    printf("null"); break;
-	default:                    printf("unknown"); break;
+		case GLFW_PLATFORM_WIN32:   sprintf(platfString, "win32");   break;
+		case GLFW_PLATFORM_COCOA:   sprintf(platfString, "cocoa");   break;
+		case GLFW_PLATFORM_WAYLAND: sprintf(platfString, "wayland"); break;
+		case GLFW_PLATFORM_X11:     sprintf(platfString, "x11");     break;
+		case GLFW_PLATFORM_NULL:    sprintf(platfString, "null");    break;
+		default:                    sprintf(platfString, "unknown"); break;
 	}
 
 	// print renderer
-	printf(" on %s\n", glGetString(GL_RENDERER));
+	logEvent(INFO, GL, "Renderer:\t%s on %s",
+		platfString,
+		glGetString(GL_RENDERER)
+	);
+	dumpEvents();
+
+	// print OpenGL version
+	logEvent(INFO, GL, "OpenGL:\t%s",
+		glGetString(GL_VERSION)
+	);
+	dumpEvents();
 }
 
 // loads OpenGL (done when the first window is created)
 int loadGl() {
 	// load OpenGL via GLAD
-	if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))   return 0;
+	if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return 0;
 
 	// print OpenGL info
 	printGl();
@@ -73,7 +82,10 @@ void freeGl() {
 	glfwTerminate();
 
 	// warn on not freed windows
-	if(windows != 0) printf("Warning! Not all windows freed\n");
+	if(windows != 0) {
+		logEvent(WARN, GUI, "Not all windows freed");
+		dumpEvents();
+	}
 }
 
 // -- icons
@@ -84,23 +96,27 @@ extern int textureDecode(texture* texture, FILE* file);
 windowIcon* loadIcon(const char* path) {
 	// open file
 	FILE* file = fopen(path, "rb");
-	if(file == NULL) return NULL;
-	
+	if(!file) {
+		logEvent(ERROR, IO, "Couldn't open icon file at \"%s\"", path);
+		return NULL;
+	}
+
 	// initialize texture
-	texture* tex = malloc(sizeof(texture));
-	if(!tex) return NULL;
+	texture* tex = xmalloc(sizeof(texture));
 	memset(tex, 0, sizeof(texture));
 	
 	// load data
-	textureDecode(tex, file);
-
-	// setup struct
-	windowIcon* ico = malloc(sizeof(windowIcon));
-	if(!ico) {
+	if(!textureDecode(tex, file)) {
+		logEvent(ERROR, IO, "Couldn't parse texture file at \"%s\"", path);
 		free(tex);
 		return NULL;
 	}
+
+	// allocate icon
+	windowIcon* ico = xmalloc(sizeof(windowIcon));
 	memset(ico, 0, sizeof(windowIcon));
+
+	// setup icon
 	ico->height = tex->height;
 	ico->width = tex->width;
 	ico->pixels = tex->data;
@@ -127,21 +143,30 @@ window* newWindow(
 	int width,
 	int height,
 	const char* title,
-	renderCallback cback,
+	renderCallback cbak,
 	windowIcon* ico,
 	int depth	
 ) {
+	if(!ico) {
+		logEvent(ERROR, GUI, "Window icon couldn't be loaded");
+		if(cbak.ctx) cbak.free(cbak.ctx);
+		return NULL;
+	}
+
 	// allocate window data
-	window* win = malloc(sizeof(window));
-	if(!win) return NULL;
+	window* win = xmalloc(sizeof(window));
+
+	// setup window data
 	win->height = height;
 	win->width = width;
 	win->title = title;
-	win->cbak = cback;
+	win->cbak = cbak;
 
 	// initalize GLFW if needed
 	if(!winInitialized) {
 		if(!newGl()) {
+			logEvent(ERROR, GL, "Couldn't initialize OpenGL window context");
+			if(cbak.ctx) cbak.free(cbak.ctx);
 			free(win);
 			return NULL;
 		}
@@ -172,6 +197,8 @@ window* newWindow(
 		glCtx
 	);
 	if(!win->gl) {
+		logEvent(ERROR, GL, "Couldn't create OpenGL window");
+		if(cbak.ctx) cbak.free(cbak.ctx);
 		free(win);
 		return NULL;
 	}
@@ -185,6 +212,8 @@ window* newWindow(
 	// load OpenGL if needed
 	if(!winInitialized) {
 		if(!loadGl()) {
+			logEvent(ERROR, GL, "Couldn't load OpenGL hooks");
+			if(cbak.ctx) cbak.free(cbak.ctx);
 			glfwDestroyWindow(win->gl);
 			free(win);
 			return NULL;
@@ -221,10 +250,13 @@ window* newWindow(
 
 	// inc. window counter
 	windows++;
+
 	return win;
 }
 
 void freeWindow(window* win) {
+	if(!win) return;
+
 	// free context if present
 	glfwMakeContextCurrent(win->gl);
 	if(win->cbak.ctx) win->cbak.free(win->cbak.ctx);
@@ -242,7 +274,9 @@ int updateWindow(window* win) {
 	glViewport(0, 0, win->fbWidth, win->fbHeight);
 
 	// signal if should close
-	if(glfwWindowShouldClose(win->gl)) return 0;
+	if(glfwWindowShouldClose(win->gl)) {
+		return 0;
+	}
 
 	// call callback with given context
 	if(win->cbak.fun) win->cbak.fun(win);

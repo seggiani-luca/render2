@@ -3,6 +3,7 @@
 
 #include "../../../lib/glad/glad.h"
 #include "../data.h"
+#include "../../exception/exception.h"
 
 // -- logging
 
@@ -10,48 +11,44 @@
 #define SHADER_LOG 1024
 
 // macro for OpenGL shader compilation errors
-#define GL_COMPILE_ERR(shader)                                        \
-	{                                                                 \
-	    GLint success;                                                \
-	    glGetShaderiv(                                                \
-	        shader,                                                   \
-	        GL_COMPILE_STATUS,                                        \
-	        &success                                                  \
-	    );                                                            \
-	    if(!success) {                                                \
-	        char infoLog[SHADER_LOG];                                 \
-	        glGetShaderInfoLog(                                       \
-	            shader,                                               \
-	            SHADER_LOG,                                           \
-	            NULL,                                                 \
-	            infoLog                                               \
-	        );                                                        \
-	        printf("%s compilation failed:\n%s\n", #shader, infoLog); \
-	        exit(1);                                                  \
-	    }                                                             \
-	}
+#define GL_COMPILE_ERR(shader)                                                    \
+	    glGetShaderiv(                                                            \
+	        shader,                                                               \
+	        GL_COMPILE_STATUS,                                                    \
+	        &success                                                              \
+	    );                                                                        \
+	    if(!success) {                                                            \
+	        char infoLog[SHADER_LOG];                                             \
+	        glGetShaderInfoLog(                                                   \
+	            shader,                                                           \
+	            SHADER_LOG,                                                       \
+	            NULL,                                                             \
+	            infoLog                                                           \
+	        );                                                                    \
+			infoLog[strlen(infoLog) - 1] = '\0';                                  \
+	        logEvent(ERROR, GLSL, "%s compilation failed: %s", #shader, infoLog); \
+			return 0;                                                             \
+	    }                                                                         \
 
 // macro for OpenGL shader linking errors
-#define GL_LINK_ERR(program)                                       \
-	{                                                              \
-	    GLint success;                                             \
-	    glGetProgramiv(                                            \
-	        program,                                               \
-	        GL_LINK_STATUS,                                        \
-	        &success                                               \
-	    );                                                         \
-	    if(!success) {                                             \
-	        char infoLog[SHADER_LOG];                              \
-	        glGetProgramInfoLog(                                   \
-	            program,                                           \
-	            SHADER_LOG,                                        \
-	            NULL,                                              \
-	            infoLog                                            \
-	        );                                                     \
-	        printf("%s linking failed:\n%s\n", #program, infoLog); \
-	        exit(1);                                               \
-	    }                                                          \
-	}
+#define GL_LINK_ERR(program)                                                   \
+	    glGetProgramiv(                                                        \
+	        program,                                                           \
+	        GL_LINK_STATUS,                                                    \
+	        &success                                                           \
+	    );                                                                     \
+	    if(!success) {                                                         \
+	        char infoLog[SHADER_LOG];                                          \
+	        glGetProgramInfoLog(                                               \
+	            program,                                                       \
+	            SHADER_LOG,                                                    \
+	            NULL,                                                          \
+	            infoLog                                                        \
+	        );                                                                 \
+			infoLog[strlen(infoLog) - 1] = '\0';                               \
+	        logEvent(ERROR, GLSL, "%s linking failed: %s", #program, infoLog); \
+			return 0;                                                          \
+	    }                                                                      \
 
 // -- uniforms
 

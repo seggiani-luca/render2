@@ -15,16 +15,16 @@
 #define MAIN_HEIGHT 600
 
 // rendering transform name
-#define REN_TRANSFORM_NAME  "Transform"
+#define REN_TRANSFORM_NAME "Transform"
 
 // rendering mesh name
-#define REN_MESH_NAME       "Mesh"
+#define REN_MESH_NAME "Mesh"
 
 // rendering material name
-#define REN_MATERIAL_NAME   "Material"
+#define REN_MATERIAL_NAME "Material"
 
 // rendering camera name
-#define REN_CAMERA_NAME     "Camera"
+#define REN_CAMERA_NAME "Camera"
 
 // rendering atmosphere name
 #define REN_ATMOSPHERE_NAME "Atmosphere"

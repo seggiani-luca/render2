@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "../decode.h"
+#include "../../exception/exception.h"
 #include <stdlib.h>
 
 // size of file line
@@ -24,20 +25,9 @@ int meshDecode(mesh* mesh, FILE* file) {
 	fseek(file, 0, SEEK_SET);
 
 	// allocate temporary buffers
-	float* tempVert = maxVert ? malloc(sizeof(float) * maxVert * 3) : NULL;
-    float* tempUv   = maxUv   ? malloc(sizeof(float) * maxUv   * 2) : NULL;
-    float* tempNorm = maxNorm ? malloc(sizeof(float) * maxNorm * 3) : NULL;
-
-	if (!tempVert
-	||  (maxVert > 0 && !tempVert )
-	||  (maxUv    > 0 && !tempUv  )
-	||  (maxNorm  > 0 && !tempNorm)) {
-		// free temporary buffers
-		free(tempVert);
-		free(tempUv);
-		free(tempNorm);
-		return 0;
-	}
+	float* tempVert = maxVert ? xmalloc(sizeof(float) * maxVert * 3) : NULL;
+    float* tempUv   = maxUv   ? xmalloc(sizeof(float) * maxUv   * 2) : NULL;
+    float* tempNorm = maxNorm ? xmalloc(sizeof(float) * maxNorm * 3) : NULL;
 
 	int nVert = 0;
 	int nUv = 0;
@@ -53,7 +43,7 @@ int meshDecode(mesh* mesh, FILE* file) {
 	// allocate dynamic buffer for output vertices
 	size_t capacity = 1024;
 	mesh->vertCount = 0;
-	mesh->verts = malloc(sizeof(vertex) * capacity);
+	mesh->verts = xmalloc(sizeof(vertex) * capacity);
 
 	if (!mesh->verts) {
 		// free temporary buffers
@@ -116,16 +106,7 @@ int meshDecode(mesh* mesh, FILE* file) {
 			// grow vertex buffer 
 			if (mesh->vertCount + 3 > capacity) {
 				capacity *= 2;
-				vertex* newVerts = realloc(mesh->verts, sizeof(vertex) * capacity);
-				if (!newVerts) {
-					free(mesh->verts);
-	
-					// free temporary buffers
-					free(tempVert);
-					free(tempUv);
-					free(tempNorm);
-					return 0;
-				}
+				vertex* newVerts = xrealloc(mesh->verts, sizeof(vertex) * capacity);
 				mesh->verts = newVerts;
 			}
 
@@ -184,7 +165,7 @@ int meshDecode(mesh* mesh, FILE* file) {
 
 	// resize to free heap space
 	if (mesh->vertCount > 0) {
-		vertex* exactVerts = realloc(mesh->verts, sizeof(vertex) * mesh->vertCount);
+		vertex* exactVerts = xrealloc(mesh->verts, sizeof(vertex) * mesh->vertCount);
 		if (exactVerts) mesh->verts = exactVerts;
 	} else {
 		free(mesh->verts);

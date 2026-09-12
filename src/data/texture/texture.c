@@ -1,5 +1,6 @@
 #include "texture.h"
 #include "../../render/render.h"
+#include "../../exception/exception.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -121,11 +122,12 @@ void destroyGLTextures(texture* texture) {
 
 void* texture_import(FILE* file) {
 	// initialize texture
-	texture* new_texture = malloc(sizeof(texture));
+	texture* new_texture = xmalloc(sizeof(texture));
 	memset(new_texture, 0, sizeof(texture));
 
 	// load texture
 	if(!textureDecode(new_texture, file)) {
+		logEvent(ERROR, IO, "Couldn't parse texture");
 		free(new_texture);
 		return NULL;
 	}

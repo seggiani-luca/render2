@@ -194,12 +194,22 @@ int newGui(guiContext* ctx) {
 	GL_ERR("gui instance UV attrib enable")
 
 	// import shader
-	ctx->gl.shd = shaderImport(GUI_VERT_PATH, GUI_FRAG_PATH)->data;
-	if(!ctx->gl.shd) return 0;
+	dataRef* shd = shaderImport(GUI_VERT_PATH, GUI_FRAG_PATH);
+	if(!shd) {
+		logEvent(FATAL, IO, "Couldn't load default GUI shader");
+		dumpEvents();
+		exit(0);
+	}
+	ctx->gl.shd = shd->data;
 
 	// import texture
-	ctx->gl.tex = textureImport(GUI_ATLAS_PATH)->data;
-	if(!ctx->gl.tex) return 0;
+	dataRef* tex = textureImport(GUI_ATLAS_PATH);
+	if(!tex) {
+		logEvent(FATAL, IO, "Couldn't load default GUI texture");
+		dumpEvents();
+		exit(0);
+	}
+	ctx->gl.tex = tex->data;
 
 	// set to nearest-neighbour, SRGB
 	textureFilter(ctx->gl.tex, 0);

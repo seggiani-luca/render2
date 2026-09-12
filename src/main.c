@@ -1,20 +1,20 @@
 #include "data/data.h"
-#include "script/lisp/lisp.h"
+#include "exception/exception.h"
 #include "window/window.h"
 #include "scene/scene.h"
 #include "render/render.h"
-#include "data/script/script.h"
+#include <string.h>
 
 // -- windows
 
 // main engine window
-window* mainWin;
+window* mainWin = NULL;
 
 // entity hierarchy
-window* hierarchyWin;
+window* hierarchyWin = NULL;
 
 // entity inspector
-window* inspectorWin;
+window* inspectorWin = NULL;
 
 // -- utils
 
@@ -34,17 +34,14 @@ void cleanup() {
 
 // -- main
 
-#define TEST_SCRIPT "dat/script/test.scm"
+#include "data/script/script.h"
+
 int main() {
-	// script* scr = scriptImport(TEST_SCRIPT)->data;
-	// printf("%s\n", scr->buf);
-	// printEnvironment(scr->env);
-	// scriptFree(scr);
-	// return 0;
+	dataRef* scr = scriptImport("dat/script/test.scm");
 
 	// create scene
 	scene* mainScene = newScene("Main Scene");
-
+	
 	// create main window
 	mainWin = newWindow(
 		MAIN_WIDTH,
@@ -54,16 +51,29 @@ int main() {
 		loadIcon(WIN_DEFAULT_ICO),
 		1
 	);
+	if(!mainWin) {
+		logEvent(FATAL, GUI, "Couldn't create main window");	
+		dumpEvents();
+
+		freeScene(mainScene);
+		return 1;
+	}
 
 	// create editor windows
 	createEditorWindows(mainScene);
+	if(!hierarchyWin || !inspectorWin) {
+		logEvent(FATAL, GUI, "Couldn't create editor windows");	
+		dumpEvents();
 
-	// center windows
+		freeScene(mainScene);
+		cleanup();
+		return 1;
+	}
 	centerWindows(hierarchyWin, mainWin, inspectorWin);
-
+	
 	// init default scene
 	initDefaultScene(mainScene);
-
+	
 	// script init hook
 	// TODO
 

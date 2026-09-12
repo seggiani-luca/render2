@@ -3,6 +3,7 @@
 #include "mesh/mesh.h"
 #include "shader/shader.h"
 #include "texture/texture.h"
+#include "../exception/exception.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -43,12 +44,12 @@ dataRef* importData(const char* path, dataTable* table) {
 	while(*cur)cur = &(*cur)->next;
 	
 	// allocate entry
-	dataRef* newRef = malloc(sizeof(dataRef));
-	if(!newRef) return NULL;
+	dataRef* newRef = xmalloc(sizeof(dataRef));
 
 	// open file file
 	FILE* file = fopen(path, "rb");
 	if(file == NULL) {
+		logEvent(ERROR, IO, "Couldn't open data file at \"%s\"", path);
 		free(newRef);
 		return NULL;
 	}
@@ -56,6 +57,8 @@ dataRef* importData(const char* path, dataTable* table) {
 	// import data
 	void* data = table->import(file);
 	if(data == NULL) {
+		logEvent(ERROR, IO, "Couldn't load data from file at \"%s\"", path);
+		fclose(file);
 		free(newRef);
 		return NULL;
 	}
@@ -79,7 +82,7 @@ dataRef* importData(const char* path, dataTable* table) {
 
 void freeData(void* dat, dataTable* table) {
 	// only if data is not NULL
-	if(dat == NULL) return;
+	if(!dat) return;
 
 	// locate in table
 	dataRef** cur = &table->root;

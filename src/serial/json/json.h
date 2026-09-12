@@ -1,6 +1,7 @@
 #ifndef JSON_H
 #define JSON_H
 
+#include "../../arena/arena.h"
 #include <stdio.h>
 
 // type of JSON element
@@ -95,7 +96,7 @@ jsonElement* newJsonNull();
 void serializeJsonObject(FILE* file, jsonElement* elem);
 
 // parses a JSON object from a buffer: slurp before deserializing
-jsonElement* deserializeJsonObject(char** buf);
+jsonElement* deserializeJsonObject(arena* a, char** buf);
 
 // frees a JSON object
 void freeJsonObject(jsonElement* elem);

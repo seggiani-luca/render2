@@ -1,6 +1,7 @@
 #include "shader.h"
 #include "../../render/render.h"
 #include "../../parse/parse.h"
+#include "../../exception/exception.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +14,7 @@ char* readShader(const char* path) {
 
 	// load buffer		
 	char* shader = slurpBufferPreprocess(shaderFile);
+	if(!shader) return NULL;
 
 	// close file
 	fclose(shaderFile);
@@ -22,6 +24,8 @@ char* readShader(const char* path) {
 
 // compiles a vert and a frag shader into a program and returns it
 GLuint compileShaders(const char* vertShader, const char* fragShader) {
+	GLint success = 1;
+
 	// compile vertex shader
 	GLuint vert = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(
@@ -34,7 +38,7 @@ GLuint compileShaders(const char* vertShader, const char* fragShader) {
 
 	glCompileShader(vert);
 	GL_COMPILE_ERR(vert);
-	GL_ERR("vert compilation");
+	GL_ERR("vert compilation");	
 
 	// compile fragment shader
 	GLuint frag = glCreateShader(GL_FRAGMENT_SHADER);
@@ -182,7 +186,10 @@ dataRef* shaderImport(const char* vert, const char* frag) {
 
 	// initialize buffers
 	char* vert_shader = readShader(vert);
+	if(!vert_shader) logEvent(ERROR, IO, "Couldn't open vert shader file at \"%s\"", vert);
+	
 	char* frag_shader = readShader(frag);
+	if(!frag_shader) logEvent(ERROR, IO, "Couldn't open frag shader file at \"%s\"", frag);
 
 	// return NULL on failure
 	if(!vert_shader || !frag_shader) {
@@ -196,13 +203,19 @@ dataRef* shaderImport(const char* vert, const char* frag) {
 		vert_shader,
 		frag_shader
 	);
+	if(!program) {
+		logEvent(ERROR, GLSL, "Couldn't compile shader");
+		free(vert_shader);
+		free(frag_shader);
+		return NULL;
+	}
 
 	// free buffers
 	free(vert_shader);
 	free(frag_shader);
 	
 	// create new shader
-	shader* new_shader = malloc(sizeof(shader));
+	shader* new_shader = xmalloc(sizeof(shader));
 	memset(new_shader, 0, sizeof(shader));
 	new_shader->program = program;
 
@@ -214,8 +227,7 @@ dataRef* shaderImport(const char* vert, const char* frag) {
 	while(*cur) cur = &(*cur)->next;
 	
 	// allocate entry
-	dataRef* newRef = malloc(sizeof(dataRef));
-	if(!newRef) return NULL;
+	dataRef* newRef = xmalloc(sizeof(dataRef));
 
 	// insert in table
 	newRef->next = NULL;

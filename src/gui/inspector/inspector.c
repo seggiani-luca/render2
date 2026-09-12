@@ -1,6 +1,7 @@
 #include "inspector.h"
 #include "../widget/widget.h"
 #include "../../scene/scene.h"
+#include "../../exception/exception.h"
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <string.h>
@@ -523,7 +524,7 @@ void addFieldGui(window* win) {
 // gets a callback object for a "new field" menu
 renderCallback makeAddFieldCallback(entity* ent) {
 	// initialize context
-	addFieldGuiContext* eCtx = malloc(sizeof(addFieldGuiContext));
+	addFieldGuiContext* eCtx = xmalloc(sizeof(addFieldGuiContext));
 	eCtx->gui.win = NULL;
 	eCtx->gui.child = NULL;
 	eCtx->ent = ent;
@@ -637,7 +638,7 @@ void entityGui(window* win) {
 
 renderCallback makeEntityCallback(entity* ent) {
 	// initialize context
-	entityGuiContext* eCtx = malloc(sizeof(entityGuiContext));
+	entityGuiContext* eCtx = xmalloc(sizeof(entityGuiContext));
 	eCtx->gui.win = NULL;
 	eCtx->gui.child = NULL;
 	eCtx->ent = ent;

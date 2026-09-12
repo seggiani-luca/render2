@@ -3,6 +3,7 @@
 #include "../../gui/inspector/inspector.h"
 #include "../../render/render.h"
 #include "../../serial/serial.h"
+#include "../../exception/exception.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,10 +54,9 @@ int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
 	};
 
 // macro for field allocation
-#define ALLOC_FIELD(type)                         \
-	if(*name == '\0') return NULL;                \
-	type##Field* f = malloc(sizeof(type##Field)); \
-	if(!f) return NULL;                           \
+#define ALLOC_FIELD(type)                          \
+	if(*name == '\0') return NULL;                 \
+	type##Field* f = xmalloc(sizeof(type##Field)); \
 	f->base = newField(name, &type##FieldVtable);
 
 // -- integer field
@@ -446,11 +446,12 @@ void printEntity(const entity* e) {
 // -- lifetime
 
 entity* newEntity(const char* name) {
-	if(*name == '\0') return NULL;
+	if(*name == '\0') {
+		logEvent(WARN, SCENE, "Can't create entity with no name");
+	} 
 
 	// allocate entity
-	entity* e = malloc(sizeof(entity));
-	if(!e) return NULL;
+	entity* e = xmalloc(sizeof(entity));
 
 	// copy name
 	strncpy(e->name, name, ENT_NAME_SIZ);
@@ -529,6 +530,8 @@ void freeEntityChildren(entity* e) {
 }
 
 void freeEntity(entity* e) {
+	if(!e) return;
+
 	// free children
 	freeEntityChildren(e);
 
@@ -648,6 +651,7 @@ void removeChild(entity* e, entity* child) {
 
 		// update count
 		updateChildCount(e, -1 - child->childCount);
+
 		return;
 	}
 
@@ -656,7 +660,15 @@ void removeChild(entity* e, entity* child) {
 	while(temp->peer && temp->peer != child) temp = temp->peer;
 
 	// remove only if found
-	if(!temp || temp->peer != child) return;
+	if(!temp || temp->peer != child) {
+		logEvent(WARN, SCENE, "Can't remove child \"%s\" from entity \"%s\"",
+			child->name,
+			e->name
+		);
+		return;
+	} 
+
+	// actually remove
 	temp->peer = child->peer;
 	child->parent = NULL;
 	child->peer = NULL;
@@ -680,7 +692,13 @@ void moveChild(entity* e, entity* child) {
 	if(e == child) return;
 
 	// don't make cycles 
-	if(isDescendant(e, child)) return;
+	if(isDescendant(e, child)) {
+		logEvent(WARN, SCENE, "Moving child \"%s\" to entity \"%s\" would result in cycle",
+			child->name,
+			e->name
+		);
+		return;
+	} 
 
 	removeChild(child->parent, child);
 	appendChild(e, child);

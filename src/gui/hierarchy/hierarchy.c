@@ -1,6 +1,7 @@
 #include "hierarchy.h"
 #include "../inspector/inspector.h"
 #include "../widget/widget.h"
+#include "../../exception/exception.h"
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,8 +65,8 @@ void addChildGui(window* win) {
 	char* name = aCtx->name;
 
 	// update input state
-	inputGui(win)
-		;
+	inputGui(win);
+
 	// realize early if entity path changed
 	if(ctx->in.dataPtr == aCtx->load && ctx->in.dataSet) {
 		changeEntityCallback(inspectorWin, NULL);
@@ -173,7 +174,7 @@ void addChildGui(window* win) {
 // gets a callback object for a "new field" menu
 renderCallback makeAddChildCallback(entity* ent, scene* scn) {
 	// initialize context
-	addChildGuiContext* aCtx = malloc(sizeof(addChildGuiContext));
+	addChildGuiContext* aCtx = xmalloc(sizeof(addChildGuiContext));
 	aCtx->gui.win = NULL;
 	aCtx->gui.child = NULL;
 	aCtx->ent = ent;
@@ -255,6 +256,8 @@ void sceneGui(window* win) {
 		// load scene
 		deserializeSceneFile(scn, sCtx->load);
 		ctx->in.dataSet = 0;
+
+		dumpEvents();
 	}
 
 	// push background
@@ -303,9 +306,17 @@ void sceneGui(window* win) {
 		if(buttonGui(ctx, FIXED, (float4){
 			WIN - 3 PAD - ICO_SIZ, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
-		}, ICO_SAVE, "")) {
+		}, ICO_SAVE, "")) {	
+			if(*scn->name == '\0') {
+				logEvent(ERROR, IO, "Couldn't serialize scene with empty path");
+				dumpEvents();
+				return;
+			}
+
 			// save scene
 			serializeSceneFile(scn, getScenePath(scn->name));
+
+			dumpEvents();
 			return; // early quit
 		}
 	}
@@ -342,14 +353,14 @@ void sceneGui(window* win) {
 
 				// flag dirty
 				scn->dirty = 1;
-
+				
 				// tree is not really valid anymore, redraw at next iteration
 				return;
 			} break;
 
 			case MOVE: {
 				// start move
-				sCtx->moving = cur;
+				sCtx->moving = cur;			
 			} break;
 
 			case INSPECT: {
@@ -400,7 +411,7 @@ void sceneGui(window* win) {
 
 renderCallback makeSceneCallback(scene* scn) {
 	// initialize context
-	sceneGuiContext* sCtx = malloc(sizeof(sceneGuiContext));
+	sceneGuiContext* sCtx = xmalloc(sizeof(sceneGuiContext));
 	sCtx->gui.win = NULL;
 	sCtx->gui.child = NULL;
 	sCtx->scn = scn;

@@ -12,7 +12,10 @@ int parseTex(char* line, const char* key, texture** tex, int srgb) {
 	if(parseStringKey(line, key, path)) {
 		// import texture
 		dataRef* ref = textureImport(path);
-		if(!ref) return 0;
+		if(!ref) {
+			logEvent(ERROR, IO, "Couldn't load material texture at %s", path);
+			return 0;
+		} 
 
 		// set to SRGB if needed
 		if(srgb) textureColor(ref->data, 1);
@@ -54,7 +57,13 @@ int materialDecode(material* material, FILE* file) {
 	// get matching shader
 	dataRef* ref = shaderImport(vertPath, fragPath);
 	if(ref) material->shader = ref->data;
-	else return 0;
+	else {
+		logEvent(ERROR, IO, "Couldn't load material shader at paths vert: %s, frag: %s",
+			vertPath,
+			fragPath
+		);
+		return 0;
+	} 
 
 	return 1;
 }

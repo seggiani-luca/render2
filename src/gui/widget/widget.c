@@ -2,6 +2,7 @@
 #include "../../data/texture/texture.h"
 #include "../../data/mesh/mesh.h"
 #include "../../data/material/material.h"
+#include "../../exception/exception.h"
 #include <GLFW/glfw3.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -91,6 +92,8 @@ void dataselGui(window* win) {
 		// import data
 		if((*dCtx->ref)) freeData((*dCtx->ref)->data, tab);
 		*dCtx->ref = importData(path, tab);
+
+		dumpEvents();
 			
 		// update original context
 		orig->in.dataSet = 1;
@@ -113,15 +116,24 @@ void dataselGui(window* win) {
 			1 PAD, 1 PAD,
 			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
 		}, ICO_FILE, str)) {
+			// keep path, unspeakable things may happen
+			char path[DAT_PATH_SIZ];
+			strcpy(path, cur->path);
+
 			// use this reference
 			if((*dCtx->ref)) freeData((*dCtx->ref)->data, tab);
-			*dCtx->ref = importData(cur->path, tab);
+			*dCtx->ref = importData(path, tab);
+		
+			dumpEvents();
 
 			// update original context
 			orig->in.dataSet = 1;
 
 			// should close
 			glfwSetWindowShouldClose(win->gl, 1);
+
+			// early return
+			return;
 		}
 
 		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
@@ -271,7 +283,7 @@ renderCallback makeDataselCallback(
 	guiContext* orig
 ) {
 	// initialize context
-	dataselGuiContext* dCtx = malloc(sizeof(dataselGuiContext));
+	dataselGuiContext* dCtx = xmalloc(sizeof(dataselGuiContext));
 	dCtx->gui.win = NULL;
 	dCtx->gui.child = NULL;
 	dCtx->ref = ref;
@@ -303,7 +315,7 @@ renderCallback makePathselCallback(
 	char* curPath
 ) {
 	// initialize context
-	pathselGuiContext* pCtx = malloc(sizeof(pathselGuiContext));
+	pathselGuiContext* pCtx = xmalloc(sizeof(pathselGuiContext));
 	pCtx->gui.win = NULL;
 	pCtx->gui.child = NULL;
 	pCtx->path = path;
@@ -471,7 +483,8 @@ void downGui(guiContext* ctx, guiLayerId layId, float amt) {
 
 void trimGui(guiContext* ctx) {
 	window* win = ctx->win;
-	resizeWindow(win, win->width, ctx->layers[SCROLL].vPos);
+	if(ctx->layers[SCROLL].height != ctx->layers[SCROLL].lastHeight)
+		resizeWindow(win, win->width, ctx->layers[SCROLL].vPos);
 }
 
 void quadGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv) {

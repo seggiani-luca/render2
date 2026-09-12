@@ -118,8 +118,13 @@ int newRender(renderingContext* rCtx) {
 	GL_ERR("skybox vertex attrib enable");
 	
 	// import shader
-	rCtx->gl.shd = shaderImport(SKY_VERT_PATH, SKY_FRAG_PATH)->data;
-	if(!rCtx->gl.shd) return 0;
+	dataRef* shd = shaderImport(SKY_VERT_PATH, SKY_FRAG_PATH);
+	if(!shd) {
+		logEvent(FATAL, IO, "Couldn't load default sky shader");
+		dumpEvents();
+		exit(1);
+	}
+	rCtx->gl.shd = shd->data;
 
 	return 1;
 }
@@ -310,25 +315,27 @@ void render(window* win) {
 void freeRender(void* vCtx) {
 	renderingContext* rCtx = (renderingContext*)vCtx;
 
-	// free VBOs and VAO
-	glDeleteBuffers(
-		1,
-		&rCtx->gl.skyVBO
-	);
-	glDeleteVertexArrays(
-		1,
-		&rCtx->gl.skyVAO
-	);
+	if(rCtx->gl.shd) {
+		// free VBOs and VAO
+		glDeleteBuffers(
+			1,
+			&rCtx->gl.skyVBO
+		);
+		glDeleteVertexArrays(
+			1,
+			&rCtx->gl.skyVAO
+		);
 
-	// free shader
-	shaderFree(rCtx->gl.shd);
+		// free shader
+		shaderFree(rCtx->gl.shd);
+	}
 
 	free(rCtx);
 }
 
 renderCallback makeRenderCallback(scene* scn) {
 	// initialize context
-	renderingContext* rCtx = malloc(sizeof(renderingContext));
+	renderingContext* rCtx = xmalloc(sizeof(renderingContext));
 	rCtx->scn = scn;
 	rCtx->gl.shd = NULL; // flag via shader
 
@@ -424,6 +431,8 @@ void appendRenderEntity(renderScene* scn, renderEntity* ent) {
 }
 
 void freeRenderScene(scene* scene) {
+	if(!scene) return;
+
 	renderScene* rnd = &scene->render;
 
 	// go through all entities, freeing
@@ -491,7 +500,7 @@ void updateRenderScene(scene* scene) {
 		// get if object
 		if(transform && mesh && material) {
 			// create entity
-			renderEntity* ent = malloc(sizeof(renderEntity));
+			renderEntity* ent = xmalloc(sizeof(renderEntity));
 			ent->transform = curTrans;
 			ent->mesh = mesh;
 			ent->material = material;

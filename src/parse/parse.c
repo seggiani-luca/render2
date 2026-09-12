@@ -1,5 +1,5 @@
 #include "parse.h"
-#include "../data/data.h"
+#include "../exception/exception.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +19,7 @@ char* slurpBuffer(FILE* f) {
 	rewind(f);
 
 	// allocate buffer
-	char *buf = malloc(size + 1);
+	char *buf = xmalloc(size + 1);
 
 	// store file in buffer and terminate
 	fread(buf, 1, size, f);
@@ -35,7 +35,7 @@ char* slurpBufferPreprocess(FILE* f) {
 	size_t used = 0;
 	
 	// buffer for file
-	char* buf = malloc(sizeof(char) * capacity);
+	char* buf = xmalloc(sizeof(char) * capacity);
 
 	while(fgets(line, FILE_LINE_SIZ, f)) {
 		char* ptr = line;
@@ -50,16 +50,13 @@ char* slurpBufferPreprocess(FILE* f) {
 			// open file
 			FILE* includeFile = fopen(path, "r");
 			if(!includeFile) {
-				printf("Include %s not found\n", path);
-				exit(1);
+				logEvent(ERROR, IO, "Couldn't load included file %s", includeFile);
+				free(buf);
+				return NULL;
 			}
 
 			// recursive includes
 			char* includeBuf = slurpBufferPreprocess(includeFile);
-			if(!includeBuf) {
-				printf("Can't include %s\n", path);
-				exit(1);
-			}
 			shouldFree = 1;
 			ptr = includeBuf;
 		}
@@ -70,7 +67,7 @@ char* slurpBufferPreprocess(FILE* f) {
 		// realloc if needed 
 		while(used + len + 1 > capacity) {
 			capacity += BUF_SIZE_STEP;
-			buf = realloc(buf, sizeof(char) * capacity);
+			buf = xrealloc(buf, sizeof(char) * capacity);
 		}
 
 		// copy over
@@ -119,8 +116,8 @@ void eatWhitespace(char** buf) {
 void expect(char** buf, const char* key) {
 	int len = strlen(key);
 	if(strncmp(*buf, key, len)) {
-		printf("Unexpected token near %.20s\n", *buf);
-		exit(1);
+		logEvent(ERROR, JSON, "Unexpected token near %.20s", *buf);
+		throw;	
 	} 
 	
 	*buf += len;
@@ -141,8 +138,8 @@ const char* readString(char** buf) {
 	// find end of string
 	char* next = strchr(*buf, '\"');
 	if(next == NULL) {
-		printf("Non terminated string near %.20s\n", *buf);
-		exit(1);
+		logEvent(ERROR, JSON, "Non terminated string near %.20s", *buf);
+		throw;	
 	} 
 
 	// get return
