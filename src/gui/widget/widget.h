@@ -74,6 +74,7 @@
 #define ICO_LOAD   ICO(14, 5)
 #define ICO_SAVE   ICO(15, 5)
 #define ICO_TABLE  ICO(0, 6)
+#define ICO_SCRIPT ICO(1, 6)
 
 // default data directory
 #define DATA_DIR "dat"
@@ -202,6 +203,9 @@ int meshGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // pushes a material edit box
 int materialGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
+
+// pushes a script edit box
+int scriptGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val);
 
 // -- callback
 

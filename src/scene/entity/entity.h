@@ -5,6 +5,7 @@
 #include "../../math/math.h"
 #include "../../render/render.h"
 #include "../../serial/serial.h"
+#include "../../data/data_includes.h"
 
 // -- fields
 
@@ -266,6 +267,21 @@ typedef struct {
 
 // creates a new material field
 field* materialNew(const char* name);
+
+// -- script field
+
+VTABLE_DECL(script)
+
+// script field data
+typedef struct {
+	field base;
+
+	// script pointer
+	dataRef* ref;
+} scriptField;
+
+// creates a new script field
+field* scriptNew(const char* name);
 
 // -- entities
 

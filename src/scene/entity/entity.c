@@ -54,9 +54,12 @@ int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
 	};
 
 // macro for field allocation
-#define ALLOC_FIELD(type)                          \
-	if(*name == '\0') return NULL;                 \
-	type##Field* f = xmalloc(sizeof(type##Field)); \
+#define ALLOC_FIELD(type)                                             \
+	if(*name == '\0') {                                               \
+		logEvent(ERROR, SCENE, "Can't create field with empty name"); \
+		return NULL;                                                  \
+	}                                                                 \
+	type##Field* f = xmalloc(sizeof(type##Field));                    \
 	f->base = newField(name, &type##FieldVtable);
 
 // -- integer field
@@ -429,6 +432,39 @@ field* materialNew(const char* name) {
 	return (field*)f;
 }
 
+// -- script field
+
+// reads a script field
+void scriptFieldRead(const field* f, void* dst) {
+	*(dataRef**)dst = ((scriptField*)f)->ref;
+}
+
+// writes a transform field
+void scriptFieldWrite(field* f, const void* src) {
+	((scriptField*)f)->ref = *(dataRef**)src;
+}
+
+// debug prints a script field
+void scriptFieldPrint(const field* f) {
+	dataRef* ref = ((scriptField*)f)->ref;
+	printf("%s (Script): %s (%d refs)", f->name, ref->path, ref->refCount);
+}
+
+// frees a script field
+void scriptFieldFree(field* f) {
+	scriptField* sf = (scriptField*)f;
+	if(sf->ref) scriptFree(sf->ref->data);
+}
+
+VTABLE_FREE(script);
+
+field* scriptNew(const char* name) {
+	ALLOC_FIELD(script)
+	f->ref = NULL;
+
+	return (field*)f;
+}
+
 // -- entities
 
 void printEntity(const entity* e) {
@@ -448,6 +484,7 @@ void printEntity(const entity* e) {
 entity* newEntity(const char* name) {
 	if(*name == '\0') {
 		logEvent(WARN, SCENE, "Can't create entity with no name");
+		return NULL;
 	} 
 
 	// allocate entity
@@ -556,6 +593,7 @@ void appendField(entity* e, void* f) {
 
 	// free yourself if not valid
 	if(getField(e, ((field*)f)->name)) {
+		logEvent(WARN, SCENE, "Field with same name already exists");
 		free(f);
 		return;
 	}

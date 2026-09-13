@@ -67,6 +67,9 @@ int meshFieldGui(const field* f, guiContext* ctx);
 // renders a material field to GUI
 int materialFieldGui(const field* f, guiContext* ctx);
 
+// renders a script field to GUI
+int scriptFieldGui(const field* f, guiContext* ctx);
+
 // -- entities
 
 // gets a callback object for an entity inspector

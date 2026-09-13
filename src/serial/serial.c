@@ -2,6 +2,7 @@
 #include "../scene/scene.h"
 #include "../parse/parse.h"
 #include "../exception/exception.h"
+#include "../data/data_includes.h"
 #include "json/json.h"
 #include <stdlib.h>
 #include <string.h>
@@ -341,6 +342,27 @@ void materialFieldDeserialize(field* f, const  jsonElement* elem) {
 	else {
 		mf->ref = materialImport(path);
 		if(!mf->ref) logEvent(WARN, IO, "Couldn't load material");
+	}
+}
+
+jsonElement* scriptFieldSerialize(const field* f) {
+	scriptField* sf = (scriptField*)f;
+
+	// add path
+	jsonElement* elem = newJsonString(sf->ref->path);
+
+	return elem;
+}
+
+void scriptFieldDeserialize(field* f, const  jsonElement* elem) {
+	scriptField* sf = (scriptField*)f;
+
+	// import data 
+	const char* path = getJsonString(elem);
+	if(!path) logEvent(WARN, SERIAL, "Couldn't get script path");
+	else {
+		sf->ref = scriptImport(path);
+		if(!sf->ref) logEvent(WARN, IO, "Couldn't load script");
 	}
 }
 

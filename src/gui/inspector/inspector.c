@@ -15,6 +15,9 @@ typedef struct {
 
 	// entity
 	entity* ent;
+
+	// new script
+	dataRef* scr;
 } entityGuiContext;
 
 // context for new field GUI callback
@@ -419,6 +422,17 @@ int materialFieldGui(const field* f, guiContext* ctx) {
 	);
 }
 
+int scriptFieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_SCRIPT,
+		scriptGui,
+		&((meshField*)f)->ref,
+		1
+	);
+}
+
 // -- entities
 
 // renders the add field GUI
@@ -548,6 +562,27 @@ void entityGui(window* win) {
 	// update input state
 	inputGui(win);
 
+	// realize early if adding script 
+	if(ctx->in.dataPtr == &eCtx->scr && ctx->in.dataSet) {
+		// add script
+		field* fld = getField(ent, "Script");
+		if(!fld) {
+			fld = scriptNew("Script");
+			appendField(ent, fld);
+		}
+
+		// set script
+		scriptField* sf = (scriptField*)fld;
+		if(sf->ref && sf->ref != eCtx->scr) freeScript(sf->ref->data);
+		((scriptField*)fld)->ref = eCtx->scr;
+
+		// reset
+		eCtx->scr = NULL;
+		ctx->in.dataSet = 0;
+
+		dumpEvents();
+	}
+
 	// push background
 	quadGui(ctx, BACKGROUND, (float4){
 		0, 0,
@@ -615,11 +650,11 @@ void entityGui(window* win) {
 		f = tmp;
 	}
 
-	// push new button
+	// push new field button
 	if(buttonGui(ctx, SCROLL, (float4){
 		1 PAD, 1 PAD,
-		WIN - 2 PAD, TXT_HEIGHT + 2 PAD
-	}, ICO_NEW, "Append") && ent) {
+		WIN / 2.0f - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
+	}, ICO_NEW, "Field") && ent) {
 		// create add field window
 		subWindowGui(ctx, newWindow(
 			ADD_FIELD_WIDTH,
@@ -630,9 +665,29 @@ void entityGui(window* win) {
 			0
 		));
 	}
+
+	// push new script button
+	if(buttonGui(ctx, SCROLL, (float4){
+		WIN / 2.0f + HPAD, 1 PAD,
+		WIN / 2.0f - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
+	}, ICO_SCRIPT, "Script") && ent) {
+		// set data pointer in context
+		ctx->in.dataPtr = &eCtx->scr;
+		
+		// make datasel
+		subWindowGui(ctx, newWindow(
+			DATASEL_WIDTH,
+			DATASEL_HEIGHT,
+			"Select Script",
+			makeDataselCallback(&eCtx->scr, &scriptTable, ctx),
+			loadIcon(WIN_DATASEL_ICO),
+			0
+		));	
+	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 4 PAD);
 
 	// flush changes
+	dumpEvents();
 	flushGui(ctx);
 }
 

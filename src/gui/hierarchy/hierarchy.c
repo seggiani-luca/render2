@@ -406,6 +406,7 @@ void sceneGui(window* win) {
 	downGui(ctx, SCROLL, 1 PAD);
 
 	// flush changes
+	dumpEvents();
 	flushGui(ctx);
 }
 

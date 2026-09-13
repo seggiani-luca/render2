@@ -1,7 +1,5 @@
 #include "widget.h"
-#include "../../data/texture/texture.h"
-#include "../../data/mesh/mesh.h"
-#include "../../data/material/material.h"
+#include "../../data/data_includes.h"
 #include "../../exception/exception.h"
 #include <GLFW/glfw3.h>
 #include <stdint.h>
@@ -791,6 +789,7 @@ int dataGui(
 		// set data pointer in context
 		ctx->in.dataPtr = ref;
 
+		// make datasel
 		subWindowGui(ctx, newWindow(
 			DATASEL_WIDTH,
 			DATASEL_HEIGHT,
@@ -820,4 +819,8 @@ int meshGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 
 int materialGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
 	return dataGui(ctx, layId, rect, val, &materialTable);
+}
+
+int scriptGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
+	return dataGui(ctx, layId, rect, val, &scriptTable);
 }

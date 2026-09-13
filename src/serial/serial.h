@@ -113,6 +113,12 @@ jsonElement* materialFieldSerialize(const field* f);
 // deserializes a material field
 void materialFieldDeserialize(field* f, const jsonElement* elem);
 
+// serializes a script field
+jsonElement* scriptFieldSerialize(const field* f);
+
+// deserializes a script field
+void scriptFieldDeserialize(field* f, const jsonElement* elem);
+
 // -- entities 
 
 // serialize entity to file
