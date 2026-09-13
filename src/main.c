@@ -34,11 +34,7 @@ void cleanup() {
 
 // -- main
 
-#include "data/script/script.h"
-
 int main() {
-	dataRef* scr = scriptImport("dat/script/test.scm");
-
 	// create scene
 	scene* mainScene = newScene("Main Scene");
 	

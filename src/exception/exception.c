@@ -60,6 +60,7 @@ char* categoryToString(eventCategory categ) {
 	switch(categ) {
 		case IO:     return "file";
 		case JSON:   return "json";
+		case SERIAL: return "serialization";
 		case LISP:   return "script parse";
 		case EXEC:   return "script exec.";
 		case GUI:    return "win";

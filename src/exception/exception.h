@@ -25,15 +25,16 @@ void setVerbose(eventClass clas);
 
 // enum for event categories 
 typedef enum {
-	IO,
-	JSON,
-	LISP,
-	EXEC,
-	GUI,
-	GL,
-	SCENE,
-	GLSL,
-	MEMORY
+	IO,     // file I/O
+	JSON,   // json parsing
+	SERIAL, // object serialization
+	LISP,   // lisp script parsing
+	EXEC,   // lisp script execution
+	GUI,    // windows / GUI
+	GL,     // OpenGL loading
+	SCENE,  // scene management
+	GLSL,   // GLSL shader compilation
+	MEMORY  // memory allocation
 } eventCategory;
 
 // struct for events

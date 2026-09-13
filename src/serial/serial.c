@@ -33,7 +33,11 @@ jsonElement* stringFieldSerialize(const field* f) {
 
 void stringFieldDeserialize(field* f, const jsonElement* elem) {
 	// get original string
-	const char* src = getJsonString(elem);	
+	const char* src = getJsonString(elem);
+	if(!src) {
+		logEvent(WARN, SERIAL, "Couldn't deserialize string field, defaulting to \"nil\"");
+		src = "nil";
+	}
 
 	// copy over
 	stringField* sf = (stringField*)f;
@@ -251,16 +255,30 @@ void atmosphereFieldDeserialize(field* f, const jsonElement* elem) {
 	vectorDeserialize(&af->val.ambient, 3, getJsonAtKey(
 		elem, "ambient")
 	);
+
+	// cubemap 
 	const char* cubemapPath = getJsonString(getJsonAtKey(elem, "cubemap"));
-	af->val.ambientMap = textureImport(cubemapPath);
+	if(!cubemapPath) logEvent(WARN, SERIAL, "Couldn't get cubemap path");
+	else {
+		af->val.ambientMap = textureImport(cubemapPath);
+		if(!af->val.ambientMap) logEvent(WARN, IO, "Couldn't load cubemap");
+	}
+
+	// more properties
 	vectorDeserialize(&af->val.sun, 3, getJsonAtKey(
 		elem, "sun")
 	);
 	vectorDeserialize(&af->val.background, 3, getJsonAtKey(
 		elem, "background")
 	);
+
+	// skybox
 	const char* skyboxPath = getJsonString(getJsonAtKey(elem, "skybox"));
-	af->val.backgroundMap = textureImport(skyboxPath);
+	if(!skyboxPath) logEvent(WARN, SERIAL, "Couldn't get skybox path");
+	else {
+		af->val.backgroundMap = textureImport(skyboxPath);
+		if(!af->val.backgroundMap) logEvent(WARN, IO, "Couldn't load skybox");
+	}
 }
 
 jsonElement* textureFieldSerialize(const field* f) {
@@ -275,11 +293,13 @@ jsonElement* textureFieldSerialize(const field* f) {
 void textureFieldDeserialize(field* f, const jsonElement* elem) {
 	textureField* tf = (textureField*)f;
 
-	// get path
+	// import data
 	const char* path = getJsonString(elem);
-
-	// import now
-	tf->ref = textureImport(path);
+	if(!path) logEvent(WARN, SERIAL, "Couldn't get texture path");
+	else {
+		tf->ref = textureImport(path);
+		if(!tf->ref) logEvent(WARN, IO, "Couldn't load texture");
+	}
 }
 
 jsonElement* meshFieldSerialize(const field* f) {
@@ -294,11 +314,13 @@ jsonElement* meshFieldSerialize(const field* f) {
 void meshFieldDeserialize(field* f, const jsonElement* elem) {
 	meshField* mf = (meshField*)f;
 
-	// get path
+	// import data 
 	const char* path = getJsonString(elem);
-
-	// import now
-	mf->ref = meshImport(path);
+	if(!path) logEvent(WARN, SERIAL, "Couldn't get mesh path");
+	else {
+		mf->ref = meshImport(path);
+		if(!mf->ref) logEvent(WARN, IO, "Couldn't load mesh");
+	}
 }
 
 jsonElement* materialFieldSerialize(const field* f) {
@@ -313,11 +335,13 @@ jsonElement* materialFieldSerialize(const field* f) {
 void materialFieldDeserialize(field* f, const  jsonElement* elem) {
 	materialField* mf = (materialField*)f;
 
-	// get path
+	// import data 
 	const char* path = getJsonString(elem);
-
-	// import now
-	mf->ref = materialImport(path);
+	if(!path) logEvent(WARN, SERIAL, "Couldn't get material path");
+	else {
+		mf->ref = materialImport(path);
+		if(!mf->ref) logEvent(WARN, IO, "Couldn't load material");
+	}
 }
 
 // typedef for field constructors
@@ -404,12 +428,24 @@ jsonElement* serializeField(const field* fld) {
 
 // deserializes a field from a JSON element 
 field* deserializeField(jsonElement* elem) {
+	// get type
+	const char* type = getJsonString(getJsonAtKey(elem, "type"));
+	if(!type) {
+		logEvent(ERROR, SERIAL, "Unknown field type");
+		return NULL;
+	}
+
 	// get constructor and vtable
 	fieldCtor ctor = NULL;
-	getFieldVtable(getJsonString(getJsonAtKey(elem, "type")), &ctor);
+	getFieldVtable(type, &ctor);
 
 	// parse field object
-	field* fld = ctor(getJsonString(getJsonAtKey(elem, "name")));
+	const char* name = getJsonString(getJsonAtKey(elem, "name"));
+	if(!name) {
+		logEvent(ERROR, SERIAL, "Unknown field name");
+		return NULL;
+	}
+	field* fld = ctor(name);
 
 	// deserialize field payload
 	fld->vtable->deserialize(fld, getJsonAtKey(elem, "value"));
@@ -459,7 +495,12 @@ jsonElement* serializeEntity(const entity* ent) {
 // deserializes an entity from a JSON element 
 entity* deserializeEntity(jsonElement* elem) {
 	// parse entity object
-	entity* ent = newEntity(getJsonString(getJsonAtKey(elem, "name")));
+	const char* name = getJsonString(getJsonAtKey(elem, "name"));
+	if(!name) {
+		logEvent(WARN, SERIAL, "Unknown entity name, defaulting to \"Entity\"");
+		name = "Entity";
+	}
+	entity* ent = newEntity(name);
 
 	// call deserializeField for each field
 	jsonElement* curField = getJsonHead(getJsonAtKey(elem, "fields"));
@@ -524,6 +565,7 @@ entity* deserializeEntityFile(const char* path) {
 
 	// deserialize entity from JSON
 	entity* ent = deserializeEntity(obj);
+	dumpEvents();
 
 	// cleanup
 	freeArena(&a);
@@ -566,6 +608,10 @@ void deserializeScene(scene* scn, const jsonElement* elem) {
 
 	// parse scene object
 	const char* name = getJsonString(getJsonAtKey(elem, "name"));
+	if(!name) {
+		logEvent(WARN, SERIAL, "Unknown scene name, defaulting to \"Scene\"");
+		name = "Scene";
+	}
 
 	// copy over
 	strncpy(scn->name, name, ENT_NAME_SIZ);
@@ -631,6 +677,7 @@ void deserializeSceneFile(scene* scn, const char* path) {
 
 	// deserialize scene from JSON
 	deserializeScene(scn, obj);
+	dumpEvents();
 
 	// cleanup
 	freeArena(&a);

@@ -8,6 +8,15 @@
 // -- getting 
 
 jsonElement* getJsonAtKey(const jsonElement* elem, const char* key) {
+	if(!elem) {
+		logEvent(WARN, SERIAL, "No element to search for key %s in", key);
+		return NULL;
+	}
+	if(elem->type != JSON_OBJECT) {
+		logEvent(WARN, SERIAL, "Can't look for key %s in non-object element", key);
+		return NULL;
+	}
+
 	// go through all children
 	jsonElement* cur = elem->value.head;
 	while(cur) {
@@ -19,26 +28,70 @@ jsonElement* getJsonAtKey(const jsonElement* elem, const char* key) {
 }
 
 jsonElement* getJsonHead(const jsonElement* elem) {
+	if(!elem) {
+		logEvent(WARN, SERIAL, "No element to get head of");
+		return NULL;
+	}
+	if(elem->type != JSON_OBJECT && elem->type != JSON_ARRAY) {
+		logEvent(WARN, SERIAL, "Can't get head of non-iterable element");
+		return NULL;
+	}
+
 	return elem->value.head;
 }
 
 jsonElement* getJsonNext(const jsonElement* elem) {
+	if(!elem) {
+		logEvent(WARN, SERIAL, "No element to get next of");
+		return NULL;
+	}
+	
 	return elem->next;
 }
 
 const char* getJsonString(const jsonElement* elem) {
+	if(!elem) {
+		logEvent(WARN, SERIAL, "No element to get string of");
+		return NULL;
+	}
+	if(elem->type != JSON_STRING) {
+		logEvent(WARN, SERIAL, "Can't get string of non-string element");
+		return NULL;
+	}
+
 	return elem->value.string;
 }
 
 float getJsonNumber(const jsonElement* elem) {
+	if(!elem) {
+		logEvent(WARN, SERIAL, "No element to get number of, defaulting to 0");
+		return 0.0f; 
+	}
+	if(elem->type != JSON_NUMBER) {
+		logEvent(WARN, SERIAL, "Can't get number of non-number element, defaulting to 0");
+		return 0.0f;
+	}
+	
 	return elem->value.number;
 }
 
 int getJsonBoolean(const jsonElement* elem) {
+	if(!elem) {
+		logEvent(WARN, SERIAL, "No element to get boolean of, defaulting to false");
+		return 0; 
+	}
+	if(elem->type != JSON_BOOLEAN) {
+		logEvent(WARN, SERIAL, "Can't get boolean of non-boolean element, defaulting to false");
+		return 0; 
+	}	
 	return elem->value.boolean;
 }
 
 int isJsonNull(const jsonElement* elem) {
+	if(!elem) {
+		logEvent(WARN, SERIAL, "No element to check NULLness of, defaulting to NULL");
+		return 1; 
+	}
 	return elem->type == JSON_NULL;
 }
 
