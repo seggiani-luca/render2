@@ -3,6 +3,7 @@
 #include "mesh/mesh.h"
 #include "shader/shader.h"
 #include "texture/texture.h"
+#include "script/script.h"
 #include "../exception/exception.h"
 #include <stdlib.h>
 #include <string.h>
@@ -125,4 +126,5 @@ void freeTables() {
 	freeTable(&shaderTable);
 	freeTable(&meshTable);
 	freeTable(&materialTable);
+	freeTable(&scriptTable);
 }

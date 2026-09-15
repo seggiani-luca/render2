@@ -45,17 +45,15 @@ void printGl() {
 	}
 
 	// print renderer
-	logEvent(INFO, GL, "Renderer:\t%s on %s",
+	printf("Renderer:\t%s on %s\n",
 		platfString,
 		glGetString(GL_RENDERER)
 	);
-	dumpEvents();
 
 	// print OpenGL version
-	logEvent(INFO, GL, "OpenGL:\t%s",
+	printf("OpenGL:\t%s\n",
 		glGetString(GL_VERSION)
 	);
-	dumpEvents();
 }
 
 // loads OpenGL (done when the first window is created)

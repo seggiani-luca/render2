@@ -68,6 +68,7 @@ char* categoryToString(eventCategory categ) {
 		case SCENE:  return "scene";
 		case GLSL:   return "glsl";
 		case MEMORY: return "memory";
+		case EXCEPT: return "exception";
 		default:     return "unknown"; 
 	}
 }
@@ -137,4 +138,4 @@ void* xrealloc(void* old, size_t size) {
 
 // -- exceptions
 
-jmp_buf* cpPointer;
+jmp_buf* cpPointer = NULL;

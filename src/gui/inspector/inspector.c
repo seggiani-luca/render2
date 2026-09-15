@@ -2,6 +2,7 @@
 #include "../widget/widget.h"
 #include "../../scene/scene.h"
 #include "../../exception/exception.h"
+#include "../../script/script.h"
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <string.h>
@@ -565,9 +566,9 @@ void entityGui(window* win) {
 	// realize early if adding script 
 	if(ctx->in.dataPtr == &eCtx->scr && ctx->in.dataSet) {
 		// add script
-		field* fld = getField(ent, "Script");
+		field* fld = getField(ent, SCR_NAME);
 		if(!fld) {
-			fld = scriptNew("Script");
+			fld = scriptNew(SCR_NAME);
 			appendField(ent, fld);
 		}
 
@@ -575,6 +576,9 @@ void entityGui(window* win) {
 		scriptField* sf = (scriptField*)fld;
 		if(sf->ref && sf->ref != eCtx->scr) freeScript(sf->ref->data);
 		((scriptField*)fld)->ref = eCtx->scr;
+
+		// start script
+		scriptStart(ent);
 
 		// reset
 		eCtx->scr = NULL;

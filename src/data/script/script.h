@@ -8,6 +8,9 @@
 
 // material data type
 typedef struct {
+	// text buffer
+	char* buf;
+
 	// AST of script 
 	scriptVal* scr;
 

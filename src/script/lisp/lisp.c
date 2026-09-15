@@ -1,6 +1,8 @@
 #include "lisp.h"
+#include "execute.h"
 #include "../../parse/parse.h"
 #include "../../exception/exception.h"
+#include "../script.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,24 +12,24 @@
 // copies a value
 value* copyValue(value* orig) {
 	// allocate copy
-	value* new = xmalloc(sizeof(value));
+	value* nu = xmalloc(sizeof(value));
 
 	// copy over
-	memcpy(new, orig, sizeof(value));
+	memcpy(nu, orig, sizeof(value));
 
 	// recurse for CONS
-	if(new->type == VAL_CONS) {
-		new->cons.car = copyValue(orig->cons.car);
-		new->cons.cdr = copyValue(orig->cons.cdr);
+	if(nu->type == VAL_CONS) {
+		nu->cons.car = copyValue(orig->cons.car);
+		nu->cons.cdr = copyValue(orig->cons.cdr);
 	}
 
 	// recurse for functions
-	if(new->type == VAL_FUNCTION) {
-		new->func.params = copyValue(orig->func.params);
-		new->func.body = copyValue(orig->func.body);
+	if(nu->type == VAL_FUNCTION) {
+		nu->func.params = copyValue(orig->func.params);
+		nu->func.body = copyValue(orig->func.body);
 	}
 
-	return new;
+	return nu;
 }
 
 // gets the length of a CONS list
@@ -45,59 +47,69 @@ size_t consLen(value *v) {
 
 // -- sugar
 
-// produces a native value
-value* makeSymbol(value* new, const char* sym) {
-	new->type = VAL_SYMBOL;
-	strcpy(new->symbol, sym);
+value* makeSymbol(value* nu, const char* sym) {
+	nu->type = VAL_SYMBOL;
+	strcpy(nu->symbol, sym);
 
-	return new;
+	return nu;
 }
 
-// produces a CONS value
-value* makeCons(value* new, value* car, value* cdr) {
-	new->type = VAL_CONS;
-	new->cons.car = car;
-	new->cons.cdr = cdr;
+value* makeCons(value* nu, value* car, value* cdr) {
+	nu->type = VAL_CONS;
+	nu->cons.car = car;
+	nu->cons.cdr = cdr;
 
-	return new;
+	return nu;
 }
 
-// produces a bool value
-value* makeBool(value* new, int val) {
-	new->type = VAL_BOOL;
-	new->boolean = val;
+value* makeBool(value* nu, int val) {
+	nu->type = VAL_BOOL;
+	nu->boolean = val;
 
-	return new;
+	return nu;
 }
 
-// transforms a list of expressions into a begin block
-value* makeBegin(value* new, value* begin, value* list) {
-	if(!new || !begin) return NULL;
+value* makeBegin(value* nu, value* begin, value* list) {
+	if(!nu || !begin) return NULL;
 	
 	// setup value 
-	new->type = VAL_CONS;
-	new->cons.cdr = list;
+	nu->type = VAL_CONS;
+	nu->cons.cdr = list;
 
 	// setup native begin
 	begin = makeSymbol(begin, "begin");
 
 	// attach native begin
-	new->cons.car = begin;
+	nu->cons.car = begin;
 
-	return new;
+	return nu;
 }
 
-// produces a nil value
-value* makeNil(value* new) {
-	if(!new) return NULL;
+value* makeNil(value* nu) {
+	if(!nu) return NULL;
 	
 	// setup value 
-	new->type = VAL_NIL;
+	nu->type = VAL_NIL;
 
-	return new;
+	return nu;
 }
 
 // -- parsing
+
+// walks to the end of a comment
+void eatComment(char** buf) {
+	while(**buf && **buf != '\n') (*buf)++;
+    if(**buf == '\n') (*buf)++;
+}
+
+// eats multiple comments
+void eatComments(char** buf) {
+	// eat comments if present
+	while(**buf && **buf == ';') {
+		eatComment(buf);
+		eatWhitespace(buf);
+	}
+}
 
 // foward declarations for list parsing
 value* parseValue(arena* a, char** buf);
@@ -106,10 +118,10 @@ void freeValue(value* val);
 // parses a symbol value 
 value* parseSymbol(arena* a, char** buf) {
 	// allocate value 
-	value* new = arenaAlloc(a, sizeof(value));
+	value* nu = arenaAlloc(a, sizeof(value));
 	
 	// setup value 
-	new->type = VAL_SYMBOL;
+	nu->type = VAL_SYMBOL;
 
 	// get symbol 
 	char* start = *buf;
@@ -125,10 +137,10 @@ value* parseSymbol(arena* a, char** buf) {
 	if(len >= SYM_SIZE) len = SYM_SIZE - 1;
 
 	// copy symbol over
-	memcpy(new->symbol, start, len);
-	new->symbol[len] = '\0';
+	memcpy(nu->symbol, start, len);
+	nu->symbol[len] = '\0';
 
-	return new;
+	return nu;
 }
 
 // parses a list value 
@@ -166,6 +178,7 @@ value* parseList(arena* a, char** buf) {
 
 		// check for last value 
 		eatWhitespace(buf);
+		eatComments(buf);
 		if(consume(buf, ")")) break;
 	}
 
@@ -178,14 +191,14 @@ value* parseList(arena* a, char** buf) {
 // parses a number value 
 value* parseNumber(arena* a, char** buf) {
 	// allocate value 
-	value* new = arenaAlloc(a, sizeof(value));
+	value* nu = arenaAlloc(a, sizeof(value));
 	
 	// setup value 
-	new->type = VAL_NUMBER;
+	nu->type = VAL_NUMBER;
 
 	// get number
 	char *end;
-	new->number = strtof(*buf, &end);
+	nu->number = strtof(*buf, &end);
 
 	// validate trash reads
 	if (end == *buf) {
@@ -196,60 +209,49 @@ value* parseNumber(arena* a, char** buf) {
 	// advance 
 	*buf = end;
 
-	return new;
+	return nu;
 }
 
 // parses a boolean value 
 value* parseBool(arena* a, char** buf) {
 	// allocate value 
-	value* new = arenaAlloc(a, sizeof(value));
+	value* nu = arenaAlloc(a, sizeof(value));
 	
 	// setup value 
-	new->type = VAL_BOOL;
+	nu->type = VAL_BOOL;
 
 	// get boolean
 	if(consume(buf, "#t")) {
-		new->boolean = 1;
+		nu->boolean = 1;
 	} else if(consume(buf, "#f")) {
-		new->boolean = 0;
+		nu->boolean = 0;
 	} else {
 		logEvent(ERROR, LISP, "Invalid boolean value near %.20s", *buf);
 		throw;
 	}
 
-	return new;
+	return nu;
 }
 
 // parses a string value
 value* parseString(arena* a, char** buf) {
 	// allocate value 
-	value* new = arenaAlloc(a, sizeof(value));
+	value* nu = arenaAlloc(a, sizeof(value));
 	
 	// setup value 
-	new->type = VAL_STRING;
+	nu->type = VAL_STRING;
 
 	// get string
 	const char* str = readString(buf);
-	new->string = str;
+	nu->string = str;
 
-	return new;
-}
-
-// walks to the end of a comment
-void eatComment(char** buf) {
-	while(**buf && **buf != '\n') (*buf)++;
-    if(**buf == '\n') (*buf)++;
+	return nu;
 }
 
 // parses a value
 value* parseValue(arena* a, char** buf) {
 	eatWhitespace(buf);
-
-	// eat comments if present
-	while(**buf && **buf == ';') {
-		eatComment(buf);
-		eatWhitespace(buf);
-	}
+	eatComments(buf);
 
 	// distinguish value type
 	switch(**buf) {
@@ -336,6 +338,7 @@ scriptVal* parseScript(char** buf) {
 	// setup script
 	scr->root = begin;
 
+	RESTORE_JUMPS;
 	return scr;
 }
 
@@ -544,23 +547,23 @@ void addToFrame(envFrame* frame, const char* key, value* val) {
 	}
 	// entry doesn't exist 
 
-	// create new entry 
-	envEntry* new = xmalloc(sizeof(envEntry));
+	// create nu entry 
+	envEntry* nu = xmalloc(sizeof(envEntry));
 	
 	// setup entry
-	new->next = NULL;
+	nu->next = NULL;
 
 	// copy key over
 	int len = strlen(key);
 	if(len >= SYM_SIZE) len = SYM_SIZE - 1;
-	strncpy(new->key, key, len);
-	new->key[len] = '\0';
+	strncpy(nu->key, key, len);
+	nu->key[len] = '\0';
 			
 	// assign value
-	new->value = val;
+	nu->value = val;
 
 	// append entry
-	*tail = new; 
+	*tail = nu; 
 }
 
 void printFrame(envFrame* frame) {
@@ -624,7 +627,7 @@ envEntry* queryEnvironment(environment* env, const char* key) {
 	return NULL;
 }
 
-// get a new environment
+// get a nu environment
 environment* newEnvironment() {
 	// allocate environment
 	environment* env = xmalloc(sizeof(environment));
@@ -719,7 +722,7 @@ value* nativeArithm(environment* env, value* args, arithmFunc func) {
 	}
 
 	// get arguments
-	value* lhs = evaluateValue(env, args->cons.car);
+	value* lhs = doEvaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 
 	if(lhs->type != VAL_NUMBER || args->type != VAL_CONS) {
@@ -727,7 +730,7 @@ value* nativeArithm(environment* env, value* args, arithmFunc func) {
 		throw;
 	}
 
-	value* rhs = evaluateValue(env, args->cons.car);
+	value* rhs = doEvaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 
 	if(rhs->type != VAL_NUMBER || args->type != VAL_NIL) {
@@ -778,7 +781,7 @@ value* nativeRelate(environment* env, value* args, relateFunc func) {
 	}
 	
 	// get arguments
-	value* lhs = evaluateValue(env, args->cons.car);
+	value* lhs = doEvaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 
 	if(lhs->type != VAL_NUMBER || args->type != VAL_CONS) {
@@ -786,7 +789,7 @@ value* nativeRelate(environment* env, value* args, relateFunc func) {
 		throw;
 	}
 
-	value* rhs = evaluateValue(env, args->cons.car);
+	value* rhs = doEvaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 
 	if(rhs->type != VAL_NUMBER || args->type != VAL_NIL) {
@@ -897,7 +900,7 @@ value* nativeDefine(environment* env, value* args) {
 		logEvent(ERROR, EXEC, "Define takes exactly two arguments");
 		throw;
 	}
-	value* val = evaluateValue(env, args->cons.car);
+	value* val = doEvaluateValue(env, args->cons.car);
 
 	// define
 	addToFrame(env->scriptFrame, key->symbol, val);
@@ -965,7 +968,7 @@ value* nativeBegin(environment* env, value* args) {
 
 	// execute all found expressions
 	while(args->type == VAL_CONS) {
-		result = evaluateValue(env, args->cons.car);
+		result = doEvaluateValue(env, args->cons.car);
 		args = args->cons.cdr;
 	}
 
@@ -1006,7 +1009,7 @@ value* nativeList(environment* env __attribute__((unused)), value* args) {
 	value** tail = &result;
 	while(args->type == VAL_CONS) {
 		// evaluate argument
-		value* val = evaluateValue(env, args->cons.car);
+		value* val = doEvaluateValue(env, args->cons.car);
 
 		// concatenate to list
 		value* node = makeCons(
@@ -1039,7 +1042,7 @@ value* nativeCons(environment* env, value* args) {
 		throw;
 	}
 
-	value* first = evaluateValue(env, args->cons.car); 
+	value* first = doEvaluateValue(env, args->cons.car); 
 	args = args->cons.cdr;
 
 	// second value 
@@ -1048,7 +1051,7 @@ value* nativeCons(environment* env, value* args) {
 		throw;
 	}
 
-	value* second = evaluateValue(env, args->cons.car); 
+	value* second = doEvaluateValue(env, args->cons.car); 
 	args = args->cons.cdr;
 
 	// exactly two arguments
@@ -1073,7 +1076,7 @@ value* nativeCar(environment* env, value* args) {
 	}
 
 	// take pair
-	value* pair = evaluateValue(env, args->cons.car);
+	value* pair = doEvaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 	if(args->type != VAL_NIL) {
 		logEvent(ERROR, EXEC, "Car takes exactly one argument");
@@ -1097,7 +1100,7 @@ value* nativeCdr(environment* env, value* args) {
 	}
 
 	// take pair
-	value* pair = evaluateValue(env, args->cons.car);
+	value* pair = doEvaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 	if(args->type != VAL_NIL) {
 		logEvent(ERROR, EXEC, "Cdr takes exactly one argument");
@@ -1121,7 +1124,7 @@ value* nativeEval(environment* env, value* args) {
 	}
 
 	// take value 
-	value* value = evaluateValue(env, args->cons.car);
+	value* value = doEvaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 	if(args->type != VAL_NIL) {
 		logEvent(ERROR, EXEC, "Eval takes exactly one argument");
@@ -1129,14 +1132,11 @@ value* nativeEval(environment* env, value* args) {
 	}
 
 	// actually evaluate
-	return evaluateValue(env, value);
+	return doEvaluateValue(env, value);
 }
 
-// helper that checks if a value is true
-int isTrue(value* val) {
-	int fls = val->type == VAL_BOOL && !val->boolean;
-	return !fls;
-}
+// forward declaration for conditionals
+int isTrue(value* val);
 
 // definition of native if function
 value* nativeIf(environment* env, value* args) {
@@ -1146,7 +1146,7 @@ value* nativeIf(environment* env, value* args) {
 	}
 
 	// get condition first
-	value* condition = evaluateValue(env, args->cons.car);
+	value* condition = doEvaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 
 	// first branch
@@ -1174,8 +1174,8 @@ value* nativeIf(environment* env, value* args) {
 	}
 
 	// execute appropiate branch
-	if(isTrue(condition)) return evaluateValue(env, branch1);
-	else                  return evaluateValue(env, branch2);
+	if(isTrue(condition)) return doEvaluateValue(env, branch1);
+	else                  return doEvaluateValue(env, branch2);
 }
 
 // definition of native and function
@@ -1205,10 +1205,10 @@ value* nativeAnd(environment* env, value* args) {
 	}
 
 	// short circuit
-	value* firstVal = evaluateValue(env, first);
+	value* firstVal = doEvaluateValue(env, first);
 	if(!isTrue(firstVal)) return firstVal;
 
-	return evaluateValue(env, second);
+	return doEvaluateValue(env, second);
 }
 
 // definition of native or function
@@ -1238,10 +1238,10 @@ value* nativeOr(environment* env, value* args) {
 	}
 
 	// short circuit
-	value* firstVal = evaluateValue(env, first);
+	value* firstVal = doEvaluateValue(env, first);
 	if(isTrue(firstVal)) return firstVal;
 
-	return evaluateValue(env, second);
+	return doEvaluateValue(env, second);
 }
 
 // definition of native not function
@@ -1253,7 +1253,7 @@ value* nativeNot(environment* env, value* args) {
 	}
 
 	// take value 
-	value* val = evaluateValue(env, args->cons.car);
+	value* val = doEvaluateValue(env, args->cons.car);
 	args = args->cons.cdr;
 	if(args->type != VAL_NIL) {
 		logEvent(ERROR, EXEC, "Not takes exactly one argument");
@@ -1313,7 +1313,12 @@ static nativeEnvEntry nativeEntriesHelper[] = {
 	{ .key = "if",       .fn = nativeIf  },
 	{ .key = "and",      .fn = nativeAnd },
 	{ .key = "or",       .fn = nativeOr  },
-	{ .key = "not",      .fn = nativeNot }
+	{ .key = "not",      .fn = nativeNot },
+
+	// engine hooks
+	{ .key = "log",      .fn = nativeLog   },
+	{ .key = "error",    .fn = nativeError },
+	{ .key = "warn",     .fn = nativeWarn  },
 };
 
 // number of native entries
@@ -1354,7 +1359,11 @@ void initNativeEnvironment() {
 
 // -- evaluating
 
-// evaluates a symbol 
+int isTrue(value* val) {
+	int fls = val->type == VAL_BOOL && !val->boolean;
+	return !fls;
+}
+
 value* evaluateSymbol(environment* env, value* val) {
 	envEntry* entry = queryEnvironment(env, val->symbol);
 	if(entry) return entry->value;
@@ -1363,22 +1372,18 @@ value* evaluateSymbol(environment* env, value* val) {
 	throw;
 }
 
-// evaluates a number
 value* evaluateNumber(environment* env __attribute__((unused)), value* val) {
 	return val;
 }
 
-// evaluates a boolean 
 value* evaluateBool(environment* env __attribute__((unused)), value* val) {
 	return val;
 }
 
-// evaluates a string 
 value* evaluateString(environment* env __attribute__((unused)), value* val) {
 	return val;
 }
 
-// applies a function
 value* applyFunction(environment* env, function func, value* args) {
 	// get parameters to bind
 	value* params = func.params;
@@ -1394,7 +1399,7 @@ value* applyFunction(environment* env, function func, value* args) {
 	while(params && params->type != VAL_NIL
 	&&    args   && args->type   != VAL_NIL) {
 		// bind parameter
-		value* arg = evaluateValue(env, args->cons.car);
+		value* arg = doEvaluateValue(env, args->cons.car);
 		addToFrame(local, params->cons.car->symbol, arg);
 
 		// advance
@@ -1414,7 +1419,7 @@ value* applyFunction(environment* env, function func, value* args) {
 	pushFrame(env, local);
 
 	// apply function
-	value* result = evaluateValue(env, func.body);
+	value* result = doEvaluateValue(env, func.body);
 	
 	// cleanup
 	freeFrame(popFrame(env));
@@ -1422,13 +1427,12 @@ value* applyFunction(environment* env, function func, value* args) {
 	return result; 
 }
 
-// evaluates a list 
 value* evaluateList(environment* env, value* val) {
 	// get function symbol
 	value* car = val->cons.car;
 
 	// evaluate function symbol
-	value* func = evaluateValue(env, car);
+	value* func = doEvaluateValue(env, car);
 	
 	// get arguments
 	value* args = val->cons.cdr;
@@ -1444,39 +1448,45 @@ value* evaluateList(environment* env, value* val) {
 	throw;
 }
 
-// evaluates a function 
 value* evaluateFunction(environment* env __attribute__((unused)), value* val) {
 	return val;
 }
 
-// evaluates a native 
 value* evaluateNative(environment* env __attribute__((unused)), value* val) {
 	return val;
 }
 
-// evaluates nil 
 value* evaluateNil(environment* env __attribute__((unused)), value* val) {
 	return val;
+}
+
+value* doEvaluateValue(environment* env, value* val) {
+	// distinguish value type
+	switch(val->type) {
+		case VAL_SYMBOL:   return evaluateSymbol(env, val);  
+		case VAL_NUMBER:   return evaluateNumber(env, val);  
+		case VAL_BOOL:     return evaluateBool(env, val);  
+		case VAL_STRING:   return evaluateString(env, val);  
+		case VAL_CONS:     return evaluateList(env, val);    
+		case VAL_FUNCTION: return evaluateFunction(env, val);
+		case VAL_NATIVE:   return evaluateNative(env, val);
+		case VAL_NIL:      return evaluateNil(env, val);     
+		default: return NULL;
+	}
 }
 
 value* evaluateValue(environment* env, value* val) {
 	INIT_JUMPS;
 
+	// evaluate
+	value* res = NULL;
 	try {
-		// distinguish value type
-		switch(val->type) {
-			case VAL_SYMBOL:   return evaluateSymbol(env, val);  
-			case VAL_NUMBER:   return evaluateNumber(env, val);  
-			case VAL_BOOL:     return evaluateBool(env, val);  
-			case VAL_STRING:   return evaluateString(env, val);  
-			case VAL_CONS:     return evaluateList(env, val);    
-			case VAL_FUNCTION: return evaluateFunction(env, val);
-			case VAL_NATIVE:   return evaluateNative(env, val);
-			case VAL_NIL:      return evaluateNil(env, val);     
-			default: return NULL;
-		}
+		res = doEvaluateValue(env, val);
 	} catch {
 		logEvent(ERROR, EXEC, "Couldn't evaluate value");
 		return NULL;
 	}
+
+	RESTORE_JUMPS;
+	return res;
 }

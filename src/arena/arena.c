@@ -49,9 +49,7 @@ void* arenaAlloc(arena* a, size_t size) {
 
 	// check if fits, otherwise extend 
 	if(offset + size > ARENA_SIZE_STEP) {
-		if(!a->current->next) {
-			a->current->next = newChunk();
-		}
+		if(!a->current->next) a->current->next = newChunk();
 
 		// use past ones
 		a->current = a->current->next;
@@ -69,7 +67,6 @@ void resetArena(arena* a) {
 	a->current = a->first;
 	a->current->offset = 0;
 }
-
 
 void freeArena(arena* a) {
 	if(!a) return;

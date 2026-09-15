@@ -2,7 +2,7 @@
 #include "../scene/scene.h"
 #include "../parse/parse.h"
 #include "../exception/exception.h"
-#include "../data/data_includes.h"
+#include "../data/includes.h"
 #include "json/json.h"
 #include <stdlib.h>
 #include <string.h>
@@ -567,6 +567,8 @@ void serializeEntityFile(const entity* ent, const char* path) {
 }
 
 entity* deserializeEntityFile(const char* path) {
+	INIT_JUMPS;
+
 	// open file
 	FILE *f = fopen(path, "rb");
 	if(!f) {
@@ -583,7 +585,16 @@ entity* deserializeEntityFile(const char* path) {
 
 	// parse JSON from file
 	char* ptr = buf;
-	jsonElement* obj = deserializeJsonObject(&a, &ptr);
+	jsonElement* obj = NULL;
+	try {
+		obj = deserializeJsonObject(&a, &ptr);
+	} catch {
+		logEvent(ERROR, JSON, "Couldn't parse JSON for entity at \"%s\"", path);
+		freeArena(&a);
+		free(buf);
+		return NULL;
+	}
+
 
 	// deserialize entity from JSON
 	entity* ent = deserializeEntity(obj);
@@ -593,6 +604,7 @@ entity* deserializeEntityFile(const char* path) {
 	freeArena(&a);
 	free(buf);
 
+	RESTORE_JUMPS;
 	return ent;
 }
 
@@ -704,6 +716,8 @@ void deserializeSceneFile(scene* scn, const char* path) {
 	// cleanup
 	freeArena(&a);
 	free(buf);
+
+	RESTORE_JUMPS;
 }
 
 const char* getEntityPath(const char* name) {

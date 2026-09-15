@@ -1,7 +1,5 @@
-#include "dat/script/include.scm"
+#include "dat/script/includes/includes.scm"
 
-(define (inc x)
-  (+ x 1))
-
-(define a 16)
-(define r (inc a))
+(define (start)
+  (log "Pipi") ; fuck you
+  )

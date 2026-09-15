@@ -1,9 +1,8 @@
-#include "data/data.h"
 #include "exception/exception.h"
 #include "window/window.h"
 #include "scene/scene.h"
+#include "script/script.h"
 #include "render/render.h"
-#include <string.h>
 
 // -- windows
 
@@ -71,12 +70,12 @@ int main() {
 	initDefaultScene(mainScene);
 	
 	// script init hook
-	// TODO
+	scriptsStart(&mainScene->root);
 
 	// main loop 
 	for(;;) {
 		// script update hook 
-		// TODO
+		scriptsUpdate(&mainScene->root);
 
 		// update windows
 		updateGl();

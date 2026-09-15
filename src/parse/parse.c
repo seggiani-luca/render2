@@ -50,13 +50,18 @@ char* slurpBufferPreprocess(FILE* f) {
 			// open file
 			FILE* includeFile = fopen(path, "r");
 			if(!includeFile) {
-				logEvent(ERROR, IO, "Couldn't load included file %s", includeFile);
+				logEvent(ERROR, IO, "Couldn't load included file %s", path);
 				free(buf);
 				return NULL;
 			}
 
 			// recursive includes
 			char* includeBuf = slurpBufferPreprocess(includeFile);
+			fclose(includeFile);
+			if(!includeBuf) {
+				free(buf);
+				return NULL;
+			}
 			shouldFree = 1;
 			ptr = includeBuf;
 		}

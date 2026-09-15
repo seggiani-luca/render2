@@ -34,7 +34,8 @@ typedef enum {
 	GL,     // OpenGL loading
 	SCENE,  // scene management
 	GLSL,   // GLSL shader compilation
-	MEMORY  // memory allocation
+	MEMORY, // memory allocation
+	EXCEPT  // exceptions
 } eventCategory;
 
 // struct for events
@@ -75,13 +76,27 @@ void* xrealloc(void* old, size_t size);
 extern jmp_buf* cpPointer;
 
 // initializes exceptions
-#define INIT_JUMPS jmp_buf cp; cpPointer = &cp;
+#define INIT_JUMPS                                       \
+	jmp_buf cp;                                          \
+	__attribute__((unused)) jmp_buf* prevCp = cpPointer; \
+	cpPointer = &cp
+
+// restore exceptions
+#define RESTORE_JUMPS (cpPointer = prevCp)
 
 // try-else block
 #define try if(setjmp(cp) == 0)
 #define catch else
 
 // throws exception, reverts to else block
-#define throw longjmp(*cpPointer, 1)
+#define throw                                                     \
+	{                                                             \
+	    if(cpPointer) longjmp(*cpPointer, 1);                     \
+	    else {                                                    \
+	        logEvent(FATAL, EXCEPT, "Unhandled exception throw"); \
+	        dumpEvents();                                         \
+	        exit(1);                                              \
+	    }                                                         \
+	}
 
 #endif
