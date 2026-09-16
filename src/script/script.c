@@ -1,27 +1,28 @@
 #include "script.h"
-#include "../scene/scene.h"
+#include "../scene/entity/entity.h"
 #include "lisp/lisp.h"
 #include "lisp/execute.h"
+#include "../exception/exception.h"
+#include <stdio.h>
 
 // -- natives
 
-value* nativeLog(environment* env, value* args) {
+value* nativeLog(arena* a, environment* env, value* args) {
 	// go through arguments
 	while(args->type != VAL_NIL) {
-		value* val = doEvaluateValue(env, args->cons.car);
+		value* val = evaluateValue(a, env, args->cons.car);
 		printValue(val);
-
-		if(args->type != VAL_NIL) printf(" ");
 		
 		// advance
 		args = args->cons.cdr;
+		if(args->type != VAL_NIL) printf(" ");
 	}
 	printf("\n");
 	
-	return makeNil(arenaAlloc(&env->arena, sizeof(value)));
+	return makeNil();
 }
 
-value* nativeWarn(environment* env, value* args) {
+value* nativeWarn(arena* a, environment* env, value* args) {
 	// exactly one argument
 	if(args->type != VAL_CONS) {
 		logEvent(ERROR, EXEC, "Warn requires an argument");
@@ -29,7 +30,7 @@ value* nativeWarn(environment* env, value* args) {
 	}
 
 	// take value 
-	value* val = doEvaluateValue(env, args->cons.car);
+	value* val = evaluateValue(a, env, args->cons.car);
 	if(val->type != VAL_STRING) {
 		logEvent(ERROR, EXEC, "Warn takes a string argument");
 		throw;
@@ -42,12 +43,12 @@ value* nativeWarn(environment* env, value* args) {
 	}
 
 	// error
-	logEvent(WARN, EXEC, val->string);
+	logEvent(WARN, EXEC, "%s", val->string);
 
-	return makeNil(arenaAlloc(&env->arena, sizeof(value)));
+	return makeNil();
 }
 
-value* nativeError(environment* env, value* args) {
+value* nativeError(arena* a, environment* env, value* args) {
 	// exactly one argument
 	if(args->type != VAL_CONS) {
 		logEvent(ERROR, EXEC, "Error requires an argument");
@@ -55,7 +56,7 @@ value* nativeError(environment* env, value* args) {
 	}
 
 	// take value 
-	value* val = doEvaluateValue(env, args->cons.car);
+	value* val = evaluateValue(a, env, args->cons.car);
 	if(val->type != VAL_STRING) {
 		logEvent(ERROR, EXEC, "Error takes a string argument");
 		throw;
@@ -68,11 +69,11 @@ value* nativeError(environment* env, value* args) {
 	}
 
 	// error
-	logEvent(ERROR, EXEC, val->string);
+	logEvent(ERROR, EXEC, "%s", val->string);
 	throw;
 
 
-	return makeNil(arenaAlloc(&env->arena, sizeof(value)));
+	return makeNil();
 }
 
 // -- execution
@@ -84,39 +85,22 @@ void scriptStart(entity* ent) {
 	field* fld = getField(ent, SCR_NAME);
 	if(!fld) return;
 	scriptField* scrField = (scriptField*)fld;
+	if(!scrField->ref) return;
 
 	// get script
 	script* scr = scrField->ref->data;
 
-	// get start hook
-	envEntry* entry = queryEnvironment(scr->env, START_HOOK);
-	if(!entry) {
-		logEvent(WARN, EXEC, "Script on entity \"%s\" doesn't define start", 
-			ent->name);
-		return;
+	// start hook
+	if(!evaluateFuncFromScript(scr->ctx, START_HOOK)) {
+		logEvent(ERROR, EXEC, "Couldn't start entity \"%s\"", ent->name);
+		dumpEvents();
 	}
-	value* val = entry->value;
-	if(val->type != VAL_FUNCTION) {
-		logEvent(ERROR, EXEC, "Script on entity \"%s\" doesn't define start as function");
-		return;
-	}
-
-	// call function
-	try {
-		applyFunction(scr->env, val->func, 
-			makeNil(arenaAlloc(&scr->env->arena, sizeof(value))));
-	} catch {
-		logEvent(ERROR, EXEC, "Couldn't start script on entity \"%s\"", ent->name);
-	}
-	
-	dumpEvents();
-	
-	RESTORE_JUMPS;
 }
 
 void scriptsStart(entity* ent) {
 	// start entity
 	scriptStart(ent);
+	dumpEvents();
 	
 	// start children
 	entity* cur = ent->child;
@@ -133,42 +117,22 @@ void scriptUpdate(entity* ent) {
 	field* fld = getField(ent, SCR_NAME);
 	if(!fld) return;
 	scriptField* scrField = (scriptField*)fld;
+	if(!scrField->ref) return;
 
 	// get script
 	script* scr = scrField->ref->data;
 
-	// reset environment arena
-	resetArena(&scr->env->arena);
-
-	// get start hook
-	envEntry* entry = queryEnvironment(scr->env, UPDATE_HOOK);
-	if(!entry) {
-		logEvent(WARN, EXEC, "Script on entity \"%s\" doesn't define update",
-			ent->name);
-		return;
+	// start hook
+	if(!evaluateFuncFromScript(scr->ctx, UPDATE_HOOK)) {
+		logEvent(ERROR, EXEC, "Couldn't start entity \"%s\"", ent->name);
+		dumpEvents();
 	}
-	value* val = entry->value;
-	if(val->type != VAL_FUNCTION) {
-		logEvent(ERROR, EXEC, "Script on entity \"%s\" doesn't define update as function");
-		return;
-	}
-
-	// call function
-	try {
-		applyFunction(scr->env, val->func, 
-			makeNil(arenaAlloc(&scr->env->arena, sizeof(value))));
-	} catch {
-		logEvent(ERROR, EXEC, "Couldn't update script on entity \"%s\"", ent->name);
-	}
-
-	dumpEvents();
-
-	RESTORE_JUMPS;
 }
 
 void scriptsUpdate(entity* ent) {
 	// update entity
 	scriptUpdate(ent);
+	dumpEvents();
 	
 	// update children
 	entity* cur = ent->child;

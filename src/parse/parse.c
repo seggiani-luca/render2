@@ -52,16 +52,21 @@ char* slurpBufferPreprocess(FILE* f) {
 			if(!includeFile) {
 				logEvent(ERROR, IO, "Couldn't load included file %s", path);
 				free(buf);
+				fclose(includeFile);
 				return NULL;
 			}
 
 			// recursive includes
 			char* includeBuf = slurpBufferPreprocess(includeFile);
 			fclose(includeFile);
+
+			// cleanup
 			if(!includeBuf) {
 				free(buf);
 				return NULL;
 			}
+
+			// use buf as line 
 			shouldFree = 1;
 			ptr = includeBuf;
 		}

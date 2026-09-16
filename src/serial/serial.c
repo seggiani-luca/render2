@@ -233,16 +233,22 @@ jsonElement* atmosphereFieldSerialize(const field* f) {
 	addJsonAtKey(elem, vectorSerialize(
 		&af->val.ambient, 3
 	), "ambient");
-	addJsonAtKey(elem, newJsonString(
-		af->val.ambientMap->path	
-	), "cubemap");
 	addJsonAtKey(elem, vectorSerialize(
 		&af->val.sun, 3
 	), "sun");
 	addJsonAtKey(elem, vectorSerialize(
 		&af->val.background, 3
 	), "background");
-	addJsonAtKey(elem, newJsonString(
+	
+	// add cubemap
+	dataRef* cubemapRef = af->val.ambientMap;
+	if(cubemapRef) addJsonAtKey(elem, newJsonString(
+		af->val.ambientMap->path	
+	), "cubemap");
+
+	// add skybox 
+	dataRef* skyboxRef = af->val.backgroundMap;
+	if(skyboxRef) addJsonAtKey(elem, newJsonString(
 		af->val.backgroundMap->path	
 	), "skybox");
 
@@ -286,9 +292,9 @@ jsonElement* textureFieldSerialize(const field* f) {
 	textureField* tf = (textureField*)f;
 
 	// add path
-	jsonElement* elem = newJsonString(tf->ref->path);
-
-	return elem;
+	dataRef* ref = tf->ref;
+	if(ref) return newJsonString(ref->path);
+	else return newJsonNull();
 }
 
 void textureFieldDeserialize(field* f, const jsonElement* elem) {
@@ -307,9 +313,9 @@ jsonElement* meshFieldSerialize(const field* f) {
 	meshField* mf = (meshField*)f;
 
 	// add path
-	jsonElement* elem = newJsonString(mf->ref->path);
-
-	return elem;
+	dataRef* ref = mf->ref;
+	if(ref) return newJsonString(ref->path);
+	else return newJsonNull();
 }
 
 void meshFieldDeserialize(field* f, const jsonElement* elem) {
@@ -328,9 +334,9 @@ jsonElement* materialFieldSerialize(const field* f) {
 	materialField* mf = (materialField*)f;
 
 	// add path
-	jsonElement* elem = newJsonString(mf->ref->path);
-
-	return elem;
+	dataRef* ref = mf->ref;
+	if(ref) return newJsonString(ref->path);
+	else return newJsonNull();
 }
 
 void materialFieldDeserialize(field* f, const  jsonElement* elem) {
@@ -349,9 +355,9 @@ jsonElement* scriptFieldSerialize(const field* f) {
 	scriptField* sf = (scriptField*)f;
 
 	// add path
-	jsonElement* elem = newJsonString(sf->ref->path);
-
-	return elem;
+	dataRef* ref = sf->ref;
+	if(ref) return newJsonString(ref->path);
+	else return newJsonNull();
 }
 
 void scriptFieldDeserialize(field* f, const  jsonElement* elem) {
@@ -592,9 +598,9 @@ entity* deserializeEntityFile(const char* path) {
 		logEvent(ERROR, JSON, "Couldn't parse JSON for entity at \"%s\"", path);
 		freeArena(&a);
 		free(buf);
-		return NULL;
 	}
 
+	if(!obj) return NULL;
 
 	// deserialize entity from JSON
 	entity* ent = deserializeEntity(obj);
@@ -604,7 +610,6 @@ entity* deserializeEntityFile(const char* path) {
 	freeArena(&a);
 	free(buf);
 
-	RESTORE_JUMPS;
 	return ent;
 }
 
@@ -706,8 +711,9 @@ void deserializeSceneFile(scene* scn, const char* path) {
 		logEvent(ERROR, JSON, "Couldn't parse JSON for scene at \"%s\"", path);
 		freeArena(&a);
 		free(buf);
-		return;
 	}
+
+	if(!obj) return;
 
 	// deserialize scene from JSON
 	deserializeScene(scn, obj);
@@ -717,7 +723,6 @@ void deserializeSceneFile(scene* scn, const char* path) {
 	freeArena(&a);
 	free(buf);
 
-	RESTORE_JUMPS;
 }
 
 const char* getEntityPath(const char* name) {

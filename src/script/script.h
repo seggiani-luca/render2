@@ -24,13 +24,13 @@ typedef struct entity entity;
 // -- natives
 
 // logs values to console
-value* nativeLog(environment* env, value* args);
+value* nativeLog(arena* a, environment* env, value* args);
 
 // throws an error 
-value* nativeError(environment* env, value* args);
+value* nativeError(arena* a, environment* env, value* args);
 
 // throws a warning
-value* nativeWarn(environment* env, value* args);
+value* nativeWarn(arena* a, environment* env, value* args);
 
 // -- execution
 

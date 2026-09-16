@@ -13,7 +13,7 @@ typedef struct environment environment;
 typedef struct value value;
 
 // native function type
-typedef value* (*nativeFn)(environment* env, value* args); 
+typedef value* (*nativeFn)(arena* a, environment* env, value* args); 
 
 // represents a function
 typedef struct function {
@@ -88,11 +88,8 @@ typedef struct envEntry envEntry;
 
 // represents an environment frame
 struct envFrame {
-	// owner of frame
-	void* owner;
-
-	// are values owned?
-	int valuesOwned; 
+	// arena to use, NULL signals heap
+	arena* arena;
 
 	// root of environment entries
 	envEntry* root;
@@ -100,7 +97,7 @@ struct envFrame {
 typedef struct envFrame envFrame;
 
 // gets a new environment frame
-envFrame* newFrame(void* owner, int valuesOwned);
+envFrame* newFrame(arena* a);
 
 // frees an environment frame
 void freeFrame(envFrame* frame);
@@ -110,7 +107,7 @@ envEntry* queryFrame(envFrame* frame, const char* key);
 
 // adds an a key-value to an environment frame
 void addToFrame(envFrame* frame, const char* key, value* val);
-
+	
 // -- environments
 
 // represents an environment frame link to an environment
@@ -130,9 +127,6 @@ struct environment {
 
 	// own frame of this environment's script 
 	envFrame* scriptFrame;
-
-	// arena allocator for execution
-	arena arena;
 };
 
 // pushes a top frame to an environment
@@ -144,33 +138,39 @@ envFrame* popFrame(environment* env);
 // gets an entry from an environment
 envEntry* queryEnvironment(environment* env, const char* key);
 
+// forward declaration for initEnvironment
+typedef struct scriptContext scriptContext;
+
 // initializes an environment from a script
-environment* initEnvironment(value* scr); 
+void initEnvironment(scriptContext* scr); 
 
 // frees a script's environment 
 void freeEnvironment(environment* env); 
 
-// prints an environment
-void printEnvironment(environment* env);
-
 // -- scripts
 
-// store a script as a value
-typedef struct {
-	// allocation arena
-	arena arena;
+// store a script's context, that is it's storage arenas and environment 
+struct scriptContext{
+	// parse arena
+	arena parseArena;
+
+	// execution arena 
+	arena execArena;
+
+	// environment of script
+	environment* env;
 
 	// root of script
 	value* root;
-} scriptVal;
+};
 
-// parses a Scheme script 
-scriptVal* parseScript(char** buf);
+// parses a Scheme script and returns its context
+scriptContext* getScriptContext(char** buf);
 
 // frees a Scheme script
-void freeScript(scriptVal* scr);
+void freeScriptContext(scriptContext* scr);
 
-// -- evaluating
+// -- debug printing
 
 // length of CONS list to break off when pretty-printing
 #define PP_CONS_LEN 1
@@ -181,7 +181,15 @@ void printValue(value* val);
 // pretty-prints a script value 
 void prettyPrintValue(value* val);
 
-// evaluates a script value
-value* evaluateValue(environment* env, value* val);
+// prints an environment
+void printEnvironment(environment* env);
+
+// -- evaluating
+
+// evaluates a full script 
+value* evaluateScript(scriptContext* scr);
+
+// evaluates a function from a script's environment 
+value* evaluateFuncFromScript(scriptContext* scr, const char* key); 
 
 #endif

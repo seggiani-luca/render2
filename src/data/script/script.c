@@ -7,7 +7,7 @@
 void scriptPrint(void* dat) {
 	script* scr = (script*)dat;
 	printf("Script:");
-	printValue(scr->scr->root);
+	printValue(scr->ctx->root);
 }
 
 void* script_import(FILE* file) {
@@ -19,21 +19,19 @@ void* script_import(FILE* file) {
 	new_script->buf = slurpBufferPreprocess(file);
 	if(!new_script->buf) {
 		logEvent(ERROR, IO, "Couldn't load script");
+		free(new_script->buf);
 		return NULL;
 	}
 	
 	// parse script from buffer 
 	char* ptr = new_script->buf;
-	new_script->scr = parseScript(&ptr);
-	if(!new_script->scr) {
-		logEvent(ERROR, LISP, "Couldn't parse script");
+	new_script->ctx = getScriptContext(&ptr);
+	if(!new_script->ctx) {
+		logEvent(ERROR, LISP, "Couldn't load script");
 		free(new_script->buf);
 		free(new_script);
 		return NULL;
 	}
-
-	// initialize the environment
-	new_script->env = initEnvironment(new_script->scr->root);
 
 	return new_script;
 }
@@ -42,10 +40,10 @@ void script_free(void* dat) {
 	if(!dat) return;
 
 	script* scr = (script*)dat;
-	freeScript(scr->scr);
+	freeScriptContext(scr->ctx);
 	freeEnvironment(scr->env);
-	free(scr->buf)
-;
+	free(scr->buf);
+
 	free(dat);
 }
 

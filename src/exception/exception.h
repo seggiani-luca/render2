@@ -81,17 +81,22 @@ extern jmp_buf* cpPointer;
 	__attribute__((unused)) jmp_buf* prevCp = cpPointer; \
 	cpPointer = &cp
 
-// restore exceptions
-#define RESTORE_JUMPS (cpPointer = prevCp)
+// restores exceptions
+#define RESTORE_JUMPS \
+	(cpPointer = prevCp)
 
-// try-else block
-#define try if(setjmp(cp) == 0)
+// try-catch blocks, automatically restores jumps
+// WARNING - Don't return from the catch block or you'll leak state!
+#define try                            \
+	for (int _exc_once = 1; _exc_once; \
+	     _exc_once = 0, RESTORE_JUMPS) \
+	    if (setjmp(cp) == 0)
 #define catch else
 
-// throws exception, reverts to else block
+// throw clause
 #define throw                                                     \
 	{                                                             \
-	    if(cpPointer) longjmp(*cpPointer, 1);                     \
+	    if (cpPointer) longjmp(*cpPointer, 1);                    \
 	    else {                                                    \
 	        logEvent(FATAL, EXCEPT, "Unhandled exception throw"); \
 	        dumpEvents();                                         \

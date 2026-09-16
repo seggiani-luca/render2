@@ -429,7 +429,7 @@ int scriptFieldGui(const field* f, guiContext* ctx) {
 		f->name,
 		ICO_SCRIPT,
 		scriptGui,
-		&((meshField*)f)->ref,
+		&((scriptField*)f)->ref,
 		1
 	);
 }
@@ -574,7 +574,7 @@ void entityGui(window* win) {
 
 		// set script
 		scriptField* sf = (scriptField*)fld;
-		if(sf->ref && sf->ref != eCtx->scr) freeScript(sf->ref->data);
+		if(sf->ref && sf->ref != eCtx->scr) scriptFree(sf->ref->data);
 		((scriptField*)fld)->ref = eCtx->scr;
 
 		// start script

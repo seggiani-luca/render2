@@ -12,7 +12,7 @@ typedef struct {
 	char* buf;
 
 	// AST of script 
-	scriptVal* scr;
+	scriptContext* ctx;
 
 	// script environment
 	environment* env;
