@@ -20,7 +20,7 @@ typedef struct {
 	entity* moving;
 
 	// path of scene to load
-	char load[DAT_PATH_SIZ];
+	char load[IN_BUF_SIZ];
 } sceneGuiContext;
 
 // context for new child GUI callback
@@ -35,10 +35,10 @@ typedef struct {
 	scene* scn;
 
 	// name buffer
-	char name[ENT_NAME_SIZ];
+	char name[IN_BUF_SIZ];
 
 	// path of entity to load 
-	char load[DAT_PATH_SIZ];
+	char load[IN_BUF_SIZ];
 } addChildGuiContext;
 
 // hook into inspector window

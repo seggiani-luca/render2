@@ -30,7 +30,7 @@ typedef struct {
 	entity* ent;
 
 	// name buffer
-	char name[ENT_NAME_SIZ];
+	char name[IN_BUF_SIZ];
 } addFieldGuiContext;
 
 // enum for inspector action
@@ -68,8 +68,9 @@ int fieldGui(
 	}, ico);
 
 	// push name
-	textGui(ctx, SCROLL, (float2){
-		3 PAD + ICO_SIZ, 2 PAD + HPAD
+	separatorGui(ctx, SCROLL, (float4){
+		3 PAD + ICO_SIZ, 2 PAD + HPAD,
+		WIN - 8 PAD - 2 * ICO_SIZ, TXT_HEIGHT
 	}, name);
 
 	// push delete button

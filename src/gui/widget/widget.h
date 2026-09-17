@@ -11,11 +11,17 @@
 #define FIELD_SIZ 64
 
 // sizing contants
-#define PAD     * 4.0f
-#define HPAD    (1 PAD / 2.0f)
-#define ROW     48.0f
-#define HROW    (ROW / 2.0f)
-#define BORDER  2.0f
+#define PAD        * 4.0f
+#define HPAD       (1 PAD / 2.0f)
+#define ROW        48.0f
+#define HROW       (ROW / 2.0f)
+#define BORDER     2.0f
+#define ICO_SIZ    TXT_HEIGHT
+#define ICO_OFFSET 2.0f
+
+// atlas text sizing
+#define TXT_WIDTH  (0.5f * AU * ATLAS_SIZ)
+#define TXT_HEIGHT (TXT_WIDTH * 2)
 
 // window dependent sizing constants
 #define WIN  (ctx->win->width)
@@ -33,13 +39,8 @@
 #define FG_DARK  (float4) { UV(3.5, 3.5), UV(3.5, 3.5) }
 #define FG_LIGHT (float4) { UV(4.5, 3.5), UV(4.5, 3.5) }
 
-// atlas text sizing
-#define TXT_WIDTH  (0.5f * AU * ATLAS_SIZ)
-#define TXT_HEIGHT (TXT_WIDTH * 2)
-
 // atlas icons
 #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
-#define ICO_SIZ    TXT_HEIGHT
 #define ICO_ENTITY ICO(0, 4)
 #define ICO_INT    ICO(1, 4)
 #define ICO_FLOAT  ICO(2, 4)
@@ -53,9 +54,6 @@
 #define ICO_MAT4   ICO(10, 4)
 #define ICO_QUAT   ICO(11, 4)
 #define ICO_TRANS  ICO(12, 4)
-#define ICO_POS    ICO(13, 4)
-#define ICO_ROT    ICO(14, 4)
-#define ICO_SCALE  ICO(15, 4)
 
 #define ICO_NEW    ICO(0, 5)
 #define ICO_DELETE ICO(1, 5)
@@ -64,7 +62,7 @@
 #define ICO_TEX    ICO(4, 5)
 #define ICO_MESH   ICO(5, 5)
 #define ICO_MAT    ICO(6, 5)
-#define ICO_SEARCH ICO(7, 5)
+
 #define ICO_FILE   ICO(8, 5)
 #define ICO_NUFILE ICO(9, 5)
 #define ICO_CAMERA ICO(10, 5)
@@ -141,6 +139,15 @@ void quadGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv);
 
 // pushes a quad border
 void borderGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv);
+
+// pushes elements to make up a text string, up to a length
+void textGuiN(
+	guiContext* ctx,
+	guiLayerId layId,
+	float2 pos,
+	const char* str,
+	size_t len
+);
 
 // pushes elements to make up a text string
 void textGui(guiContext* ctx, guiLayerId layId, float2 pos, const char* str);

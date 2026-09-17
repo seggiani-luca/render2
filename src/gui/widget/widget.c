@@ -21,7 +21,7 @@ typedef struct {
 	dataTable* tab;
 
 	// path of data to find
-	char path[DAT_PATH_SIZ];
+	char path[IN_BUF_SIZ];
 
 	// original GUI context
 	guiContext* orig;
@@ -39,7 +39,7 @@ typedef struct {
 	DIR* cur;
 
 	// current directory patih
-	char curPath[DAT_PATH_SIZ];	
+	char curPath[IN_BUF_SIZ];	
 
 	// original GUI context
 	guiContext* orig;
@@ -499,9 +499,15 @@ void borderGui(guiContext* ctx, guiLayerId layId, float4 rect, float4 uv) {
 	quadGui(ctx, layId, (float4){rect.x + rect.z - border, rect.y,                   border, rect.w}, uv);
 }
 
-void textGui(guiContext* ctx, guiLayerId layId, float2 pos, const char* str) {
+void textGuiN(
+	guiContext* ctx,
+	guiLayerId layId,
+	float2 pos,
+	const char* str,
+	size_t len
+) {
 	char c;
-	int w = 0;
+	size_t n = 0;
 
 	// go through all characters
 	while((c = *str++)) {
@@ -517,14 +523,19 @@ void textGui(guiContext* ctx, guiLayerId layId, float2 pos, const char* str) {
 
 		// push characters
 		pushGui(&ctx->layers[layId], (quad){
-			pos.x + w, ctx->layers[layId].vPos + pos.y, 
+			pos.x + n * TXT_WIDTH, ctx->layers[layId].vPos + pos.y, 
 			TXT_WIDTH, TXT_HEIGHT,
 			uv
 		});
 
 		// move right
-		w += TXT_WIDTH;
+		n++;
+		if(n == len) break;
 	}
+}
+
+void textGui(guiContext* ctx, guiLayerId layId, float2 pos, const char* str) {
+	textGuiN(ctx, layId, pos, str, strlen(str));
 }
 
 void separatorGui(guiContext* ctx, guiLayerId layId, float4 rect, const char* str) {
@@ -544,8 +555,9 @@ void separatorGui(guiContext* ctx, guiLayerId layId, float4 rect, const char* st
 
 void iconGui(guiContext* ctx, guiLayerId layId, float2 pos, float4 uv) {
 	pushGui(&ctx->layers[layId], (quad){
-		pos.x, pos.y + ctx->layers[layId].vPos, 
-		ICO_SIZ, ICO_SIZ,
+		pos.x - ICO_OFFSET / 2.0f, 
+		pos.y + ctx->layers[layId].vPos - ICO_OFFSET / 2.0f,
+		ICO_SIZ + ICO_OFFSET, ICO_SIZ + ICO_OFFSET,
 		uv
 	});
 }
@@ -595,10 +607,13 @@ void editBoxGui(
 	quadGui(ctx, layId, rect, BG_DARK);
 	borderGui(ctx, layId, rect, FG_DARK);
 
+	// get size of output buffer
+	int out_siz = (int)(rect.z / TXT_WIDTH) - 1;
+
 	// update displayed value and display
-	textGui(ctx, layId, (float2){
+	textGuiN(ctx, layId, (float2){
 		rect.x + 1 PAD, rect.y + 1 PAD
-	}, str);
+	}, str, out_siz);
 }
 
 // pushes an interactive edit box
