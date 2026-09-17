@@ -49,7 +49,6 @@ void initDefaultScene(scene* s) {
 	mesh->ref = meshImport(DEF_MESH);
 	if(!mesh->ref) {
 		logEvent(FATAL, IO, "Couldn't load default mesh");
-		dumpEvents();
 		exit(0);
 	}
 
@@ -58,7 +57,6 @@ void initDefaultScene(scene* s) {
 	material->ref = materialImport(DEF_MATERIAL);
 	if(!material->ref) {
 		logEvent(FATAL, IO, "Couldn't load default material");
-		dumpEvents();
 		exit(0);
 	}
 

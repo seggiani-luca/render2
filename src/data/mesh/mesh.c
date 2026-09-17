@@ -100,7 +100,7 @@ void destroyGLMeshes(mesh* mesh) {
 	// delete buffers
 	glDeleteBuffers(1, &mesh->vbo);
 	glDeleteVertexArrays(1, &mesh->vao);
-	
+
 	// return to old context
 	glfwMakeContextCurrent(old);
 }

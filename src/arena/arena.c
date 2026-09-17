@@ -9,7 +9,7 @@
 // arena chunk
 struct arenaChunk {
 	// allocated data
-    alignas(max_align_t) char data[ARENA_SIZE_STEP];
+	alignas(max_align_t) char data[ARENA_SIZE_STEP];
 
 	// bump pointer
 	size_t offset;
@@ -39,13 +39,12 @@ arena newArena() {
 void* arenaAlloc(arena* a, size_t size) {
 	if(size > ARENA_SIZE_STEP) {
 		logEvent(FATAL, MEMORY, "Arena allocation won't fit in chunk");
-		dumpEvents();
 		exit(1);
 	}
 
 	// align memory
 	size_t alignment = alignof(max_align_t);
-    size_t offset = (a->current->offset + alignment - 1) & ~(alignment - 1);
+	size_t offset = (a->current->offset + alignment - 1) & ~(alignment - 1);
 
 	// check if fits, otherwise extend 
 	if(offset + size > ARENA_SIZE_STEP) {

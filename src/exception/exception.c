@@ -10,30 +10,6 @@
 
 // -- logging
 
-// stack of events 
-static event logBuf[LOG_EVENTS];
-
-// index of current event
-static int logIdx = 0;
-
-void logEvent(eventClass clas, eventCategory categ, const char* fmt, ...) {
-	// get current event
-	event* ev = &logBuf[logIdx];
-
-	// setup event
-	ev->clas = clas;
-	ev->categ = categ;
-
-	// format message
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(ev->mess, EVENT_SIZE, fmt, ap);
-	va_end(ap);
-
-	// advance
-	if(logIdx < LOG_EVENTS - 1) logIdx++; 
-}
-
 // gets string representation of event class
 char* classToString(eventClass clas) {
 	switch(clas) {
@@ -82,20 +58,22 @@ void printEvent(event* ev) {
 		ev->mess);
 }
 
-void dumpEvents() {
-	int top = 1;
+void logEvent(eventClass clas, eventCategory categ, const char* fmt, ...) {
+	// get current event
+	event ev;
 
-	// unroll event stack
-	while(logIdx > 0) {
-		logIdx--;
+	// setup event
+	ev.clas = clas;
+	ev.categ = categ;
 
-		// print event
-		if(!top) printf("-> ");
-		printEvent(&logBuf[logIdx]);
-		
-		// indent first
-		top = 0;
-	}
+	// format message
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(ev.mess, EVENT_SIZE, fmt, ap);
+	va_end(ap);
+
+	// print event
+	printEvent(&ev);
 }
 
 // -- allocation
@@ -105,7 +83,6 @@ void* xmalloc(size_t size) {
 
 	if(!ptr && size != 0) {
 		logEvent(FATAL, MEMORY, "Memory allocation failed via malloc()");
-		dumpEvents();
 		exit(1);
 	}
 
@@ -117,7 +94,6 @@ void* xcalloc(size_t count, size_t size) {
 
 	if(!ptr && count != 0 && size != 0) {
 		logEvent(FATAL, MEMORY, "Memory allocation failed via calloc()");
-		dumpEvents();
 		exit(1);
 	}
 
@@ -129,7 +105,6 @@ void* xrealloc(void* old, size_t size) {
 
 	if(!ptr && size != 0) {
 		logEvent(FATAL, MEMORY, "Memory allocation failed via realloc()");
-		dumpEvents();
 		exit(1);
 	}
 

@@ -121,7 +121,6 @@ int newRender(renderingContext* rCtx) {
 	dataRef* shd = shaderImport(SKY_VERT_PATH, SKY_FRAG_PATH);
 	if(!shd) {
 		logEvent(FATAL, IO, "Couldn't load default sky shader");
-		dumpEvents();
 		exit(1);
 	}
 	rCtx->gl.shd = shd->data;

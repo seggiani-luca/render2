@@ -73,6 +73,10 @@ void flushLayer(guiContext* ctx, guiLayer* lay) {
 }
 
 void flushGui(guiContext* ctx) {
+	// clear buffer
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	// flush all layers
 	for(int i = 0; i < GUI_LAYERS; i++) {
 		guiLayer* lay = &ctx->layers[i];
@@ -197,7 +201,6 @@ int newGui(guiContext* ctx) {
 	dataRef* shd = shaderImport(GUI_VERT_PATH, GUI_FRAG_PATH);
 	if(!shd) {
 		logEvent(FATAL, IO, "Couldn't load default GUI shader");
-		dumpEvents();
 		exit(0);
 	}
 	ctx->gl.shd = shd->data;
@@ -206,14 +209,13 @@ int newGui(guiContext* ctx) {
 	dataRef* tex = textureImport(GUI_ATLAS_PATH);
 	if(!tex) {
 		logEvent(FATAL, IO, "Couldn't load default GUI texture");
-		dumpEvents();
 		exit(0);
 	}
 	ctx->gl.tex = tex->data;
 
-	// set to nearest-neighbour, SRGB
-	textureFilter(ctx->gl.tex, 0);
+	// set to SRGB
 	textureColor(ctx->gl.tex, 1);
+	textureFilter(ctx->gl.tex, 0);
 
 	return 1;
 }
@@ -271,6 +273,7 @@ guiContext* initGui(window* win) {
 		ctx->in.absScroll = 0.0f;
 		ctx->in.dataPtr = NULL;
 		ctx->in.dataSet = 0;
+		ctx->in.prevDown = 0;
 	}
 
 	// update child first if present
@@ -350,6 +353,9 @@ void scrollCallback(
 	ctx->in.scroll += (float)y;
 }
 
+// currently focused window
+static window* curFocus = NULL;
+
 void inputGui(window* win) {
 	guiContext* ctx = (guiContext*)win->cbak.ctx;
 
@@ -370,12 +376,16 @@ void inputGui(window* win) {
 	int down = glfwGetMouseButton(win->gl, GLFW_MOUSE_BUTTON_LEFT);
 
 	// get other mouse states
-	ctx->in.curPress = (down  && !ctx->in.prevCur);
-	ctx->in.curReles = (!down &&  ctx->in.prevCur);
+	ctx->in.curPress = (down  && !ctx->in.prevDown);
+	ctx->in.curReles = (!down &&  ctx->in.prevDown);
 	ctx->in.curDown  = down;
 
+	// use focus state
+	if(ctx->in.curPress) curFocus = win;
+	if(win != curFocus) ctx->in.curReles = 0; // release things you pressed
+
 	// update previous mouse state
-	ctx->in.prevCur = down;
+	ctx->in.prevDown = down;
 
 	// get key state
 	ctx->in.enter  = (glfwGetKey(win->gl, GLFW_KEY_ENTER)  == GLFW_PRESS);

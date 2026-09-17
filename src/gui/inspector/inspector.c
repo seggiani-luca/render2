@@ -583,8 +583,6 @@ void entityGui(window* win) {
 		// reset
 		eCtx->scr = NULL;
 		ctx->in.dataSet = 0;
-
-		dumpEvents();
 	}
 
 	// push background
@@ -691,7 +689,6 @@ void entityGui(window* win) {
 	downGui(ctx, SCROLL, TXT_HEIGHT + 4 PAD);
 
 	// flush changes
-	dumpEvents();
 	flushGui(ctx);
 }
 

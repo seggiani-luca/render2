@@ -14,10 +14,10 @@
 
 // enum for event classes
 typedef enum {
-	INFO,
-	WARN,
-	ERROR,
-	FATAL
+	INFO,  // nothing wrong happened, just info - basically unused 
+	WARN,  // an error happened but the operation can be recovered
+	ERROR, // an error happened and the operation has to be halted
+	FATAL  // a fatal error happened and the whole program has to shutdown
 } eventClass;
 
 // sets verbosity up to event class
@@ -52,12 +52,6 @@ typedef struct {
 
 // logs an event
 void logEvent(eventClass clas, eventCategory categ, const char* fmt, ...);
-
-// prints an event
-void printEvent(event* ev);
-
-// called by top level handler, dumps the received events in reverse order
-void dumpEvents();
 
 // -- allocation
 
@@ -99,7 +93,6 @@ extern jmp_buf* cpPointer;
 	    if (cpPointer) longjmp(*cpPointer, 1);                    \
 	    else {                                                    \
 	        logEvent(FATAL, EXCEPT, "Unhandled exception throw"); \
-	        dumpEvents();                                         \
 	        exit(1);                                              \
 	    }                                                         \
 	}

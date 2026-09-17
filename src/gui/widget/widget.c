@@ -90,9 +90,7 @@ void dataselGui(window* win) {
 		// import data
 		if((*dCtx->ref)) freeData((*dCtx->ref)->data, tab);
 		*dCtx->ref = importData(path, tab);
-
-		dumpEvents();
-			
+		
 		// update original context
 		orig->in.dataSet = 1;
 
@@ -122,8 +120,6 @@ void dataselGui(window* win) {
 			if((*dCtx->ref)) freeData((*dCtx->ref)->data, tab);
 			*dCtx->ref = importData(path, tab);
 		
-			dumpEvents();
-
 			// update original context
 			orig->in.dataSet = 1;
 
@@ -348,7 +344,7 @@ int relesGui(guiContext* ctx, guiLayerId layId, float4 rect) {
 	|| (hoverGui(ctx, layId, rect) && ctx->in.curPress)) {
 		ctx->in.curReles = ctx->in.curPress = ctx->in.curDown = 0;
 	}
-
+	
 	return reles;
 }
 
@@ -537,7 +533,7 @@ void separatorGui(guiContext* ctx, guiLayerId layId, float4 rect, const char* st
 	// background line
 	quadGui(ctx, layId, (float4){
 		rect.x + txtWidth, rect.y + rect.w / 2,
-		rect.z - txtWidth, BORDER
+		rect.z - txtWidth, BORDER / 2
 	}, FG_DARK);
 
 	// text
@@ -570,7 +566,7 @@ int buttonGui(
 
 	// display icon
 	iconGui(ctx, layId, (float2){
-		rect.x + 1 PAD, rect.y + (press ? 1 PAD : HPAD)
+		rect.x + 1 PAD, rect.y + (press ? 1 PAD + HPAD: 1 PAD)
 	}, ico);
 
 	// display text

@@ -1,0 +1,771 @@
+
+src/gui/render/render.c: In function ‘flushLayer’:
+src/gui/render/render.c:29:30: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+   29 |                 sizeof(quad) * lay->queue.last,
+      |                              ^
+src/gui/render/render.c:54:25: warning: conversion from ‘int’ to ‘GLfloat’ {aka ‘float’} may change value [-Wconversion]
+   54 |                 ctx->win->width,
+      |                 ~~~~~~~~^~~~~~~
+src/gui/render/render.c:55:25: warning: conversion from ‘int’ to ‘GLfloat’ {aka ‘float’} may change value [-Wconversion]
+   55 |                 ctx->win->height
+      |                 ~~~~~~~~^~~~~~~~
+src/gui/render/render.c: In function ‘inputGui’:
+src/gui/render/render.c:359:56: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+  359 |         ctx->in.xCur = USE_WAYLAND ? x : fbToWinW(win, x);
+      |                                                        ^
+src/gui/render/render.c:360:56: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+  360 |         ctx->in.yCur = USE_WAYLAND ? y : fbToWinW(win, y);
+      |                                                        ^
+src/gui/inspector/inspector.c: In function ‘fieldGui’:
+src/gui/inspector/inspector.c:58:39: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   58 |         float bigHeight = HROW + HROW * rows + 2 PAD;
+      |                                       ^
+src/gui/inspector/inspector.c:62:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   62 |                 WIN - 2 PAD, height
+      |                     ^
+src/gui/inspector/inspector.c:77:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   77 |                 WIN - 4 PAD - ICO_SIZ, 2 PAD,
+      |                     ^
+src/gui/inspector/inspector.c:88:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   88 |                 WIN - 4 PAD, HROW - 1 PAD
+      |                     ^
+src/gui/inspector/inspector.c: In function ‘atmosphereGui’:
+src/gui/inspector/inspector.c:345:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  345 |                 WIN - 4 PAD, TXT_HEIGHT
+      |                     ^
+src/gui/inspector/inspector.c:364:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  364 |                 WIN - 4 PAD, TXT_HEIGHT
+      |                     ^
+In file included from src/gui/inspector/inspector.c:2:
+src/gui/inspector/inspector.c: In function ‘addFieldGui’:
+src/gui/inspector/../widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/inspector/inspector.c:452:23: note: in expansion of macro ‘WIN’
+  452 |                 0, 0, WIN, HEIG
+      |                       ^~~
+src/gui/inspector/../widget/widget.h:23:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   23 | #define HEIG (ctx->win->height)
+      |              ^
+src/gui/inspector/inspector.c:452:28: note: in expansion of macro ‘HEIG’
+  452 |                 0, 0, WIN, HEIG
+      |                            ^~~~
+src/gui/inspector/../widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/inspector/inspector.c:460:25: note: in expansion of macro ‘WIN’
+  460 |                         WIN, TXT_HEIGHT + 4 PAD
+      |                         ^~~
+src/gui/inspector/inspector.c:471:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  471 |                         WIN - 2 PAD - NEW_OFF, TXT_HEIGHT + 2 PAD
+      |                             ^
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:55:20: note: in expansion of macro ‘ICO’
+   55 | #define ICO_TRANS  ICO(12, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:483:37: note: in expansion of macro ‘ICO_TRANS’
+  483 |                 { "New Transform",  ICO_TRANS,   transformNew  },
+      |                                     ^~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[0].ico’)
+src/gui/inspector/../widget/widget.h:55:20: note: in expansion of macro ‘ICO’
+   55 | #define ICO_TRANS  ICO(12, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:483:37: note: in expansion of macro ‘ICO_TRANS’
+  483 |                 { "New Transform",  ICO_TRANS,   transformNew  },
+      |                                     ^~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:64:20: note: in expansion of macro ‘ICO’
+   64 | #define ICO_TEX    ICO(4, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:484:37: note: in expansion of macro ‘ICO_TEX’
+  484 |                 { "New Texture",    ICO_TEX,     textureNew    },
+      |                                     ^~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[1].ico’)
+src/gui/inspector/../widget/widget.h:64:20: note: in expansion of macro ‘ICO’
+   64 | #define ICO_TEX    ICO(4, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:484:37: note: in expansion of macro ‘ICO_TEX’
+  484 |                 { "New Texture",    ICO_TEX,     textureNew    },
+      |                                     ^~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:65:20: note: in expansion of macro ‘ICO’
+   65 | #define ICO_MESH   ICO(5, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:486:37: note: in expansion of macro ‘ICO_MESH’
+  486 |                 { "New Mesh",       ICO_MESH,    meshNew       },
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[2].ico’)
+src/gui/inspector/../widget/widget.h:65:20: note: in expansion of macro ‘ICO’
+   65 | #define ICO_MESH   ICO(5, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:486:37: note: in expansion of macro ‘ICO_MESH’
+  486 |                 { "New Mesh",       ICO_MESH,    meshNew       },
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:66:20: note: in expansion of macro ‘ICO’
+   66 | #define ICO_MAT    ICO(6, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:487:37: note: in expansion of macro ‘ICO_MAT’
+  487 |                 { "New Material",   ICO_MAT,     materialNew   },
+      |                                     ^~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[3].ico’)
+src/gui/inspector/../widget/widget.h:66:20: note: in expansion of macro ‘ICO’
+   66 | #define ICO_MAT    ICO(6, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:487:37: note: in expansion of macro ‘ICO_MAT’
+  487 |                 { "New Material",   ICO_MAT,     materialNew   },
+      |                                     ^~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:70:20: note: in expansion of macro ‘ICO’
+   70 | #define ICO_CAMERA ICO(10, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:489:37: note: in expansion of macro ‘ICO_CAMERA’
+  489 |                 { "New Camera",     ICO_CAMERA,  cameraNew     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[4].ico’)
+src/gui/inspector/../widget/widget.h:70:20: note: in expansion of macro ‘ICO’
+   70 | #define ICO_CAMERA ICO(10, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:489:37: note: in expansion of macro ‘ICO_CAMERA’
+  489 |                 { "New Camera",     ICO_CAMERA,  cameraNew     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:71:20: note: in expansion of macro ‘ICO’
+   71 | #define ICO_ATMOS  ICO(11, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:490:37: note: in expansion of macro ‘ICO_ATMOS’
+  490 |                 { "New Atmosphere", ICO_ATMOS,   atmosphereNew },
+      |                                     ^~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[5].ico’)
+src/gui/inspector/../widget/widget.h:71:20: note: in expansion of macro ‘ICO’
+   71 | #define ICO_ATMOS  ICO(11, 5)
+      |                    ^~~
+src/gui/inspector/inspector.c:490:37: note: in expansion of macro ‘ICO_ATMOS’
+  490 |                 { "New Atmosphere", ICO_ATMOS,   atmosphereNew },
+      |                                     ^~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:44:20: note: in expansion of macro ‘ICO’
+   44 | #define ICO_INT    ICO(1, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:492:37: note: in expansion of macro ‘ICO_INT’
+  492 |                 { "New Int",        ICO_INT,     intNew        },
+      |                                     ^~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[6].ico’)
+src/gui/inspector/../widget/widget.h:44:20: note: in expansion of macro ‘ICO’
+   44 | #define ICO_INT    ICO(1, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:492:37: note: in expansion of macro ‘ICO_INT’
+  492 |                 { "New Int",        ICO_INT,     intNew        },
+      |                                     ^~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:45:20: note: in expansion of macro ‘ICO’
+   45 | #define ICO_FLOAT  ICO(2, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:493:37: note: in expansion of macro ‘ICO_FLOAT’
+  493 |                 { "New Float",      ICO_FLOAT,   floatNew      },
+      |                                     ^~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[7].ico’)
+src/gui/inspector/../widget/widget.h:45:20: note: in expansion of macro ‘ICO’
+   45 | #define ICO_FLOAT  ICO(2, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:493:37: note: in expansion of macro ‘ICO_FLOAT’
+  493 |                 { "New Float",      ICO_FLOAT,   floatNew      },
+      |                                     ^~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:46:20: note: in expansion of macro ‘ICO’
+   46 | #define ICO_STRING ICO(3, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:495:37: note: in expansion of macro ‘ICO_STRING’
+  495 |                 { "New String",     ICO_STRING,  stringNew     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[8].ico’)
+src/gui/inspector/../widget/widget.h:46:20: note: in expansion of macro ‘ICO’
+   46 | #define ICO_STRING ICO(3, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:495:37: note: in expansion of macro ‘ICO_STRING’
+  495 |                 { "New String",     ICO_STRING,  stringNew     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:54:20: note: in expansion of macro ‘ICO’
+   54 | #define ICO_QUAT   ICO(11, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:496:37: note: in expansion of macro ‘ICO_QUAT’
+  496 |                 { "New Quaternion", ICO_QUAT,    quatNew       },
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[9].ico’)
+src/gui/inspector/../widget/widget.h:54:20: note: in expansion of macro ‘ICO’
+   54 | #define ICO_QUAT   ICO(11, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:496:37: note: in expansion of macro ‘ICO_QUAT’
+  496 |                 { "New Quaternion", ICO_QUAT,    quatNew       },
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:48:20: note: in expansion of macro ‘ICO’
+   48 | #define ICO_FLOAT2 ICO(5, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:498:37: note: in expansion of macro ‘ICO_FLOAT2’
+  498 |                 { "New 2D Vector",  ICO_FLOAT2,  float2New     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[10].ico’)
+src/gui/inspector/../widget/widget.h:48:20: note: in expansion of macro ‘ICO’
+   48 | #define ICO_FLOAT2 ICO(5, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:498:37: note: in expansion of macro ‘ICO_FLOAT2’
+  498 |                 { "New 2D Vector",  ICO_FLOAT2,  float2New     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:49:20: note: in expansion of macro ‘ICO’
+   49 | #define ICO_FLOAT3 ICO(6, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:499:37: note: in expansion of macro ‘ICO_FLOAT3’
+  499 |                 { "New 3D Vector",  ICO_FLOAT3,  float3New     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[11].ico’)
+src/gui/inspector/../widget/widget.h:49:20: note: in expansion of macro ‘ICO’
+   49 | #define ICO_FLOAT3 ICO(6, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:499:37: note: in expansion of macro ‘ICO_FLOAT3’
+  499 |                 { "New 3D Vector",  ICO_FLOAT3,  float3New     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:50:20: note: in expansion of macro ‘ICO’
+   50 | #define ICO_FLOAT4 ICO(7, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:501:37: note: in expansion of macro ‘ICO_FLOAT4’
+  501 |                 { "New 4D Vector",  ICO_FLOAT4,  float4New     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[12].ico’)
+src/gui/inspector/../widget/widget.h:50:20: note: in expansion of macro ‘ICO’
+   50 | #define ICO_FLOAT4 ICO(7, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:501:37: note: in expansion of macro ‘ICO_FLOAT4’
+  501 |                 { "New 4D Vector",  ICO_FLOAT4,  float4New     },
+      |                                     ^~~~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:51:20: note: in expansion of macro ‘ICO’
+   51 | #define ICO_MAT2   ICO(8, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:502:37: note: in expansion of macro ‘ICO_MAT2’
+  502 |                 { "New 2x2 Matrix", ICO_MAT2,    mat2New       },
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[13].ico’)
+src/gui/inspector/../widget/widget.h:51:20: note: in expansion of macro ‘ICO’
+   51 | #define ICO_MAT2   ICO(8, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:502:37: note: in expansion of macro ‘ICO_MAT2’
+  502 |                 { "New 2x2 Matrix", ICO_MAT2,    mat2New       },
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:52:20: note: in expansion of macro ‘ICO’
+   52 | #define ICO_MAT3   ICO(9, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:504:37: note: in expansion of macro ‘ICO_MAT3’
+  504 |                 { "New 3x3 Matrix", ICO_MAT3,    mat3New       },
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[14].ico’)
+src/gui/inspector/../widget/widget.h:52:20: note: in expansion of macro ‘ICO’
+   52 | #define ICO_MAT3   ICO(9, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:504:37: note: in expansion of macro ‘ICO_MAT3’
+  504 |                 { "New 3x3 Matrix", ICO_MAT3,    mat3New       },
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/inspector/../widget/widget.h:53:20: note: in expansion of macro ‘ICO’
+   53 | #define ICO_MAT4   ICO(10, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:505:37: note: in expansion of macro ‘ICO_MAT4’
+  505 |                 { "New 4x4 Matrix", ICO_MAT4,    mat4New       }
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:41:20: note: (near initialization for ‘fieldButtons[15].ico’)
+src/gui/inspector/../widget/widget.h:53:20: note: in expansion of macro ‘ICO’
+   53 | #define ICO_MAT4   ICO(10, 4)
+      |                    ^~~
+src/gui/inspector/inspector.c:505:37: note: in expansion of macro ‘ICO_MAT4’
+  505 |                 { "New 4x4 Matrix", ICO_MAT4,    mat4New       }
+      |                                     ^~~~~~~~
+src/gui/inspector/../widget/widget.h:22:31: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   22 | #define HWIN (ctx->win->width / 2.0f)
+      |                               ^
+src/gui/inspector/inspector.c:515:34: note: in expansion of macro ‘HWIN’
+  515 |                         1 PAD + (HWIN - HPAD) * side, 1 PAD,
+      |                                  ^~~~
+src/gui/inspector/inspector.c:515:47: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  515 |                         1 PAD + (HWIN - HPAD) * side, 1 PAD,
+      |                                               ^
+src/gui/inspector/../widget/widget.h:22:31: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   22 | #define HWIN (ctx->win->width / 2.0f)
+      |                               ^
+src/gui/inspector/inspector.c:516:25: note: in expansion of macro ‘HWIN’
+  516 |                         HWIN - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
+      |                         ^~~~
+src/gui/inspector/inspector.c: In function ‘entityGui’:
+src/gui/inspector/../widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/inspector/inspector.c:593:17: note: in expansion of macro ‘WIN’
+  593 |                 WIN, HEIG
+      |                 ^~~
+src/gui/inspector/../widget/widget.h:23:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   23 | #define HEIG (ctx->win->height)
+      |              ^
+src/gui/inspector/inspector.c:593:22: note: in expansion of macro ‘HEIG’
+  593 |                 WIN, HEIG
+      |                      ^~~~
+src/gui/inspector/../widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/inspector/inspector.c:601:25: note: in expansion of macro ‘WIN’
+  601 |                         WIN, TXT_HEIGHT + 4 PAD
+      |                         ^~~
+src/gui/inspector/inspector.c:612:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  612 |                         WIN - 7 PAD - 2 * ICO_SIZ, TXT_HEIGHT + 2 PAD
+      |                             ^
+src/gui/inspector/inspector.c:617:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  617 |                         WIN - 3 PAD - ICO_SIZ, 1 PAD,
+      |                             ^
+src/gui/inspector/inspector.c:660:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  660 |                 WIN / 2.0f - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
+      |                     ^
+src/gui/inspector/inspector.c:675:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  675 |                 WIN / 2.0f + HPAD, 1 PAD,
+      |                     ^
+src/gui/inspector/inspector.c:676:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  676 |                 WIN / 2.0f - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
+      |                     ^
+In file included from src/gui/widget/widget.c:1:
+src/gui/widget/widget.c: In function ‘dataselGui’:
+src/gui/widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/widget/widget.c:65:17: note: in expansion of macro ‘WIN’
+   65 |                 WIN, HEIG
+      |                 ^~~
+src/gui/widget/widget.h:23:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   23 | #define HEIG (ctx->win->height)
+      |              ^
+src/gui/widget/widget.c:65:22: note: in expansion of macro ‘HEIG’
+   65 |                 WIN, HEIG
+      |                      ^~~~
+src/gui/widget/widget.c:70:25: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   70 |                 0, HEIG - TXT_HEIGHT - 4 PAD,
+      |                         ^
+src/gui/widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/widget/widget.c:71:17: note: in expansion of macro ‘WIN’
+   71 |                 WIN, TXT_HEIGHT + 4 PAD
+      |                 ^~~
+src/gui/widget/widget.c:76:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   76 |                 1 PAD, HEIG - TXT_HEIGHT - 2 PAD
+      |                             ^
+src/gui/widget/widget.c:81:40: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   81 |                 1 PAD + PATH_OFF, HEIG - TXT_HEIGHT - 3 PAD,
+      |                                        ^
+src/gui/widget/widget.c:87:34: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   87 |                 IMPORT_OFF, HEIG - TXT_HEIGHT - 3 PAD,
+      |                                  ^
+src/gui/widget/widget.c:88:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   88 |                 WIN - IMPORT_OFF - 1 PAD, TXT_HEIGHT + 2 PAD
+      |                     ^
+src/gui/widget/widget.c:115:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  115 |                         WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+      |                             ^
+src/gui/widget/widget.c:118:30: warning: declaration of ‘path’ shadows a previous local [-Wshadow]
+  118 |                         char path[DAT_PATH_SIZ];
+      |                              ^~~~
+src/gui/widget/widget.c:56:15: note: shadowed declaration is here
+   56 |         char* path = dCtx->path;
+      |               ^~~~
+src/gui/widget/widget.c: In function ‘pathselGui’:
+src/gui/widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/widget/widget.c:162:17: note: in expansion of macro ‘WIN’
+  162 |                 WIN, HEIG
+      |                 ^~~
+src/gui/widget/widget.h:23:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   23 | #define HEIG (ctx->win->height)
+      |              ^
+src/gui/widget/widget.c:162:22: note: in expansion of macro ‘HEIG’
+  162 |                 WIN, HEIG
+      |                      ^~~~
+src/gui/widget/widget.c:175:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  175 |                 WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+      |                     ^
+src/gui/widget/widget.c:219:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  219 |                         WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+      |                             ^
+src/gui/widget/widget.c: In function ‘scrollGui’:
+src/gui/widget/widget.c:425:19: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  425 |                   + HEIG
+      |                   ^
+src/gui/widget/widget.c: In function ‘trimGui’:
+src/gui/widget/widget.c:485:66: warning: conversion from ‘float’ to ‘int’ may change value [-Wfloat-conversion]
+  485 |                 resizeWindow(win, win->width, ctx->layers[SCROLL].vPos);
+      |                                               ~~~~~~~~~~~~~~~~~~~^~~~~
+src/gui/widget/widget.c: In function ‘textGui’:
+src/gui/widget/widget.c:519:53: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  519 |                         UV((float)tX / 2 + 0.5f, tY + 1.0f)
+      |                                                     ^
+src/gui/widget/widget.h:27:53: note: in definition of macro ‘UV’
+   27 | #define UV(x, y) ((float)(x) * AU), (1.0f - (float)(y) * AU)
+      |                                                     ^
+src/gui/widget/widget.c:524:31: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  524 |                         pos.x + w, ctx->layers[layId].vPos + pos.y,
+      |                               ^
+src/gui/widget/widget.c:530:19: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  530 |                 w += TXT_WIDTH;
+      |                   ^~
+src/gui/widget/widget.h:37:20: warning: conversion from ‘float’ to ‘int’ may change value [-Wfloat-conversion]
+   37 | #define TXT_WIDTH  (0.5f * AU * ATLAS_SIZ)
+      |                    ^
+src/gui/widget/widget.c:530:22: note: in expansion of macro ‘TXT_WIDTH’
+  530 |                 w += TXT_WIDTH;
+      |                      ^~~~~~~~~
+src/gui/widget/widget.c: In function ‘separatorGui’:
+src/gui/widget/widget.c:535:36: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘float’ may change value [-Wconversion]
+  535 |         float txtWidth = TXT_WIDTH * (strlen(str) + 1);
+      |                                    ^
+src/gui/widget/widget.c: In function ‘editorGui’:
+src/gui/widget/widget.c:629:27: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+  629 |                 int len = strlen(disp);
+      |                           ^~~~~~
+src/gui/widget/widget.c: In function ‘floatGui’:
+src/gui/widget/widget.c:664:32: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+  664 |                 *(float*)val = atof(in);
+      |                                ^~~~
+src/gui/widget/widget.c: In function ‘vectorGui’:
+src/gui/widget/widget.h:14:17: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   14 | #define PAD     * 4.0f
+      |                 ^
+src/gui/widget/widget.c:696:44: note: in expansion of macro ‘PAD’
+  696 |         float span = (rect.z - (n - 1) * 1 PAD) / n;
+      |                                            ^~~
+src/gui/widget/widget.c:696:49: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  696 |         float span = (rect.z - (n - 1) * 1 PAD) / n;
+      |                                                 ^
+src/gui/widget/widget.c:702:55: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  702 |                 if(floatGui(ctx, layId, rect, val + i * sizeof(float))) ret = 1;
+      |                                                       ^
+src/gui/widget/widget.c:702:51: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+  702 |                 if(floatGui(ctx, layId, rect, val + i * sizeof(float))) ret = 1;
+      |                                                   ^
+src/gui/widget/widget.c: In function ‘matrixRowGui’:
+src/gui/widget/widget.h:14:17: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   14 | #define PAD     * 4.0f
+      |                 ^
+src/gui/widget/widget.c:733:44: note: in expansion of macro ‘PAD’
+  733 |         float span = (rect.z - (n - 1) * 1 PAD) / n;
+      |                                            ^~~
+src/gui/widget/widget.c:733:49: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  733 |         float span = (rect.z - (n - 1) * 1 PAD) / n;
+      |                                                 ^
+src/gui/widget/widget.c:739:59: warning: conversion to ‘long unsigned int’ from ‘int’ may change the sign of the result [-Wsign-conversion]
+  739 |                 if(floatGui(ctx, layId, rect, val + n * i * sizeof(float))) ret = 1;
+      |                                                           ^
+src/gui/widget/widget.c:739:51: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+  739 |                 if(floatGui(ctx, layId, rect, val + n * i * sizeof(float))) ret = 1;
+      |                                                   ^
+In file included from src/gui/hierarchy/hierarchy.c:3:
+src/gui/hierarchy/hierarchy.c: In function ‘addChildGui’:
+src/gui/hierarchy/../widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/hierarchy/hierarchy.c:89:17: note: in expansion of macro ‘WIN’
+   89 |                 WIN, HEIG
+      |                 ^~~
+src/gui/hierarchy/../widget/widget.h:23:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   23 | #define HEIG (ctx->win->height)
+      |              ^
+src/gui/hierarchy/hierarchy.c:89:22: note: in expansion of macro ‘HEIG’
+   89 |                 WIN, HEIG
+      |                      ^~~~
+src/gui/hierarchy/../widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/hierarchy/hierarchy.c:97:25: note: in expansion of macro ‘WIN’
+   97 |                         WIN, TXT_HEIGHT + 4 PAD
+      |                         ^~~
+src/gui/hierarchy/hierarchy.c:108:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  108 |                         WIN - 5 PAD - ICO_SIZ - CHILD_OFF, TXT_HEIGHT + 2 PAD
+      |                             ^
+src/gui/hierarchy/hierarchy.c:112:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  112 |                         WIN - 7 PAD, 1 PAD,
+      |                             ^
+src/gui/hierarchy/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/hierarchy/../widget/widget.h:43:20: note: in expansion of macro ‘ICO’
+   43 | #define ICO_ENTITY ICO(0, 4)
+      |                    ^~~
+src/gui/hierarchy/hierarchy.c:136:33: note: in expansion of macro ‘ICO_ENTITY’
+  136 |                 { "New Child",  ICO_ENTITY, newRenderableEntity },
+      |                                 ^~~~~~~~~~
+src/gui/hierarchy/../widget/widget.h:41:20: note: (near initialization for ‘childButtons[0].ico’)
+src/gui/hierarchy/../widget/widget.h:43:20: note: in expansion of macro ‘ICO’
+   43 | #define ICO_ENTITY ICO(0, 4)
+      |                    ^~~
+src/gui/hierarchy/hierarchy.c:136:33: note: in expansion of macro ‘ICO_ENTITY’
+  136 |                 { "New Child",  ICO_ENTITY, newRenderableEntity },
+      |                                 ^~~~~~~~~~
+src/gui/hierarchy/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/hierarchy/../widget/widget.h:71:20: note: in expansion of macro ‘ICO’
+   71 | #define ICO_ATMOS  ICO(11, 5)
+      |                    ^~~
+src/gui/hierarchy/hierarchy.c:137:33: note: in expansion of macro ‘ICO_ATMOS’
+  137 |                 { "New Sun",    ICO_ATMOS,  newSunEntity        },
+      |                                 ^~~~~~~~~
+src/gui/hierarchy/../widget/widget.h:41:20: note: (near initialization for ‘childButtons[1].ico’)
+src/gui/hierarchy/../widget/widget.h:71:20: note: in expansion of macro ‘ICO’
+   71 | #define ICO_ATMOS  ICO(11, 5)
+      |                    ^~~
+src/gui/hierarchy/hierarchy.c:137:33: note: in expansion of macro ‘ICO_ATMOS’
+  137 |                 { "New Sun",    ICO_ATMOS,  newSunEntity        },
+      |                                 ^~~~~~~~~
+src/gui/hierarchy/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/hierarchy/../widget/widget.h:70:20: note: in expansion of macro ‘ICO’
+   70 | #define ICO_CAMERA ICO(10, 5)
+      |                    ^~~
+src/gui/hierarchy/hierarchy.c:138:33: note: in expansion of macro ‘ICO_CAMERA’
+  138 |                 { "New Camera", ICO_CAMERA, newCameraEntity     },
+      |                                 ^~~~~~~~~~
+src/gui/hierarchy/../widget/widget.h:41:20: note: (near initialization for ‘childButtons[2].ico’)
+src/gui/hierarchy/../widget/widget.h:70:20: note: in expansion of macro ‘ICO’
+   70 | #define ICO_CAMERA ICO(10, 5)
+      |                    ^~~
+src/gui/hierarchy/hierarchy.c:138:33: note: in expansion of macro ‘ICO_CAMERA’
+  138 |                 { "New Camera", ICO_CAMERA, newCameraEntity     },
+      |                                 ^~~~~~~~~~
+src/gui/hierarchy/../widget/widget.h:41:20: warning: initializer element is not constant [-Wpedantic]
+   41 | #define ICO(x, y)  (float4) { UV(x, y), UV(x + 1,  y + 1) }
+      |                    ^
+src/gui/hierarchy/../widget/widget.h:73:20: note: in expansion of macro ‘ICO’
+   73 | #define ICO_EMPTY  ICO(13, 5)
+      |                    ^~~
+src/gui/hierarchy/hierarchy.c:139:33: note: in expansion of macro ‘ICO_EMPTY’
+  139 |                 { "New Empty",  ICO_EMPTY,  newEntity           }
+      |                                 ^~~~~~~~~
+src/gui/hierarchy/../widget/widget.h:41:20: note: (near initialization for ‘childButtons[3].ico’)
+src/gui/hierarchy/../widget/widget.h:73:20: note: in expansion of macro ‘ICO’
+   73 | #define ICO_EMPTY  ICO(13, 5)
+      |                    ^~~
+src/gui/hierarchy/hierarchy.c:139:33: note: in expansion of macro ‘ICO_EMPTY’
+  139 |                 { "New Empty",  ICO_EMPTY,  newEntity           }
+      |                                 ^~~~~~~~~
+src/gui/hierarchy/hierarchy.c:149:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  149 |                         WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+      |                             ^
+src/gui/hierarchy/hierarchy.c: In function ‘entityHierGui’:
+src/gui/hierarchy/hierarchy.c:199:45: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  199 |                         1 PAD + (depth - 1) * (ICO_SIZ + 1 PAD), 1 PAD
+      |                                             ^
+src/gui/hierarchy/hierarchy.c:205:31: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  205 |                 1 PAD + depth * (ICO_SIZ + 1 PAD), 1 PAD,
+      |                               ^
+src/gui/hierarchy/hierarchy.c:213:21: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  213 |                 WIN - 3 PAD - ICO_SIZ, 1 PAD,
+      |                     ^
+src/gui/hierarchy/hierarchy.c:222:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  222 |                         WIN - 6 PAD - 2 * ICO_SIZ, 1 PAD,
+      |                             ^
+src/gui/hierarchy/hierarchy.c:230:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  230 |                         WIN - 9 PAD - 3 * ICO_SIZ, 1 PAD,
+      |                             ^
+src/gui/hierarchy/hierarchy.c: In function ‘sceneGui’:
+src/gui/hierarchy/../widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/hierarchy/hierarchy.c:266:17: note: in expansion of macro ‘WIN’
+  266 |                 WIN, HEIG
+      |                 ^~~
+src/gui/hierarchy/../widget/widget.h:23:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   23 | #define HEIG (ctx->win->height)
+      |              ^
+src/gui/hierarchy/hierarchy.c:266:22: note: in expansion of macro ‘HEIG’
+  266 |                 WIN, HEIG
+      |                      ^~~~
+src/gui/hierarchy/../widget/widget.h:21:14: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+   21 | #define WIN  (ctx->win->width)
+      |              ^
+src/gui/hierarchy/hierarchy.c:274:25: note: in expansion of macro ‘WIN’
+  274 |                         WIN, TXT_HEIGHT + 4 PAD
+      |                         ^~~
+src/gui/hierarchy/hierarchy.c:285:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  285 |                         WIN - 10 PAD - 3 * ICO_SIZ, TXT_HEIGHT + 2 PAD
+      |                             ^
+src/gui/hierarchy/hierarchy.c:290:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  290 |                         WIN - 10 PAD - ICO_SIZ, 1 PAD,
+      |                             ^
+src/gui/hierarchy/hierarchy.c:307:29: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  307 |                         WIN - 3 PAD - ICO_SIZ, 1 PAD,
+      |                             ^
+src/window/window.c: In function ‘resizeWindow’:
+src/window/window.c:295:42: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  295 |         glfwSetWindowSize(win->gl, width * sx, height * sy);
+      |                                          ^
+src/window/window.c:295:55: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  295 |         glfwSetWindowSize(win->gl, width * sx, height * sy);
+      |                                                       ^
+src/window/window.c:295:42: warning: conversion from ‘float’ to ‘int’ may change value [-Wfloat-conversion]
+  295 |         glfwSetWindowSize(win->gl, width * sx, height * sy);
+      |                                    ~~~~~~^~~~
+src/window/window.c:295:55: warning: conversion from ‘float’ to ‘int’ may change value [-Wfloat-conversion]
+  295 |         glfwSetWindowSize(win->gl, width * sx, height * sy);
+      |                                                ~~~~~~~^~~~
+src/window/window.c: In function ‘winToFbW’:
+src/window/window.c:306:45: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  306 |         return from * ((float)win->fbWidth  / win->width);
+      |                                             ^
+src/window/window.c: In function ‘winToFbH’:
+src/window/window.c:310:46: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  310 |         return from * ((float)win->fbHeight  / win->height);
+      |                                              ^
+src/window/window.c: In function ‘fbToWinW’:
+src/window/window.c:314:45: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  314 |         return from / ((float)win->fbWidth  / win->width);
+      |                                             ^
+src/window/window.c: In function ‘fbToWinH’:
+src/window/window.c:318:46: warning: conversion from ‘int’ to ‘float’ may change value [-Wconversion]
+  318 |         return from / ((float)win->fbHeight  / win->height);
+      |                                              ^
+src/parse/parse.c: In function ‘slurpBuffer’:
+src/parse/parse.c:22:34: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘long int’ may change the sign of the result [-Wsign-conversion]
+   22 |         char *buf = xmalloc(size + 1);
+      |                             ~~~~~^~~
+src/parse/parse.c:25:23: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘long int’ may change the sign of the result [-Wsign-conversion]
+   25 |         fread(buf, 1, size, f);
+      |                       ^~~~
+src/parse/parse.c: In function ‘expect’:
+src/parse/parse.c:127:19: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+  127 |         int len = strlen(key);
+      |                   ^~~~~~
+src/parse/parse.c:128:31: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  128 |         if(strncmp(*buf, key, len)) {
+      |                               ^~~
+src/parse/parse.c: In function ‘consume’:
+src/parse/parse.c:137:19: warning: conversion from ‘size_t’ {aka ‘long unsigned int’} to ‘int’ may change value [-Wconversion]
+  137 |         int len = strlen(key);
+      |                   ^~~~~~
+src/parse/parse.c:138:31: warning: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int’ may change the sign of the result [-Wsign-conversion]
+  138 |         if(strncmp(*buf, key, len)) return 0;
+      |                               ^~~
+In file included from src/math/math.c:1:
+src/math/math.c: In function ‘matPersp’:
+src/math/math.h:9:17: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+    9 | #define DEG2RAD (M_PI / 180.0f)
+      |                 ^
+src/math/math.c:241:16: note: in expansion of macro ‘DEG2RAD’
+  241 |         fov *= DEG2RAD;
+      |                ^~~~~~~
+src/math/math.c: In function ‘quatToEuler’:
+src/math/math.c:386:55: warning: conversion from ‘double’ to ‘float’ changes value from ‘1.5707963267948966e+0’ to ‘1.57079637e+0f’ [-Wfloat-conversion]
+  386 |         if (fabsf(siny) >= 1.0f) e.y = copysignf(M_PI / 2.0f, siny); // gimbal lock
+      |                                                       ^
+src/math/math.h:8:17: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+    8 | #define RAD2DEG (180.0f / M_PI)
+      |                 ^
+src/math/math.c:395:16: note: in expansion of macro ‘RAD2DEG’
+  395 |         e.x *= RAD2DEG;
+      |                ^~~~~~~
+src/math/math.h:8:17: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+    8 | #define RAD2DEG (180.0f / M_PI)
+      |                 ^
+src/math/math.c:396:16: note: in expansion of macro ‘RAD2DEG’
+  396 |         e.y *= RAD2DEG;
+      |                ^~~~~~~
+src/math/math.h:8:17: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+    8 | #define RAD2DEG (180.0f / M_PI)
+      |                 ^
+src/math/math.c:397:16: note: in expansion of macro ‘RAD2DEG’
+  397 |         e.z *= RAD2DEG;
+      |                ^~~~~~~
+src/math/math.c: In function ‘eulerToQuat’:
+src/math/math.h:9:17: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+    9 | #define DEG2RAD (M_PI / 180.0f)
+      |                 ^
+src/math/math.c:404:16: note: in expansion of macro ‘DEG2RAD’
+  404 |         e.x *= DEG2RAD;
+      |                ^~~~~~~
+src/math/math.h:9:17: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+    9 | #define DEG2RAD (M_PI / 180.0f)
+      |                 ^
+src/math/math.c:405:16: note: in expansion of macro ‘DEG2RAD’
+  405 |         e.y *= DEG2RAD;
+      |                ^~~~~~~
+src/math/math.h:9:17: warning: conversion from ‘double’ to ‘float’ may change value [-Wfloat-conversion]
+    9 | #define DEG2RAD (M_PI / 180.0f)
+      |                 ^
+src/math/math.c:406:16: note: in expansion of macro ‘DEG2RAD’
+  406 |         e.z *= DEG2RAD;
+      |                ^~~~~~~
+src/scene/entity/entity.c: In function ‘cameraNew’:
+src/scene/entity/entity.c:295:28: warning: conversion from ‘double’ to ‘float’ changes value from ‘2.0e-2’ to ‘1.99999996e-2f’ [-Wfloat-conversion]
+  295 |         f->val.nearPlane = 0.02;
+      |                            ^~~~
+src/scene/entity/entity.c: At top level:
+src/scene/entity/entity.c:360:21: warning: ISO C does not allow extra ‘;’ outside of a function [-Wpedantic]
+  360 | VTABLE_FREE(texture);
+      |                     ^
+src/scene/entity/entity.c:393:18: warning: ISO C does not allow extra ‘;’ outside of a function [-Wpedantic]
+  393 | VTABLE_FREE(mesh);
+      |                  ^
+src/scene/entity/entity.c:426:22: warning: ISO C does not allow extra ‘;’ outside of a function [-Wpedantic]
+  426 | VTABLE_FREE(material);
+      |                      ^
+src/scene/entity/entity.c:459:20: warning: ISO C does not allow extra ‘;’ outside of a function [-Wpedantic]
+  459 | VTABLE_FREE(script);
+      |                    ^
+src/scene/scene.c: In function ‘initDefaultScene’:
+src/scene/scene.c:48:20: warning: declaration of ‘mesh’ shadows a global declaration [-Wshadow]
+   48 |         meshField* mesh = (meshField*)getField(ent, REN_MESH_NAME);
+      |                    ^~~~
+In file included from src/scene/entity/../../render/render.h:6,
+                 from src/scene/entity/entity.h:6,
+                 from src/scene/scene.h:4,
+                 from src/scene/scene.c:1:
+src/scene/entity/../../render/../data/mesh/mesh.h:29:3: note: shadowed declaration is here
+   29 | } mesh;
+      |   ^~~~
+src/scene/scene.c:57:24: warning: declaration of ‘material’ shadows a global declaration [-Wshadow]
+   57 |         materialField* material = (materialField*)getField(ent, REN_MATERIAL_NAME);
+      |                        ^~~~~~~~
+In file included from src/scene/entity/../../render/render.h:7:
+src/scene/entity/../../render/../data/material/material.h:37:3: note: shadowed declaration is here
+   37 | } material;
+      |   ^~~~~~~~

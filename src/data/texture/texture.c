@@ -8,26 +8,19 @@ extern int textureDecode(texture* texture, FILE* file);
 
 // -- textures
 
-void textureFilter(texture* tex, int linear) {
-	glBindTexture(GL_TEXTURE_2D, tex->tex);
+void textureFilter(texture* tex, int mip) {
+    glBindTexture(GL_TEXTURE_2D, tex->tex);
 
 	// set the texture filtering options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glTexParameteri(
-		GL_TEXTURE_2D,
-		GL_TEXTURE_MIN_FILTER,
-		linear ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_NEAREST
-	);
-
-	glTexParameteri(
-		GL_TEXTURE_2D,
-		GL_TEXTURE_MAG_FILTER,
-		linear ? GL_LINEAR : GL_NEAREST
-	);
-
-	GL_ERR("texture filter");
+    glTexParameteri(
+        GL_TEXTURE_2D,
+        GL_TEXTURE_MIN_FILTER,
+        mip ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR
+    );
+    GL_ERR("texture filter");
 }
 
 void textureColor(texture* tex, int srgb) {
@@ -57,16 +50,16 @@ void texturePrint(void* dat) {
 }
 
 // generates an OpenGL texture for a texture
-void generateGLTextures(texture* texture) {
+void generateGLTextures(texture* tex) {
 	// generate and bind texture
 	glGenTextures(
 		1,
-		&texture->tex
+		&tex->tex
 	);
 	GL_ERR("texture generation");
 	glBindTexture(
 		GL_TEXTURE_2D,
-		texture->tex
+		tex->tex
 	);
 	GL_ERR("texture generation binding");
 
@@ -89,7 +82,7 @@ void generateGLTextures(texture* texture) {
 	glTexParameteri(
 		GL_TEXTURE_2D,
 		GL_TEXTURE_MAG_FILTER,
-		GL_LINEAR	
+		GL_LINEAR
 	);
 	GL_ERR("texture parameters")
 
@@ -98,12 +91,12 @@ void generateGLTextures(texture* texture) {
 		GL_TEXTURE_2D,
 		0,
 		GL_RGBA,
-		texture->width,
-		texture->height,
+		tex->width,
+		tex->height,
 		0,
 		GL_RGBA,
 		GL_UNSIGNED_BYTE,
-		texture->data
+		tex->data
 	);
 	GL_ERR("texture assignment");
 
@@ -113,10 +106,10 @@ void generateGLTextures(texture* texture) {
 }
 
 // destroys the OpenGL texture for this texture
-void destroyGLTextures(texture* texture) {
+void destroyGLTextures(texture* tex) {
 	glDeleteTextures(
 		1,
-		&texture->tex
+		&tex->tex
 	);
 }
 

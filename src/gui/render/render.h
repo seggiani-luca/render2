@@ -91,7 +91,7 @@ struct guiContext {
 		int curReles;
 
 		// previous mouse state
-		int prevCur;
+		int prevDown;
 
 		// enter key state
 		int enter;
@@ -117,10 +117,10 @@ struct guiContext {
 		// absolute scrolling position
 		float absScroll;
 
-		// data pointer
+		// editable data pointer
 		void* dataPtr;
 
-		// data set state
+		// was editable data modified? 
 		int dataSet;
 	} in;
 

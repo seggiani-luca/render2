@@ -71,9 +71,16 @@ dataRef* importData(const char* path, dataTable* table) {
 	newRef->next = NULL;
 	*cur = newRef;
 
-	// copy data, setup reference
-	strncpy(newRef->path, path, DAT_PATH_SIZ);
-	newRef->path[DAT_PATH_SIZ - 1] = '\0';
+	// copy path
+	size_t len = strlen(path);
+	if(len >= DAT_PATH_SIZ) { 
+		logEvent(ERROR, IO, "Path \"%s\" too long", path);
+		free(newRef);
+		return NULL;
+	}
+	memcpy(newRef->path, path, len + 1);
+	
+	// setup reference
 	newRef->refCount = 1;
 	newRef->data = data;
 

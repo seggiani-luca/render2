@@ -367,7 +367,6 @@ scriptContext* getScriptContext(char** buf) {
 
 	// execute script from top level
 	evaluateScript(scr);
-	dumpEvents();
 
 	return scr;
 }

@@ -10,15 +10,15 @@
 #define MAX_NGON_VERTS 16
 
 // imports a mesh in .obj format
-int meshDecode(mesh* mesh, FILE* file) {
+int meshDecode(mesh* msh, FILE* file) {
 	char line[MESH_LINE_SIZ];
 
 	// count unique attributes 
 	int maxVert = 0, maxUv = 0, maxNorm = 0;
 	while (fgets(line, MESH_LINE_SIZ, file)) {
-		if      (checkKey(line, "v "))  maxVert++;
-		else if (checkKey(line, "vt ")) maxUv++;
-		else if (checkKey(line, "vn ")) maxNorm++;
+		if      (checkKey(line, "v") ) maxVert++;
+		else if (checkKey(line, "vt")) maxUv++;
+		else if (checkKey(line, "vn")) maxNorm++;
 	}
 
 	// reset file cursor
@@ -26,8 +26,8 @@ int meshDecode(mesh* mesh, FILE* file) {
 
 	// allocate temporary buffers
 	float* tempVert = maxVert ? xmalloc(sizeof(float) * maxVert * 3) : NULL;
-    float* tempUv   = maxUv   ? xmalloc(sizeof(float) * maxUv   * 2) : NULL;
-    float* tempNorm = maxNorm ? xmalloc(sizeof(float) * maxNorm * 3) : NULL;
+	float* tempUv   = maxUv   ? xmalloc(sizeof(float) * maxUv   * 2) : NULL;
+	float* tempNorm = maxNorm ? xmalloc(sizeof(float) * maxNorm * 3) : NULL;
 
 	int nVert = 0;
 	int nUv = 0;
@@ -35,30 +35,22 @@ int meshDecode(mesh* mesh, FILE* file) {
 
 	// fetch all unique attributes 
 	while (fgets(line, MESH_LINE_SIZ, file)) {
-		if (tempUv)   parseFloatBufKey(line, "vt ", 2, &nUv,   tempUv  );
-		if (tempNorm) parseFloatBufKey(line, "vn ", 3, &nNorm, tempNorm);
-		if (tempVert) parseFloatBufKey(line, "v ",  3, &nVert, tempVert);
+		if (tempUv)   parseFloatBufKey(line, "vt", 2, &nUv,   tempUv  );
+		if (tempNorm) parseFloatBufKey(line, "vn", 3, &nNorm, tempNorm);
+		if (tempVert) parseFloatBufKey(line, "v",  3, &nVert, tempVert);
 	}
 
 	// allocate dynamic buffer for output vertices
 	size_t capacity = 1024;
-	mesh->vertCount = 0;
-	mesh->verts = xmalloc(sizeof(vertex) * capacity);
-
-	if (!mesh->verts) {
-		// free temporary buffers
-		free(tempVert);
-		free(tempUv);
-		free(tempNorm);
-		return 0;
-	}
+	msh->vertCount = 0;
+	msh->verts = xmalloc(sizeof(vertex) * capacity);
 
 	// reset file cursor
 	fseek(file, 0, SEEK_SET);
 
 	// fetch all faces (tris or n-gons) 
 	while (fgets(line, MESH_LINE_SIZ, file)) {
-		char* face = checkKey(line, "f ");
+		char* face = checkKey(line, "f");
 		if (!face) continue;
 
 		// support n-gons 
@@ -104,10 +96,11 @@ int meshDecode(mesh* mesh, FILE* file) {
 		// fan triangulate if n-gon 
 		for (int i = 1; i < polyVerts - 1; i++) {
 			// grow vertex buffer 
-			if (mesh->vertCount + 3 > capacity) {
+			if (msh->vertCount + 3 > capacity) {
 				capacity *= 2;
-				vertex* newVerts = xrealloc(mesh->verts, sizeof(vertex) * capacity);
-				mesh->verts = newVerts;
+				vertex* newVerts = xrealloc(msh->verts,
+					sizeof(vertex) * capacity);
+				msh->verts = newVerts;
 			}
 
 			// map triangulated indices
@@ -122,11 +115,22 @@ int meshDecode(mesh* mesh, FILE* file) {
 				int hasNorm = n_idx[idx];
 				
 				// index attributes relative to size 
-				vi = (v_idx[idx] > 0 ? v_idx[idx] - 1 : (nVert / 3) + v_idx[idx]) * 3;
+				vi = (v_idx[idx] > 0
+					? v_idx[idx] - 1
+					: (nVert / 3) + v_idx[idx])
+					* 3;
+
 				if(hasUv) 
-					ti = (t_idx[idx] > 0 ? t_idx[idx] - 1 : (nUv / 2)   + t_idx[idx]) * 2;
+					ti = (t_idx[idx] > 0
+						? t_idx[idx] - 1
+						: (nUv / 2)   + t_idx[idx])
+						* 2;
+
 				if(hasNorm) 
-					ni = (n_idx[idx] > 0 ? n_idx[idx] - 1 : (nNorm / 3) + n_idx[idx]) * 3;
+					ni = (n_idx[idx] > 0
+						? n_idx[idx] - 1
+						: (nNorm / 3) + n_idx[idx])
+						* 3;
 
 				// initialize vertex
 				vertex vert = {0};
@@ -158,18 +162,17 @@ int meshDecode(mesh* mesh, FILE* file) {
 				}
 
 				// write vertex to mesh
-				mesh->verts[mesh->vertCount++] = vert;
+				msh->verts[msh->vertCount++] = vert;
 			}
 		}
 	}
 
 	// resize to free heap space
-	if (mesh->vertCount > 0) {
-		vertex* exactVerts = xrealloc(mesh->verts, sizeof(vertex) * mesh->vertCount);
-		if (exactVerts) mesh->verts = exactVerts;
+	if (msh->vertCount > 0) {
+		msh->verts = xrealloc(msh->verts, sizeof(vertex) * msh->vertCount);
 	} else {
-		free(mesh->verts);
-		mesh->verts = NULL;
+		free(msh->verts);
+		msh->verts = NULL;
 	}
 
 	// free temporary buffers

@@ -1,6 +1,6 @@
 #  <img src="dat/icon/default.png" width="24" height="24" /> render2
 
-Un motore di rendering sperimentale scritto da zero in C99 + GLFW3.
+Un motore di rendering sperimentale scritto da zero in C, GLAD e GLFW3.
 
 ## Funzionalità
 Pipeline di rendering 3D accelerata via OpenGL:

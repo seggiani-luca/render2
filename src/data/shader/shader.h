@@ -1,6 +1,11 @@
 #ifndef DATA_SHADER_H
 #define DATA_SHADER_H
 
+// ignore C99 designators warning
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wc99-designator"
+#endif
+
 #include "../../../lib/glad/glad.h"
 #include "../data.h"
 #include "../../exception/exception.h"
@@ -25,9 +30,9 @@
 	            NULL,                                                             \
 	            infoLog                                                           \
 	        );                                                                    \
-			infoLog[strlen(infoLog) - 1] = '\0';                                  \
+	        infoLog[strlen(infoLog) - 1] = '\0';                                  \
 	        logEvent(ERROR, GLSL, "%s compilation failed: %s", #shader, infoLog); \
-			return 0;                                                             \
+	        return 0;                                                             \
 	    }                                                                         \
 
 // macro for OpenGL shader linking errors
@@ -45,9 +50,9 @@
 	            NULL,                                                          \
 	            infoLog                                                        \
 	        );                                                                 \
-			infoLog[strlen(infoLog) - 1] = '\0';                               \
+	        infoLog[strlen(infoLog) - 1] = '\0';                               \
 	        logEvent(ERROR, GLSL, "%s linking failed: %s", #program, infoLog); \
-			return 0;                                                          \
+	        return 0;                                                          \
 	    }                                                                      \
 
 // -- uniforms
@@ -59,7 +64,7 @@ typedef enum {
 	VIEW,
 	PROJECTION,
 
-	// camera info	
+	// camera info
 	CAMERA_POSITION,
 
 	// sun info

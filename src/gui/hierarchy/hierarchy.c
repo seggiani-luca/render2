@@ -256,8 +256,6 @@ void sceneGui(window* win) {
 		// load scene
 		deserializeSceneFile(scn, sCtx->load);
 		ctx->in.dataSet = 0;
-
-		dumpEvents();
 	}
 
 	// push background
@@ -309,14 +307,12 @@ void sceneGui(window* win) {
 		}, ICO_SAVE, "")) {	
 			if(*scn->name == '\0') {
 				logEvent(ERROR, IO, "Couldn't serialize scene with empty path");
-				dumpEvents();
 				return;
 			}
 
 			// save scene
 			serializeSceneFile(scn, getScenePath(scn->name));
 
-			dumpEvents();
 			return; // early quit
 		}
 	}
@@ -406,7 +402,6 @@ void sceneGui(window* win) {
 	downGui(ctx, SCROLL, 1 PAD);
 
 	// flush changes
-	dumpEvents();
 	flushGui(ctx);
 }
 

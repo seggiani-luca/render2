@@ -22,7 +22,7 @@ void* script_import(FILE* file) {
 		free(new_script->buf);
 		return NULL;
 	}
-	
+
 	// parse script from buffer 
 	char* ptr = new_script->buf;
 	new_script->ctx = getScriptContext(&ptr);

@@ -20,12 +20,12 @@ typedef struct {
 } texture;
 
 // set the filtering options for a texture
-void textureFilter(texture* tex, int linear);
+void textureFilter(texture* tex, int mip);
 
 // set the color format options for a texture
 void textureColor(texture* tex, int srgb);
 
-// print texture info
+	// print texture info
 void texturePrint(void* dat);
 
 // texture handler declarations

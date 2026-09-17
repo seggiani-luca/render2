@@ -7,12 +7,19 @@
 // checks an .obj/.mtl line for a given key. eats the key
 static inline char* checkKey(char* line, const char* key) {
 	// only if key matches
-	int keySiz = strlen(key);
-	if (strncmp(line, key, keySiz) == 0) {
-		return line += keySiz;
+	size_t keySiz = strlen(key);
+
+	// check for the key
+	if(strncmp(line, key, keySiz) != 0) return NULL;
+
+	// check for whitespace
+	if(line[keySiz] != '\0'
+	&& line[keySiz] != ' '
+	&& line[keySiz] != '\t') {
+		return NULL;
 	}
 
-	return 0;
+	return line + keySiz;
 }
 
 // parses an .obj/.mtl line for a given key, updating a float buffer if needed 
@@ -30,22 +37,19 @@ static inline int parseFloatBufKey(
 	// parse line
 	switch(dim) {
 		case 2:
-			sscanf(line, "%f %f",
+			if(sscanf(line, "%f %f",
 				&buf[*cur], 
-				&buf[*cur + 1]
-			);
+				&buf[*cur + 1]) != 2) return 0;
 			break;
 
 		case 3:
-			sscanf(line, "%f %f %f",
+			if(sscanf(line, "%f %f %f",
 				&buf[*cur], 
 				&buf[*cur + 1],
-				&buf[*cur + 2]
-			);
+				&buf[*cur + 2]) != 3) return 0;
 			break;
 
-		default:
-			break;  // good enough for the demo lol
+		default: return 0; // good enough for the demo lol
 	}
 
 	// advance buffer
@@ -68,28 +72,18 @@ static inline int parseFloatKey(
 	// parse line
 	switch(dim) {
 		case 1:
-			sscanf(line, "%f",
-				buf 
-			);
+			if(sscanf(line, "%f", buf) != 1) return 0;
 			break;
 
 		case 2:
-			sscanf(line, "%f %f",
-				buf,
-				buf + 1
-			);
+			if(sscanf(line, "%f %f", buf, buf + 1)) return 0;
 			break;
 
 		case 3:
-			sscanf(line, "%f %f %f",
-				buf,
-				buf + 1,
-				buf + 2
-			);
+			if(sscanf(line, "%f %f %f", buf, buf + 1, buf + 2)) return 0;
 			break;
 
-		default:
-			break;  // good enough for the demo lol
+		default: return 0; // good enough for the demo lol
 	}
 
 	return 1;
@@ -99,14 +93,23 @@ static inline int parseFloatKey(
 static inline int parseStringKey(
 	char* line,
 	const char* key,
+	size_t strSiz,
 	char* str
 ) {
 	// only if key matches
 	line = checkKey(line, key);
-	if(!line) return 0;
-	
-	// parse line
-	sscanf(line, "%255s", str);
+	if (!line) return 0;
+
+	// skip whitespace
+	while (*line == ' ' || *line == '\t') line++;
+
+	// get len of string
+	size_t len = strcspn(line, " \t\r\n");
+	if (len >= strSiz) len = strSiz - 1; 
+
+	// copy over
+	memcpy(str, line, len);
+	str[len] = '\0';
 
 	return 1;
 }

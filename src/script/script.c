@@ -91,16 +91,13 @@ void scriptStart(entity* ent) {
 	script* scr = scrField->ref->data;
 
 	// start hook
-	if(!evaluateFuncFromScript(scr->ctx, START_HOOK)) {
+	if(!evaluateFuncFromScript(scr->ctx, START_HOOK))
 		logEvent(ERROR, EXEC, "Couldn't start entity \"%s\"", ent->name);
-		dumpEvents();
-	}
 }
 
 void scriptsStart(entity* ent) {
 	// start entity
 	scriptStart(ent);
-	dumpEvents();
 	
 	// start children
 	entity* cur = ent->child;
@@ -123,16 +120,13 @@ void scriptUpdate(entity* ent) {
 	script* scr = scrField->ref->data;
 
 	// start hook
-	if(!evaluateFuncFromScript(scr->ctx, UPDATE_HOOK)) {
+	if(!evaluateFuncFromScript(scr->ctx, UPDATE_HOOK)) 
 		logEvent(ERROR, EXEC, "Couldn't start entity \"%s\"", ent->name);
-		dumpEvents();
-	}
 }
 
 void scriptsUpdate(entity* ent) {
 	// update entity
 	scriptUpdate(ent);
-	dumpEvents();
 	
 	// update children
 	entity* cur = ent->child;

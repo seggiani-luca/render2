@@ -604,7 +604,6 @@ entity* deserializeEntityFile(const char* path) {
 
 	// deserialize entity from JSON
 	entity* ent = deserializeEntity(obj);
-	dumpEvents();
 
 	// cleanup
 	freeArena(&a);
@@ -717,7 +716,6 @@ void deserializeSceneFile(scene* scn, const char* path) {
 
 	// deserialize scene from JSON
 	deserializeScene(scn, obj);
-	dumpEvents();
 
 	// cleanup
 	freeArena(&a);

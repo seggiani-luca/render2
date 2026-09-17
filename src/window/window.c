@@ -80,10 +80,7 @@ void freeGl() {
 	glfwTerminate();
 
 	// warn on not freed windows
-	if(windows != 0) {
-		logEvent(WARN, GUI, "Not all windows freed");
-		dumpEvents();
-	}
+	if(windows != 0) logEvent(WARN, GUI, "Not all windows freed");
 }
 
 // -- icons

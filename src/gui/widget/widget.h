@@ -27,11 +27,11 @@
 #define UV(x, y) ((float)(x) * AU), (1.0f - (float)(y) * AU)
 
 // atlas colors
-#define BG_ABS   (float4) { UV(0, 3), UV(1, 4) }
-#define BG_DARK  (float4) { UV(1, 3), UV(2, 4) }
-#define BG_LIGHT (float4) { UV(2, 3), UV(3, 4) }
-#define FG_DARK  (float4) { UV(3, 3), UV(4, 4) }
-#define FG_LIGHT (float4) { UV(4, 3), UV(5, 4) }
+#define BG_ABS   (float4) { UV(0.5, 3.5), UV(0.5, 3.5) }
+#define BG_DARK  (float4) { UV(1.5, 3.01), UV(1.5, 3.99) }
+#define BG_LIGHT (float4) { UV(2.5, 3.5), UV(2.5, 3.5) }
+#define FG_DARK  (float4) { UV(3.5, 3.5), UV(3.5, 3.5) }
+#define FG_LIGHT (float4) { UV(4.5, 3.5), UV(4.5, 3.5) }
 
 // atlas text sizing
 #define TXT_WIDTH  (0.5f * AU * ATLAS_SIZ)

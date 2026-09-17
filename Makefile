@@ -15,7 +15,8 @@ LIB_OUT_C := $(subst $(LIB), $(OUT), $(LIB_C:.c=.o))
 # -- tools
 C := gcc
 L := gcc
-CFLAGS := -Wall -Wextra -Wno-missing-braces -g
+CFLAGS_STRICT := -Wall -Wextra -Wno-missing-braces
+CFLAGS := -g
 LFLAGS := -lglfw -lGL -lm
 OFLAGS := -fsanitize=address
 SUPP := LSAN_OPTIONS=suppressions=tst/lsan.supp
@@ -42,7 +43,7 @@ $(EX): $(SRC_OUT_C) $(LIB_OUT_C)
 $(OUT)/%.o: $(SRC)/%.c | $(OUT)
 	@echo "Compiling source $< ..."
 	@mkdir -p $(dir $@)
-	@$(C) $(CFLAGS) $(OFLAGS) -c $< -o $@
+	@$(C) $(CFLAGS) $(CFLAGS_STRICT) $(OFLAGS) -c $< -o $@
 
 $(OUT)/%.o: $(LIB)/%.c | $(OUT)
 	@echo "Compiling lib source $< ..."

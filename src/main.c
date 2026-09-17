@@ -48,8 +48,6 @@ int main() {
 	);
 	if(!mainWin) {
 		logEvent(FATAL, GUI, "Couldn't create main window");	
-		dumpEvents();
-
 		freeScene(mainScene);
 		return 1;
 	}
@@ -58,8 +56,6 @@ int main() {
 	createEditorWindows(mainScene);
 	if(!hierarchyWin || !inspectorWin) {
 		logEvent(FATAL, GUI, "Couldn't create editor windows");	
-		dumpEvents();
-
 		freeScene(mainScene);
 		cleanup();
 		return 1;

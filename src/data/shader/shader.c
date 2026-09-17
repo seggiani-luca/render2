@@ -12,14 +12,14 @@ char* readShader(const char* path) {
 	FILE* shaderFile = fopen(path, "r");
 	if(shaderFile == NULL) return NULL;
 
-	// load buffer		
-	char* shader = slurpBufferPreprocess(shaderFile);
-	if(!shader) return NULL;
+	// load buffer
+	char* buf = slurpBufferPreprocess(shaderFile);
+	if(!buf) return NULL;
 
 	// close file
 	fclose(shaderFile);
 
-	return shader;
+	return buf;
 }
 
 // compiles a vert and a frag shader into a program and returns it
@@ -38,7 +38,7 @@ GLuint compileShaders(const char* vertShader, const char* fragShader) {
 
 	glCompileShader(vert);
 	GL_COMPILE_ERR(vert);
-	GL_ERR("vert compilation");	
+	GL_ERR("vert compilation");
 
 	// compile fragment shader
 	GLuint frag = glCreateShader(GL_FRAGMENT_SHADER);
@@ -89,26 +89,26 @@ void shaderPrint(void* dat) {
 }
 
 // precalculates uniform locations for shader programs
-void getUniformLocations(shader* shader) {
+void getUniformLocations(shader* shd) {
 	// go through all uniforms
 	for(int i = 0; i < NUM_UNIFORMS; i++) {
 		// find location
-		shader->uniformLocations[i] 
-			= glGetUniformLocation(shader->program, uniformInfos[i].name);
+		shd->uniformLocations[i] 
+			= glGetUniformLocation(shd->program, uniformInfos[i].name);
 		GL_ERR(uniformInfos[i].name);
 	}
 }
 
 // current texture unit
-static int texUnit = 0;
+static GLenum texUnit = 0;
 
 void resetTexUnit() {
 	texUnit = 0;
 }
 
-void sendUniform(shader* shader, shaderUniform uniform, const void* data) {
+void sendUniform(shader* shd, shaderUniform uniform, const void* data) {
 	// get location 
-	GLint location = shader->uniformLocations[uniform];
+	GLint location = shd->uniformLocations[uniform];
 
 	// send based on uniform type
 	switch(uniformInfos[uniform].type) {
@@ -129,11 +129,10 @@ void sendUniform(shader* shader, shaderUniform uniform, const void* data) {
 			break;
 
 		case UNIFORM_TEX: {
-			// set auxilliary
+			// set auxilliary flag, signaling if texture is present
 			int present = data != NULL;
 			shaderUniform auxil = uniformInfos[uniform].auxil;
-			if(auxil) sendUniform(shader, auxil, &present);
-
+			if(auxil) sendUniform(shd, auxil, &present);
 			if(!data) break;
 
 			// set texture
@@ -149,13 +148,13 @@ void sendUniform(shader* shader, shaderUniform uniform, const void* data) {
 	GL_ERR(uniformInfos[uniform].name);
 }
 
-void shader_free(shader* shader) {
-	if(shader == NULL) return;
+void shader_free(shader* shd) {
+	if(shd == NULL) return;
 
 	// free OpenGL program
-	glDeleteProgram(shader->program);
+	glDeleteProgram(shd->program);
 
-	free(shader);
+	free(shd);
 }
 
 // shader handler implementations
@@ -186,10 +185,12 @@ dataRef* shaderImport(const char* vert, const char* frag) {
 
 	// initialize buffers
 	char* vert_shader = readShader(vert);
-	if(!vert_shader) logEvent(ERROR, IO, "Couldn't open vert shader file at \"%s\"", vert);
+	if(!vert_shader) logEvent(ERROR, IO, 
+		"Couldn't open vert shader file at \"%s\"", vert);
 	
 	char* frag_shader = readShader(frag);
-	if(!frag_shader) logEvent(ERROR, IO, "Couldn't open frag shader file at \"%s\"", frag);
+	if(!frag_shader) logEvent(ERROR, IO,
+		"Couldn't open frag shader file at \"%s\"", frag);
 
 	// return NULL on failure
 	if(!vert_shader || !frag_shader) {
