@@ -119,6 +119,12 @@ jsonElement* scriptFieldSerialize(const field* f);
 // deserializes a script field
 void scriptFieldDeserialize(field* f, const jsonElement* elem);
 
+// serializes a shader field
+jsonElement* shaderFieldSerialize(const field* f);
+
+// deserializes a shader field
+void shaderFieldDeserialize(field* f, const jsonElement* elem);
+
 // -- entities 
 
 // serialize entity to file

@@ -12,9 +12,6 @@ typedef struct entity entity;
 
 // -- constants
 
-// name of script fields
-#define SCR_NAME "Script"
-
 // start hook
 #define START_HOOK "start"
 

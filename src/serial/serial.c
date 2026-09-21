@@ -372,6 +372,37 @@ void scriptFieldDeserialize(field* f, const  jsonElement* elem) {
 	}
 }
 
+jsonElement* shaderFieldSerialize(const field* f) {
+	shaderField* sf = (shaderField*)f;
+
+	// add path
+	dataRef* ref = sf->ref;
+	if(ref) return newJsonString(ref->path);
+	else return newJsonNull();
+}
+
+void shaderFieldDeserialize(field* f, const  jsonElement* elem) {
+	shaderField* sf = (shaderField*)f;
+
+	// get path
+	const char* jsonPath = getJsonString(elem);
+	if(!jsonPath) logEvent(WARN, SERIAL, "Couldn't get shader path");
+	
+	// use temporary buffer
+	char path[DAT_PATH_SIZ];
+	strncpy(path, jsonPath, DAT_PATH_SIZ);
+	path[DAT_PATH_SIZ - 1] = '\0';
+	
+	// split path
+	char* vert;
+	char* frag;
+	splitShaderPath(path, &vert, &frag);
+
+	// import shader 
+	sf->ref = shaderImport(vert, frag);
+	if(!sf->ref) logEvent(WARN, IO, "Couldn't load shader");
+}
+
 // typedef for field constructors
 typedef field* (*fieldCtor)(const char* name);
 
@@ -404,7 +435,9 @@ serialTableElement serialTable[] = {
 	"atmosphere", &atmosphereFieldVtable, atmosphereNew,
 	"texture",    &textureFieldVtable,    textureNew,
 	"mesh",       &meshFieldVtable,       meshNew,
-	"material",   &materialFieldVtable,   materialNew
+	"material",   &materialFieldVtable,   materialNew,
+	"script",     &scriptFieldVtable,     scriptNew,
+	"shader",     &shaderFieldVtable,     shaderNew
 };
 
 #define SERIAL_TABLE_SIZ (sizeof(serialTable) / sizeof(serialTableElement))

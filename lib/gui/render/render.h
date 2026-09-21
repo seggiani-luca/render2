@@ -1,26 +1,58 @@
 #ifndef GUI_RENDER_H
 #define GUI_RENDER_H
 
+#include "../gui.h"
 #include "../../../lib/glad/glad.h"
 #include "../../data/shader/shader.h"
 #include "../../data/texture/texture.h"
-#include "../../math/math.h"
-#include "../gui.h"
+
+// -- input
+
+// size of input buffer, that is data entered by user 
+#define IN_BUF_SIZ DAT_PATH_SIZ
+
+// size of output buffer, that is display buffers for GUI
+#define OUT_BUF_SIZ 64
 
 // -- rendering
 
+// macro for OpenGL errors
+#define GL_ERR(func)                                    \
+	{                                                   \
+	    GLenum err = glGetError();                      \
+	    if(err != GL_NO_ERROR)                          \
+	    printf("OpenGL error 0x%x at %s\n", err, func); \
+	}
+
+// GUI coordinate 
+struct position {
+	// position 
+	float x; float y;
+};
+typedef struct position position;
+
+// GUI rectangle
+struct rectangle {
+	// top left corner position
+	float x; float y;
+
+	// width
+	float w;
+
+	// height
+	float h;
+};
+typedef struct rectangle rectangle;
+
 // GUI quad instance
 struct quad {
-	float4 pos;
-	float4 uv;
+	rectangle pos;
+	rectangle uv;
 };
 typedef struct quad quad;
 
 // size of GUI queue
 #define QUEUE_SIZ 2048
-
-// input buffer size
-#define IN_BUF_SIZ DAT_PATH_SIZ
 
 // GUI queue
 typedef struct {

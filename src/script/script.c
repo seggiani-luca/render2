@@ -80,19 +80,26 @@ value* nativeError(arena* a, environment* env, value* args) {
 
 void scriptStart(entity* ent) {
 	INIT_JUMPS;
-	
-	// get script field
-	field* fld = getField(ent, SCR_NAME);
-	if(!fld) return;
-	scriptField* scrField = (scriptField*)fld;
-	if(!scrField->ref) return;
 
-	// get script
-	script* scr = scrField->ref->data;
+	// go through all fields
+	field* cur = ent->root;
+	while(cur) {
+		// advance first
+		field* fld = cur;
+		cur = cur->next;
 
-	// start hook
-	if(!evaluateFuncFromScript(scr->ctx, START_HOOK))
-		logEvent(ERROR, EXEC, "Couldn't start entity \"%s\"", ent->name);
+		// is script?
+		if(fld->vtable != &scriptFieldVtable) continue;
+		scriptField* scrField = (scriptField*)fld;
+		if(!scrField->ref) continue;
+		
+		// get script
+		script* scr = scrField->ref->data;
+
+		// start hook
+		if(!evaluateFuncFromScript(scr->ctx, START_HOOK))
+			logEvent(ERROR, EXEC, "Couldn't start entity \"%s\"", ent->name);
+	}
 }
 
 void scriptsStart(entity* ent) {
@@ -110,18 +117,25 @@ void scriptsStart(entity* ent) {
 void scriptUpdate(entity* ent) {
 	INIT_JUMPS;
 
-	// get script field
-	field* fld = getField(ent, SCR_NAME);
-	if(!fld) return;
-	scriptField* scrField = (scriptField*)fld;
-	if(!scrField->ref) return;
+	// go through all fields
+	field* cur = ent->root;
+	while(cur) {
+		// advance first
+		field* fld = cur;
+		cur = cur->next;
 
-	// get script
-	script* scr = scrField->ref->data;
+		// is script?
+		if(fld->vtable != &scriptFieldVtable) continue;
+		scriptField* scrField = (scriptField*)fld;
+		if(!scrField->ref) continue;
+		
+		// get script
+		script* scr = scrField->ref->data;
 
-	// start hook
-	if(!evaluateFuncFromScript(scr->ctx, UPDATE_HOOK)) 
-		logEvent(ERROR, EXEC, "Couldn't start entity \"%s\"", ent->name);
+		// start hook
+		if(!evaluateFuncFromScript(scr->ctx, UPDATE_HOOK))
+			logEvent(ERROR, EXEC, "Couldn't update entity \"%s\"", ent->name);
+	}
 }
 
 void scriptsUpdate(entity* ent) {

@@ -1,6 +1,6 @@
 #include "entity.h"
 #include "../scene.h"
-#include "../../gui/inspector/inspector.h"
+#include "../../editor/inspector/inspector.h"
 #include "../../render/render.h"
 #include "../../serial/serial.h"
 #include "../../exception/exception.h"
@@ -439,7 +439,7 @@ void scriptFieldRead(const field* f, void* dst) {
 	*(dataRef**)dst = ((scriptField*)f)->ref;
 }
 
-// writes a transform field
+// writes a shadewr field
 void scriptFieldWrite(field* f, const void* src) {
 	((scriptField*)f)->ref = *(dataRef**)src;
 }
@@ -460,6 +460,39 @@ VTABLE_FREE(script);
 
 field* scriptNew(const char* name) {
 	ALLOC_FIELD(script)
+	f->ref = NULL;
+
+	return (field*)f;
+}
+
+// -- shader field
+
+// reads a shader field
+void shaderFieldRead(const field* f, void* dst) {
+	*(dataRef**)dst = ((shaderField*)f)->ref;
+}
+
+// writes a shader field
+void shaderFieldWrite(field* f, const void* src) {
+	((shaderField*)f)->ref = *(dataRef**)src;
+}
+
+// debug prints a shader field
+void shaderFieldPrint(const field* f) {
+	dataRef* ref = ((shaderField*)f)->ref;
+	printf("%s (Shader): %s (%d refs)", f->name, ref->path, ref->refCount);
+}
+
+// frees a shader field
+void shaderFieldFree(field* f) {
+	shaderField* sf = (shaderField*)f;
+	if(sf->ref) shaderFree(sf->ref->data);
+}
+
+VTABLE_FREE(shader);
+
+field* shaderNew(const char* name) {
+	ALLOC_FIELD(shader)
 	f->ref = NULL;
 
 	return (field*)f;

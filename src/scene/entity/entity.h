@@ -283,6 +283,21 @@ typedef struct {
 // creates a new script field
 field* scriptNew(const char* name);
 
+// -- shader field
+
+VTABLE_DECL(shader)
+
+// shader field data
+typedef struct {
+	field base;
+
+	// shader pointer
+	dataRef* ref;
+} shaderField;
+
+// creates a new shader field
+field* shaderNew(const char* name);
+
 // -- entities
 
 // entity data

@@ -221,4 +221,7 @@ void shaderPrint(void* dat);
 dataRef* shaderImport(const char* vert, const char* frag);
 void shaderFree(void* dat);
 
+// splits a shader's path into vert and frag paths
+void splitShaderPath(char* path, char** vert, char** frag);
+
 #endif

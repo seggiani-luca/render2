@@ -507,7 +507,6 @@
 							0.820000,
 							1.000000
 						],
-						"cubemap" : "dat/texture/cubemap_showroom.tga",
 						"sun" : [
 							0.320000,
 							0.320000,
@@ -518,6 +517,7 @@
 							1.000000,
 							1.000000
 						],
+						"cubemap" : "dat/texture/cubemap_showroom.tga",
 						"skybox" : "dat/texture/cubemap_sunset.tga"
 					}
 				}

@@ -1,9 +1,11 @@
 #include "inspector.h"
+#include "../editor.h"
+#include "../selector/selector.h"
+#include "../../gui/widget/widget.h"
 #include "../widget/widget.h"
 #include "../../scene/scene.h"
 #include "../../exception/exception.h"
 #include "../../script/script.h"
-#include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -16,9 +18,6 @@ typedef struct {
 
 	// entity
 	entity* ent;
-
-	// new script
-	dataRef* scr;
 } entityGuiContext;
 
 // context for new field GUI callback
@@ -46,8 +45,8 @@ typedef enum {
 int fieldGui(
 	guiContext* ctx,
 	const char* name,
-	float4 ico,
-	int (*gui)(guiContext* ctx, guiLayerId id, float4 rect, void* val),
+	rectangle ico,
+	int (*gui)(guiContext* ctx, guiLayerId id, rectangle rect, void* val),
 	void* val,
 	int rows
 ) {
@@ -57,24 +56,24 @@ int fieldGui(
 	float height = ROW + 2 PAD;
 	float bigHeight = HROW + HROW * rows + 2 PAD;
 	if(bigHeight > height) height = bigHeight;
-	quadGui(ctx, SCROLL, (float4){
+	quadGui(ctx, SCROLL, (rectangle){
 		1 PAD, 1 PAD,
 		WIN - 2 PAD, height
 	}, BG_LIGHT);
 
 	// push icon
-	iconGui(ctx, SCROLL, (float2){
+	iconGui(ctx, SCROLL, (position){
 		2 PAD, 2 PAD + HPAD
 	}, ico);
 
 	// push name
-	separatorGui(ctx, SCROLL, (float4){
+	separatorGui(ctx, SCROLL, (rectangle){
 		3 PAD + ICO_SIZ, 2 PAD + HPAD,
 		WIN - 8 PAD - 2 * ICO_SIZ, TXT_HEIGHT
 	}, name);
 
 	// push delete button
-	if(buttonGui(ctx, SCROLL, (float4){
+	if(buttonGui(ctx, SCROLL, (rectangle){
 		WIN - 4 PAD - ICO_SIZ, 2 PAD,
 		 2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 	}, ICO_DELETE, "")) {
@@ -84,7 +83,7 @@ int fieldGui(
 	// push edit box
 	float vPos = ctx->layers[SCROLL].vPos;
 	float lastHeight = ctx->layers[SCROLL].height;
-	int ret = gui(ctx, SCROLL, (float4){
+	int ret = gui(ctx, SCROLL, (rectangle){
 		2 PAD, 3 PAD + HROW,
 		WIN - 4 PAD, HROW - 1 PAD
 	}, val);
@@ -209,38 +208,6 @@ int quatFieldGui(const field* f, guiContext* ctx) {
 	);
 }
 
-// pushes a transform edit box
-int transformGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
-	rect.x += TRANS_OFF;
-	rect.z -= TRANS_OFF;
-
-	// modify return
-	int ret = 0;
-
-	// position
-	if(float3Gui(ctx, layId, rect, ((float3*)val))) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Position");
-
-	// rotation
-	if(float3Gui(ctx, layId, rect, ((float3*)val) + 1)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD 
-	}, "Rotation");
-
-	// scale
-	if(float3Gui(ctx, layId, rect, ((float3*)val) + 2)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD 
-	}, "Scale");
-
-	return ret;
-}
-
 int transformFieldGui(const field* f, guiContext* ctx) {
 	transformField* tf = (transformField*)f;
 	transform* t = &tf->val;
@@ -277,40 +244,6 @@ int transformFieldGui(const field* f, guiContext* ctx) {
 	return ret;
 }
 
-// pushes a camera edit box
-int cameraGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
-	rect.x += TRANS_OFF;
-	rect.z -= TRANS_OFF;
-
-	camera* c = (camera*)val;
-
-	// modify return
-	int ret = 0;
-
-	// fov
-	if(floatGui(ctx, layId, rect, &c->fov)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Fov");
-
-	// near
-	if(floatGui(ctx, layId, rect, &c->nearPlane)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD 
-	}, "Near");
-
-	// far
-	if(floatGui(ctx, layId, rect, &c->farPlane)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD 
-	}, "Far");
-
-	return ret;
-}
-
 int cameraFieldGui(const field* f, guiContext* ctx) {
 	return fieldGui(
 		ctx,
@@ -320,64 +253,6 @@ int cameraFieldGui(const field* f, guiContext* ctx) {
 		&((cameraField*)f)->val,
 		3
 	);
-}
-
-// pushes an atmosphere edit box
-int atmosphereGui(guiContext* ctx, guiLayerId layId, float4 rect, void* val) {
-	rect.x += TRANS_OFF;
-	rect.z -= TRANS_OFF;
-
-	atmosphere* a = (atmosphere*)val;
-	
-	// modify return
-	int ret = 0;
-
-	// sun 
-	if(float3Gui(ctx, layId, rect, &a->sun)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Sun Color");
-
-	// ambient
-	downGui(ctx, SCROLL, TXT_HEIGHT + 2 PAD);
-	separatorGui(ctx, SCROLL, (float4){
-		2 PAD, 3 PAD,
-		WIN - 4 PAD, TXT_HEIGHT
-	}, "Ambient");
-
-	if(float3Gui(ctx, layId, rect, &a->ambient)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Color");
-	
-	if(textureGui(ctx, layId, rect, &a->ambientMap)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Cubemap");
-		
-	// background
-	downGui(ctx, SCROLL, TXT_HEIGHT + 2 PAD);
-	separatorGui(ctx, SCROLL, (float4){
-		2 PAD, 3 PAD,
-		WIN - 4 PAD, TXT_HEIGHT
-	}, "Sky");
-	
-	if(float3Gui(ctx, layId, rect, &a->background)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Color");
-	
-	if(textureGui(ctx, layId, rect, &a->backgroundMap)) ret = 1;
-	downGui(ctx, layId, rect.w + 1 PAD);
-	textGui(ctx, SCROLL, (float2){
-		2 PAD, 3 PAD
-	}, "Cubemap");
-
-	return ret;
 }
 
 int atmosphereFieldGui(const field* f, guiContext* ctx) {
@@ -435,6 +310,17 @@ int scriptFieldGui(const field* f, guiContext* ctx) {
 	);
 }
 
+int shaderFieldGui(const field* f, guiContext* ctx) {
+	return fieldGui(
+		ctx,
+		f->name,
+		ICO_SHADER,
+		shaderGui,
+		&((shaderField*)f)->ref,
+		1
+	);
+}
+
 // -- entities
 
 // renders the add field GUI
@@ -449,25 +335,25 @@ void addFieldGui(window* win) {
 	inputGui(win);
 
 	// push background
-	quadGui(ctx, BACKGROUND, (float4){
+	quadGui(ctx, BACKGROUND, (rectangle){
 		0, 0, WIN, HEIG 
 	}, BG_ABS);
 
 	// push name edit box
 	{
 		// mask
-		quadGui(ctx, FIXED, (float4){
+		quadGui(ctx, FIXED, (rectangle){
 			0, 0,
 			WIN, TXT_HEIGHT + 4 PAD
 		}, BG_ABS);
 
 		// push label
-		textGui(ctx, FIXED, (float2){
+		textGui(ctx, FIXED, (position){
 			1 PAD, 2 PAD
 		}, "Name:");
 
 		// push name edit box
-		stringGui(ctx, FIXED, (float4){
+		stringGui(ctx, FIXED, (rectangle){
 			1 PAD + NEW_OFF, 1 PAD,
 			WIN - 2 PAD - NEW_OFF, TXT_HEIGHT + 2 PAD
 		}, name);
@@ -477,7 +363,7 @@ void addFieldGui(window* win) {
 	// declare field button table
 	typedef struct {
 		const char* label;
-		float4 ico;
+		rectangle ico;
 		field* (*ctor)(const char* name);
 	} fieldButton;
 	static const fieldButton fieldButtons[] = {
@@ -503,7 +389,10 @@ void addFieldGui(window* win) {
 		{ "New 2x2 Matrix", ICO_MAT2,    mat2New       },
 
 		{ "New 3x3 Matrix", ICO_MAT3,    mat3New       },
-		{ "New 4x4 Matrix", ICO_MAT4,    mat4New       }
+		{ "New 4x4 Matrix", ICO_MAT4,    mat4New       },
+
+		{ "New Script",     ICO_SCRIPT,  scriptNew     },
+		{ "New Shader",     ICO_SHADER,  shaderNew     }
 	};
 	int fieldButtonCount = (int)(sizeof(fieldButtons) / sizeof(fieldButton));
 
@@ -512,7 +401,7 @@ void addFieldGui(window* win) {
 		int side = i % 2;
 
 		// push new field button
-		if(buttonGui(ctx, SCROLL, (float4){
+		if(buttonGui(ctx, SCROLL, (rectangle){
 			1 PAD + (HWIN - HPAD) * side, 1 PAD,
 			HWIN - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
 		}, f->ico, f->label)) {
@@ -564,30 +453,8 @@ void entityGui(window* win) {
 	// update input state
 	inputGui(win);
 
-	// realize early if adding script 
-	if(ctx->in.dataPtr == &eCtx->scr && ctx->in.dataSet) {
-		// add script
-		field* fld = getField(ent, SCR_NAME);
-		if(!fld) {
-			fld = scriptNew(SCR_NAME);
-			appendField(ent, fld);
-		}
-
-		// set script
-		scriptField* sf = (scriptField*)fld;
-		if(sf->ref && sf->ref != eCtx->scr) scriptFree(sf->ref->data);
-		((scriptField*)fld)->ref = eCtx->scr;
-
-		// start script
-		scriptStart(ent);
-
-		// reset
-		eCtx->scr = NULL;
-		ctx->in.dataSet = 0;
-	}
-
 	// push background
-	quadGui(ctx, BACKGROUND, (float4){
+	quadGui(ctx, BACKGROUND, (rectangle){
 		0, 0,
 		WIN, HEIG 
 	}, BG_ABS);
@@ -595,24 +462,24 @@ void entityGui(window* win) {
 	// push entity label
 	{
 		// mask
-		quadGui(ctx, FIXED, (float4){
+		quadGui(ctx, FIXED, (rectangle){
 			0, 0,
 			WIN, TXT_HEIGHT + 4 PAD
 		}, BG_ABS);
 
 		// push icon
-		iconGui(ctx, FIXED, (float2){
+		iconGui(ctx, FIXED, (position){
 			2 PAD, 2 PAD
 		}, ICO_ENTITY);
 
 		// push name edit box
-		stringGui(ctx, FIXED, (float4){
+		stringGui(ctx, FIXED, (rectangle){
 			3 PAD + ICO_SIZ, 1 PAD,
 			WIN - 7 PAD - 2 * ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ent ? ent->name : NULL);
 
 		// push save button
-		if(buttonGui(ctx, FIXED, (float4){
+		if(buttonGui(ctx, FIXED, (rectangle){
 			WIN - 3 PAD - ICO_SIZ, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ICO_SAVE, "")) {
@@ -642,7 +509,12 @@ void entityGui(window* win) {
 				scene* scn = ownerScene(ent);
 				scn->dirty = 1;
 			} break;
-			case MODIFY: {	
+			case MODIFY: {
+				// if script, start
+				if(f->vtable == &scriptFieldVtable) {
+					scriptStart(ent);
+				}
+
 				// flag dirty
 				scene* scn = ownerScene(ent);
 				scn->dirty = 1;
@@ -654,9 +526,9 @@ void entityGui(window* win) {
 	}
 
 	// push new field button
-	if(buttonGui(ctx, SCROLL, (float4){
+	if(buttonGui(ctx, SCROLL, (rectangle){
 		1 PAD, 1 PAD,
-		WIN / 2.0f - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
+		WIN - 1 PAD, TXT_HEIGHT + 2 PAD
 	}, ICO_NEW, "Field") && ent) {
 		// create add field window
 		subWindowGui(ctx, newWindow(
@@ -667,25 +539,6 @@ void entityGui(window* win) {
 			loadIcon(WIN_NEWITEM_ICO),
 			0
 		));
-	}
-
-	// push new script button
-	if(buttonGui(ctx, SCROLL, (float4){
-		WIN / 2.0f + HPAD, 1 PAD,
-		WIN / 2.0f - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
-	}, ICO_SCRIPT, "Script") && ent) {
-		// set data pointer in context
-		ctx->in.dataPtr = &eCtx->scr;
-		
-		// make datasel
-		subWindowGui(ctx, newWindow(
-			DATASEL_WIDTH,
-			DATASEL_HEIGHT,
-			"Select Script",
-			makeDataselCallback(&eCtx->scr, &scriptTable, ctx),
-			loadIcon(WIN_DATASEL_ICO),
-			0
-		));	
 	}
 	downGui(ctx, SCROLL, TXT_HEIGHT + 4 PAD);
 

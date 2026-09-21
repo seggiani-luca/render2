@@ -1,7 +1,9 @@
-#include "gui.h"
+#include "editor.h"
 #include "hierarchy/hierarchy.h"
 #include "inspector/inspector.h"
 #include "../exception/exception.h"
+
+// -- windows
 
 // hook into entity hierarchy
 extern window* hierarchyWin;

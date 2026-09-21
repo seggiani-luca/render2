@@ -1,5 +1,6 @@
 #include "exception/exception.h"
 #include "window/window.h"
+#include "editor/editor.h"
 #include "scene/scene.h"
 #include "script/script.h"
 #include "render/render.h"
@@ -29,6 +30,40 @@ void cleanup() {
 
 	// terminate OpenGL
 	freeGl();
+}
+
+void centerWindows(window* a, window* b, window* c) {
+	// get monitor dimensions
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	int screenX, screenY, screenW, screenH;
+	glfwGetMonitorWorkarea(
+		monitor,
+		&screenX, &screenY,
+		&screenW, &screenH
+	);
+
+	// calculate total width 
+	int gap = 10;
+	int totalW =
+		a->fbWidth +
+		b->fbWidth +
+		c->fbWidth +
+		gap * 2;
+
+	// get all y coordinates
+	int ya = screenY + (screenH - a->fbHeight) / 2;
+	int yb = screenY + (screenH - b->fbHeight) / 2;
+	int yc = screenY + (screenH - c->fbHeight) / 2;
+
+	// get starting x coordinate
+	int x = screenX + (screenW - totalW) / 2;
+
+	// move windows
+	moveWindow(a, x, ya);
+	x += a->fbWidth + gap;
+	moveWindow(b, x, yb);
+	x += b->fbWidth + gap;
+	moveWindow(c, x, yc);
 }
 
 // -- main

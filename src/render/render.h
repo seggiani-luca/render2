@@ -35,9 +35,6 @@
 
 // -- rendering
 
-// forward declaration of scene 
-typedef struct scene scene;
-
 // macro for OpenGL errors
 #define GL_ERR(func)                                    \
 	{                                                   \
@@ -45,6 +42,9 @@ typedef struct scene scene;
 	    if(err != GL_NO_ERROR)                          \
 	    printf("OpenGL error 0x%x at %s\n", err, func); \
 	}
+
+// forward declaration of scene 
+typedef struct scene scene;
 
 // gets a callback object for scene rendering 
 renderCallback makeRenderCallback(scene* scn);

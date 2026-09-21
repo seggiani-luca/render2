@@ -45,7 +45,60 @@ int isTrue(value* val);
 // applies a function to an argument list
 value* applyFunction(arena* a, environment* env, function func, value* args);
 
-// TODO all of them others
+// evaluates a symbol
+value* evaluateSymbol(
+	arena* a __attribute__ ((unused)),
+	environment* env,
+	value* val
+);
+
+// evaluates a number
+value* evaluateNumber(
+	arena* a __attribute__ ((unused)),
+	environment* env __attribute__ ((unused)),
+	value* val
+);
+
+// evaluates a boolean
+value* evaluateBool(
+	arena* a __attribute__ ((unused)),
+	environment* env __attribute__ ((unused)),
+	value* val
+);
+
+// evaluates a string
+value* evaluateString(
+	arena* a __attribute__ ((unused)),
+	environment* env __attribute__ ((unused)),
+	value* val
+);
+
+// evaluates a list
+value* evaluateList(arena* a, environment* env, value* val);
+
+// evaluates a function
+value* evaluateFunction(
+	arena* a __attribute__ ((unused)),
+	environment* env __attribute__ ((unused)),
+	value* val
+);
+
+// evaluates a native function
+value* evaluateNative(
+	arena* a __attribute__ ((unused)),
+	environment* env __attribute__ ((unused)),
+	value* val
+);
+
+// evaluates a nil value
+value* evaluateNil(
+	arena* a __attribute__ ((unused)),
+	environment* env __attribute__ ((unused)),
+	value* val
+);
+
+// evaluates a value
 value* evaluateValue(arena* a, environment* env, value* val);
+
 
 #endif

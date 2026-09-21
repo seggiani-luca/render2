@@ -1,8 +1,9 @@
 #include "hierarchy.h"
+#include "../editor.h"
+#include "../selector/selector.h"
+#include "../../gui/widget/widget.h"
 #include "../inspector/inspector.h"
-#include "../widget/widget.h"
 #include "../../exception/exception.h"
-#include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -84,7 +85,7 @@ void addChildGui(window* win) {
 	}
 
 	// push background
-	quadGui(ctx, BACKGROUND, (float4){
+	quadGui(ctx, BACKGROUND, (rectangle){
 		0, 0,
 		WIN, HEIG 
 	}, BG_ABS);
@@ -92,23 +93,23 @@ void addChildGui(window* win) {
 	// push name edit box
 	{
 		// mask
-		quadGui(ctx, SCROLL, (float4){
+		quadGui(ctx, SCROLL, (rectangle){
 			0, 0,
 			WIN, TXT_HEIGHT + 4 PAD
 		}, BG_ABS);
 
 		// push label
-		textGui(ctx, SCROLL, (float2){
+		textGui(ctx, SCROLL, (position){
 			1 PAD, 2 PAD
 		}, "Name:");
 
 		// push name edit box
-		stringGui(ctx, SCROLL, (float4){
+		stringGui(ctx, SCROLL, (rectangle){
 			1 PAD + CHILD_OFF, 1 PAD,
 			WIN - 5 PAD - ICO_SIZ - CHILD_OFF, TXT_HEIGHT + 2 PAD
 		}, name);
 
-		if(buttonGui(ctx, SCROLL, (float4){
+		if(buttonGui(ctx, SCROLL, (rectangle){
 			WIN - 7 PAD, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ICO_LOAD, "")) {	
@@ -129,7 +130,7 @@ void addChildGui(window* win) {
 	// declare child button table
 	typedef struct {
 		const char* label;
-		float4 ico;
+		rectangle ico;
 		entity* (*ctor)(const char* name);
 	} childButton;
 	static const childButton childButtons[] = {
@@ -144,7 +145,7 @@ void addChildGui(window* win) {
 		const childButton* c = &childButtons[i];
 
 		// push new child button
-		if(buttonGui(ctx, SCROLL, (float4){
+		if(buttonGui(ctx, SCROLL, (rectangle){
 			1 PAD, 1 PAD,
 			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
 		}, c->ico, c->label)) {
@@ -195,13 +196,13 @@ hierAction entityHierGui(guiContext* ctx, entity* ent, int depth) {
 
 	// push icon
 	if(depth > 0) {
-		iconGui(ctx, SCROLL, (float2){
+		iconGui(ctx, SCROLL, (position){
 			1 PAD + (depth - 1) * (ICO_SIZ + 1 PAD), 1 PAD
 		}, ICO_INDENT);
 	}
 
 	// push entity button
-	if(buttonGui(ctx, SCROLL, (float4){
+	if(buttonGui(ctx, SCROLL, (rectangle){
 		1 PAD + depth * (ICO_SIZ + 1 PAD), 1 PAD,
 		HIER_ELEM_WIDTH, TXT_HEIGHT + 2 PAD
 	}, ICO_ENTITY, ent->name)) {
@@ -209,7 +210,7 @@ hierAction entityHierGui(guiContext* ctx, entity* ent, int depth) {
 	}
 
 	// push new child button
-	if(buttonGui(ctx, SCROLL, (float4){
+	if(buttonGui(ctx, SCROLL, (rectangle){
 		WIN - 3 PAD - ICO_SIZ, 1 PAD,
 		2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 	}, ICO_NEW, "")) {
@@ -218,7 +219,7 @@ hierAction entityHierGui(guiContext* ctx, entity* ent, int depth) {
 
 	if(depth != 0) {
 		// push delete child button
-		if(buttonGui(ctx, SCROLL, (float4){
+		if(buttonGui(ctx, SCROLL, (rectangle){
 			WIN - 6 PAD - 2 * ICO_SIZ, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ICO_DELETE, "")) {
@@ -226,7 +227,7 @@ hierAction entityHierGui(guiContext* ctx, entity* ent, int depth) {
 		}
 
 		// push move child button
-		if(buttonGui(ctx, SCROLL, (float4){
+		if(buttonGui(ctx, SCROLL, (rectangle){
 			WIN - 9 PAD - 3 * ICO_SIZ, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ICO_MOVE, "")) {
@@ -259,7 +260,7 @@ void sceneGui(window* win) {
 	}
 
 	// push background
-	quadGui(ctx, BACKGROUND, (float4){
+	quadGui(ctx, BACKGROUND, (rectangle){
 		0, 0,
 		WIN, HEIG 
 	}, BG_ABS);
@@ -267,24 +268,24 @@ void sceneGui(window* win) {
 	// push scene label
 	{
 		// mask
-		quadGui(ctx, FIXED, (float4){
+		quadGui(ctx, FIXED, (rectangle){
 			0, 0,
 			WIN, TXT_HEIGHT + 4 PAD
 		}, BG_ABS);
 
 		// push icon
-		iconGui(ctx, FIXED, (float2){
+		iconGui(ctx, FIXED, (position){
 			2 PAD, 2 PAD
 		}, ICO_SCENE);
 
 		// push name edit box
-		stringGui(ctx, FIXED, (float4){
+		stringGui(ctx, FIXED, (rectangle){
 			3 PAD + ICO_SIZ, 1 PAD,
 			WIN - 10 PAD - 3 * ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, scn ? scn->name : NULL);
 
 		// push load button
-		if(buttonGui(ctx, FIXED, (float4){
+		if(buttonGui(ctx, FIXED, (rectangle){
 			WIN - 10 PAD - ICO_SIZ, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ICO_LOAD, "")) {	
@@ -301,7 +302,7 @@ void sceneGui(window* win) {
 		}
 		
 		// push save button
-		if(buttonGui(ctx, FIXED, (float4){
+		if(buttonGui(ctx, FIXED, (rectangle){
 			WIN - 3 PAD - ICO_SIZ, 1 PAD,
 			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
 		}, ICO_SAVE, "")) {	
@@ -420,3 +421,5 @@ renderCallback makeSceneCallback(scene* scn) {
 		freeGui
 	};
 }
+
+

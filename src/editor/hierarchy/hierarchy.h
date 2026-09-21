@@ -1,10 +1,9 @@
-#ifndef GUI_HIERARCHY_H
-#define GUI_HIERARCHY_H
+#ifndef EDITOR_HIERARCHY_H
+#define EDITOR_HIERARCHY_H
 
 #include "../../scene/scene.h"
-#include "../gui.h"
 
-// -- sizing
+// -- constants 
 
 // hierarchy size
 #define HIERARCHY_WIDTH  320

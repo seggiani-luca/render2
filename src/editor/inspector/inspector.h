@@ -1,10 +1,9 @@
-#ifndef GUI_INSPECTOR_H
-#define GUI_INSPECTOR_H
+#ifndef EDITOR_INSPECTOR_H
+#define EDITOR_INSPECTOR_H
 
 #include "../../scene/entity/entity.h"
-#include "../gui.h"
 
-// -- sizing
+// -- constants 
 
 // inspector size
 #define INSPECTOR_WIDTH  320
@@ -69,6 +68,9 @@ int materialFieldGui(const field* f, guiContext* ctx);
 
 // renders a script field to GUI
 int scriptFieldGui(const field* f, guiContext* ctx);
+
+// renders a shader field to GUI
+int shaderFieldGui(const field* f, guiContext* ctx);
 
 // -- entities
 

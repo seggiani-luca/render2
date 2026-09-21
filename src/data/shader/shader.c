@@ -247,3 +247,17 @@ dataRef* shaderImport(const char* vert, const char* frag) {
 void shaderFree(void* dat) {
 	freeData(dat, &shaderTable);
 }
+
+void splitShaderPath(char* path, char** vert, char** frag) {
+	// find comma
+	char* comma = strchr(path, ',');
+	if (!comma) {
+		*frag = *vert = NULL;
+		return;
+	}
+
+	// return strings
+	*comma = '\0';
+	*vert = path;
+	*frag = comma + 1;
+}
