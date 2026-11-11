@@ -1,8 +1,9 @@
 #include "exception/exception.h"
-#include "../lib/window/window.h"
 #include "data/data.h"
+#include "time/time.h"
 #include "scene/scene.h"
 #include "editor/editor.h"
+#include "../lib/window/window.h"
 
 // -- windows
 
@@ -104,7 +105,7 @@ int main() {
 	// main loop 
 	for(;;) {
 		// script update hook 
-		scriptsUpdate(&mainScene->root, 0.5f);
+		scriptsUpdate(&mainScene->root, deltaTime());
 
 		// update windows
 		if(!winUpdate(mainWin))      break;
