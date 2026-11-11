@@ -2,3 +2,6 @@
 
 (define (start)
   (log "Ciao mondo!"))
+
+(define (update)
+  (log delta-time))

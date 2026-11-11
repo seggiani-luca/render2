@@ -264,6 +264,9 @@ void sceneGui(window* win) {
 		// load scene
 		deserializeSceneFile(scn, sCtx->load);
 		ctx->in.dataSet = 0;
+
+		// call script init hook
+		scriptsStart(&scn->root);
 	}
 
 	// push background

@@ -13,9 +13,6 @@ typedef struct {
 
 	// AST of script 
 	scriptContext* ctx;
-
-	// script environment
-	environment* env;
 } script;
 
 // print script info

@@ -95,6 +95,7 @@ void scriptStart(entity* ent) {
 		
 		// get script
 		script* scr = scrField->ref->data;
+		rewindScript(scr->ctx);
 
 		// start hook
 		if(!evaluateFuncFromScript(scr->ctx, START_HOOK))
@@ -114,7 +115,7 @@ void scriptsStart(entity* ent) {
 	}
 }
 
-void scriptUpdate(entity* ent) {
+void scriptUpdate(entity* ent, float deltaTime) {
 	INIT_JUMPS;
 
 	// go through all fields
@@ -131,6 +132,11 @@ void scriptUpdate(entity* ent) {
 		
 		// get script
 		script* scr = scrField->ref->data;
+		rewindScript(scr->ctx);
+
+		// populate environment
+		value* deltaTimeVal = makeNumber(&scr->ctx->execArena, deltaTime);
+		addToFrame(scr->ctx->env->scriptFrame, DELTA_TIME_KEY, deltaTimeVal);
 
 		// start hook
 		if(!evaluateFuncFromScript(scr->ctx, UPDATE_HOOK))
@@ -138,14 +144,14 @@ void scriptUpdate(entity* ent) {
 	}
 }
 
-void scriptsUpdate(entity* ent) {
+void scriptsUpdate(entity* ent, float deltaTime) {
 	// update entity
-	scriptUpdate(ent);
+	scriptUpdate(ent, deltaTime);
 	
 	// update children
 	entity* cur = ent->child;
 	while(cur) {
-		scriptsUpdate(cur);
+		scriptsUpdate(cur, deltaTime);
 		cur = cur->peer;
 	}
 }

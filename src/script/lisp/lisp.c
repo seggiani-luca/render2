@@ -1509,6 +1509,12 @@ value* evaluateValue(arena* a, environment* env, value* val) {
 	}
 }
 
+void rewindScript(scriptContext* scr) {
+	// reset
+	resetArena(&scr->execArena);
+	cleanEnvironment(scr->env);
+}
+
 value* evaluateScript(scriptContext* scr) {
 	INIT_JUMPS;
 
@@ -1525,10 +1531,6 @@ value* evaluateScript(scriptContext* scr) {
 
 value* evaluateFuncFromScript(scriptContext* scr, const char* key) {
 	INIT_JUMPS;
-
-	// reset
-	resetArena(&scr->execArena);
-	cleanEnvironment(scr->env);
 	
 	// get key 
 	envEntry* entry = queryEnvironment(scr->env, key);

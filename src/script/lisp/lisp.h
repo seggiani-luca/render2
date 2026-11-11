@@ -186,6 +186,9 @@ void printEnvironment(environment* env);
 
 // -- evaluating
 
+// rewinds script before execution
+void rewindScript(scriptContext* scr);
+
 // evaluates a full script 
 value* evaluateScript(scriptContext* scr);
 

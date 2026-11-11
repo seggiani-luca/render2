@@ -104,7 +104,7 @@ int main() {
 	// main loop 
 	for(;;) {
 		// script update hook 
-		scriptsUpdate(&mainScene->root);
+		scriptsUpdate(&mainScene->root, 0.5f);
 
 		// update windows
 		if(!winUpdate(mainWin))      break;

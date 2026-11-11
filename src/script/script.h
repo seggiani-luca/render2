@@ -18,6 +18,9 @@ typedef struct entity entity;
 // update hook
 #define UPDATE_HOOK "update"
 
+// script hook keys
+#define DELTA_TIME_KEY "delta-time"
+
 // -- natives
 
 // logs values to console
@@ -38,9 +41,9 @@ void scriptStart(entity* ent);
 void scriptsStart(entity* ent);
 
 // updates a script 
-void scriptUpdate(entity* ent);
+void scriptUpdate(entity* ent, float deltaTime);
 
 // updates all scripts in scene
-void scriptsUpdate(entity* ent);
+void scriptsUpdate(entity* ent, float deltaTime);
 
 #endif

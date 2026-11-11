@@ -41,7 +41,6 @@ void script_free(void* dat) {
 
 	script* scr = (script*)dat;
 	freeScriptContext(scr->ctx);
-	freeEnvironment(scr->env);
 	free(scr->buf);
 
 	free(dat);
