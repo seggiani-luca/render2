@@ -213,9 +213,42 @@ int guiNew(guiContext* ctx) {
 
 	// import shader
 	ctx->gl.shd = guiImportShader(GUI_VERT_PATH, GUI_FRAG_PATH);
+	if(!ctx->gl.shd) {
+		glDeleteBuffers(
+			1,
+			&ctx->gl.quadVBO
+		);
+		glDeleteBuffers(
+			1,
+			&ctx->gl.instanceVBO
+		);
+		glDeleteVertexArrays(
+			1,
+			&ctx->gl.quadVAO
+		);
+
+		return 0;
+	}
 
 	// import texture
 	ctx->gl.tex = guiImportTexture(GUI_ATLAS_PATH);
+	if(!ctx->gl.tex) {
+		glDeleteBuffers(
+			1,
+			&ctx->gl.quadVBO
+		);
+		glDeleteBuffers(
+			1,
+			&ctx->gl.instanceVBO
+		);
+		glDeleteVertexArrays(
+			1,
+			&ctx->gl.quadVAO
+		);
+		guiFreeShader(ctx->gl.shd);
+
+		return 0;
+	}
 
 	return 1;
 }

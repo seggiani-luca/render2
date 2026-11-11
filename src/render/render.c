@@ -541,8 +541,8 @@ void printRenderScene(scene* scene) {
 	printf("Render Entities:\n");
 	renderEntity* cur = render->root;
 	while(cur) {
-		printf("Mesh: %p\n",     cur->mesh    );
-		printf("Material: %p\n", cur->material);
+		printf("Mesh: %p\n",     (void*)cur->mesh    );
+		printf("Material: %p\n", (void*)cur->material);
 
 		printf("Transform:\n");
 		matPrint4(cur->transform);

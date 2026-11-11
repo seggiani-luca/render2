@@ -326,6 +326,10 @@ int shaderFieldGui(const field* f, guiContext* ctx) {
 void addFieldGui(window* win) {
 	// get context
 	addFieldGuiContext* eCtx = (addFieldGuiContext*)guiInit(win);
+	if(!eCtx) {
+		logEvent(WARN, GUI, guiError());
+		return;
+	}
 	guiContext* ctx = &eCtx->gui;
 	entity* ent = eCtx->ent;
 	char* name = eCtx->name;
@@ -446,6 +450,10 @@ winRenderCallback makeAddFieldCallback(entity* ent) {
 void entityGui(window* win) {
 	// get context
 	entityGuiContext* eCtx = (entityGuiContext*)guiInit(win);
+	if(!eCtx) {
+		logEvent(WARN, GUI, guiError());
+		return;
+	}
 	guiContext* ctx = &eCtx->gui;
 	entity* ent = eCtx->ent;
 

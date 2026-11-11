@@ -59,6 +59,10 @@ typedef enum {
 void addChildGui(window* win) {
 	// get context
 	addChildGuiContext* aCtx = (addChildGuiContext*)guiInit(win);
+	if(!aCtx) {
+		logEvent(WARN, GUI, guiError());
+		return;
+	}
 	guiContext* ctx = &aCtx->gui;
 	entity* ent = aCtx->ent;
 	scene* scn = aCtx->scn;
@@ -243,6 +247,10 @@ hierAction entityHierGui(guiContext* ctx, entity* ent, int depth) {
 void sceneGui(window* win) {
 	// get context
 	sceneGuiContext* sCtx = (sceneGuiContext*)guiInit(win);
+	if(!sCtx) {
+		logEvent(WARN, GUI, guiError());
+		return;
+	}
 	guiContext* ctx = &sCtx->gui;
 	scene* scn = sCtx->scn;
 

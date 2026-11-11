@@ -148,7 +148,7 @@ value* makeNative(arena* a, nativeFn fn) {
 }
 
 value* makeNil() {
-	static value nil = (value){
+	static value nil = {
 		.type = VAL_NIL
 	};
 
@@ -713,8 +713,7 @@ void printEnvironment(environment* env) {
 	// go through all frames
 	envLink* head = env->root;
 	while(head) {
-		printf("Frame arena: %p\n",
-			head->frame->arena);
+		printf("Frame arena: %p\n", (void*)head->frame->arena);
 		printFrame(head->frame);
 		if(head->next) printf("\n");
 

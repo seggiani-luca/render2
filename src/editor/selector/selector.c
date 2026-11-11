@@ -63,6 +63,10 @@ typedef struct {
 void dataselGui(window* win) {
 	// get context
 	dataselGuiContext* dCtx = (dataselGuiContext*)guiInit(win);
+	if(!dCtx) {
+		logEvent(WARN, GUI, guiError());
+		return;
+	}
 	guiContext* ctx = &dCtx->gui;
 	dataTable* tab = dCtx->tab;
 	char* path = dCtx->path;
@@ -156,6 +160,10 @@ void dataselGui(window* win) {
 void shaderselGui(window* win) {
 	// get context
 	shaderselGuiContext* dCtx = (shaderselGuiContext*)guiInit(win);
+	if(!dCtx) {
+		logEvent(WARN, GUI, guiError());
+		return;
+	}
 	guiContext* ctx = &dCtx->gui;
 	char* vert = dCtx->vert;
 	char* frag = dCtx->frag;
@@ -265,6 +273,10 @@ void shaderselGui(window* win) {
 void pathselGui(window* win) {
 	// get context
 	pathselGuiContext* pCtx = (pathselGuiContext*)guiInit(win);
+	if(!pCtx) {
+		logEvent(WARN, GUI, guiError());
+		return;
+	}
 	guiContext* ctx = &pCtx->gui;
 	char* path = pCtx->path;
 	guiContext* orig = pCtx->orig;

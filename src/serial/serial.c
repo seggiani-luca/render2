@@ -62,10 +62,9 @@ jsonElement* vectorSerialize(void* val, int n) {
 	jsonElement* elem = newJsonArray(xmalloc);
 
 	// add each component
+	float* values = val;
 	for(int i = 0; i < n; i++) {
-		addJsonAtTail(elem, newJsonNumber(
-			xmalloc, *(float*)(val + i * sizeof(float))
-		));
+		addJsonAtTail(elem, newJsonNumber(xmalloc, values[i]));
 	}
 
 	return elem;
@@ -75,8 +74,9 @@ jsonElement* vectorSerialize(void* val, int n) {
 void vectorDeserialize(void* val, int n, const jsonElement* elem) {
 	// get each component
 	jsonElement* cur = getJsonHead(elem);
+	float* values = val;
 	for(int i = 0; i < n; i++) {
-		*(float*)(val + i * sizeof(float)) = getJsonNumber(cur);
+		values[i] = getJsonNumber(cur);
 		
 		cur = getJsonNext(cur);
 	}
@@ -102,38 +102,42 @@ VEC_SERIAL_IMPL(4)
 
 // serializes a matrix
 jsonElement* matrixSerialize(void* val, int n) {
-	jsonElement* elem = newJsonArray(xmalloc);
+    jsonElement* elem = newJsonArray(xmalloc);
+    float* values = val;
 
-	// add each entry
-	for(int r = 0; r < n; r++) {
-		jsonElement* row = newJsonArray(xmalloc);
+    // add each row
+    for(int r = 0; r < n; r++) {
+        jsonElement* row = newJsonArray(xmalloc);
 
-		for(int c = 0; c < n; c++) {
-			addJsonAtTail(row, newJsonNumber(
-				xmalloc, *(float*)(val + (r + c * n) * sizeof(float))
-			));
-		}
-		
-		addJsonAtTail(elem, row);
-	}
+        for(int c = 0; c < n; c++) {
+            addJsonAtTail(row, newJsonNumber(
+                xmalloc, values[r + c * n]
+            ));
+        }
 
-	return elem;
+        addJsonAtTail(elem, row);
+    }
+
+    return elem;
 }
 
 // deserializes a matrix
 void matrixDeserialize(void* val, int n, const jsonElement* elem) {
-	// get each entry 
-	jsonElement* cur = getJsonHead(elem);
-	for(int r = 0; r < n; r++) {
-		jsonElement* ent = getJsonHead(cur);
-		for(int c = 0; c < n; c++) {
-			*(float*)(val + (r + c * n) * sizeof(float)) = getJsonNumber(ent);
+    float* values = val;
 
-			ent = getJsonNext(ent);
-		}
-		
-		cur = getJsonNext(cur);
-	}
+    // get each entry
+    const jsonElement* cur = getJsonHead(elem);
+
+    for(int r = 0; r < n; r++) {
+        const jsonElement* ent = getJsonHead(cur);
+
+        for(int c = 0; c < n; c++) {
+            values[r + c * n] = getJsonNumber(ent);
+            ent = getJsonNext(ent);
+        }
+
+        cur = getJsonNext(cur);
+    }
 }
 
 // macro for matrix field serialization / deserialization

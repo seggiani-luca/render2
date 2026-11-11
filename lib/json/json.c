@@ -27,19 +27,6 @@ static int isWhitespace(char c) {
 	    || c == ' ';
 }
 
-static int isDigit(char* buf) {
-	// first check this digit
-	char c0 = *buf;
-	if(c0 >= '0' && c0 <= '9') return 1;
-
-	// then check if positive/negative
-	char c1 = *(buf + 1);
-	if(c0 == '+' || c0 == '-')
-		if(c1 >= '0' && c1 <= '9') return 1;
-
-	return 0;
-}
-
 static void eatWhitespace(char** buf) {
 	while(buf && *buf && isWhitespace(**buf)) {
 		(*buf)++;
@@ -678,7 +665,6 @@ void freeJsonObject(jsonDeallocator d, jsonElement* elem) {
 
 // -- errors
 
-// reports JSON errors
 const char* jsonError() {
 	const char* prev = strError;
 	strError = NULL;

@@ -327,7 +327,6 @@ float fbToWinH(window* win, float from) {
 
 // -- errors
 
-// reports window errors
 const char* winError() {
 	const char* prev = strError;
 	strError = NULL;

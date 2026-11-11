@@ -13,4 +13,14 @@
 
 #include "src/gui.h"
 
+// -- errors
+
+/**
+ * Reports an error that happened in the library, for instance from a returned
+ * NULL.
+ *
+ * @return a string representing the last error that happened
+ */
+const char* guiError();
+
 #endif

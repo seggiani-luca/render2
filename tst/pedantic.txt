@@ -1,0 +1,1271 @@
+src/editor/widget/widget.c: In function ‘vectorGui’:
+src/editor/widget/widget.c:22:51: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+   22 |                 if(floatGui(ctx, layId, rect, val + i * sizeof(float))) ret = 1;
+      |                                                   ^
+src/editor/widget/widget.c: In function ‘matrixRowGui’:
+src/editor/widget/widget.c:59:51: warning: pointer of type ‘void *’ used in arithmetic [-Wpointer-arith]
+   59 |                 if(floatGui(ctx, layId, rect, val + n * i * sizeof(float))) ret = 1;
+      |                                                   ^
+In file included from src/editor/hierarchy/../selector/../../../lib/gui/src/gui.h:19,
+                 from src/editor/hierarchy/../selector/../../../lib/gui/gui.h:14,
+                 from src/editor/hierarchy/../selector/selector.h:4,
+                 from src/editor/hierarchy/hierarchy.c:3:
+src/editor/hierarchy/hierarchy.c: In function ‘addChildGui’:
+src/editor/hierarchy/../selector/../../../lib/gui/src/widget/widget.h:43:23: warning: initializer element is not constant [-Wpedantic]
+   43 | #define GUI_ICO(x, y) (guiRect) { GUI_UV(x, y), GUI_UV(x + 1,  y + 1) }
+      |                       ^
+src/editor/hierarchy/../editor.h:7:20: note: in expansion of macro ‘GUI_ICO’
+    7 | #define ICO_ENTITY GUI_ICO(0,  4)
+      |                    ^~~~~~~
+src/editor/hierarchy/hierarchy.c:136:33: note: in expansion of macro ‘ICO_ENTITY’
+  136 |                 { "New Child",  ICO_ENTITY, newRenderableEntity },
+      |                                 ^~~~~~~~~~
+src/editor/hierarchy/../selector/../../../lib/gui/src/widget/widget.h:43:23: note: (near initialization for ‘childButtons[0].ico’)
+src/editor/hierarchy/../editor.h:7:20: note: in expansion of macro ‘GUI_ICO’
+    7 | #define ICO_ENTITY GUI_ICO(0,  4)
+      |                    ^~~~~~~
+src/editor/hierarchy/hierarchy.c:136:33: note: in expansion of macro ‘ICO_ENTITY’
+  136 |                 { "New Child",  ICO_ENTITY, newRenderableEntity },
+      |                                 ^~~~~~~~~~
+src/editor/hierarchy/../selector/../../../lib/gui/src/widget/widget.h:43:23: warning: initializer element is not constant [-Wpedantic]
+   43 | #define GUI_ICO(x, y) (guiRect) { GUI_UV(x, y), GUI_UV(x + 1,  y + 1) }
+      |                       ^
+src/editor/hierarchy/../editor.h:32:20: note: in expansion of macro ‘GUI_ICO’
+   32 | #define ICO_ATMOS  GUI_ICO(11, 5)
+      |                    ^~~~~~~
+src/editor/hierarchy/hierarchy.c:137:33: note: in expansion of macro ‘ICO_ATMOS’
+  137 |                 { "New Sun",    ICO_ATMOS,  newSunEntity        },
+      |                                 ^~~~~~~~~
+src/editor/hierarchy/../selector/../../../lib/gui/src/widget/widget.h:43:23: note: (near initialization for ‘childButtons[1].ico’)
+src/editor/hierarchy/../editor.h:32:20: note: in expansion of macro ‘GUI_ICO’
+   32 | #define ICO_ATMOS  GUI_ICO(11, 5)
+      |                    ^~~~~~~
+src/editor/hierarchy/hierarchy.c:137:33: note: in expansion of macro ‘ICO_ATMOS’
+  137 |                 { "New Sun",    ICO_ATMOS,  newSunEntity        },
+      |                                 ^~~~~~~~~
+src/editor/hierarchy/../selector/../../../lib/gui/src/widget/widget.h:43:23: warning: initializer element is not constant [-Wpedantic]
+   43 | #define GUI_ICO(x, y) (guiRect) { GUI_UV(x, y), GUI_UV(x + 1,  y + 1) }
+      |                       ^
+src/editor/hierarchy/../editor.h:31:20: note: in expansion of macro ‘GUI_ICO’
+   31 | #define ICO_CAMERA GUI_ICO(10, 5)
+      |                    ^~~~~~~
+src/editor/hierarchy/hierarchy.c:138:33: note: in expansion of macro ‘ICO_CAMERA’
+  138 |                 { "New Camera", ICO_CAMERA, newCameraEntity     },
+      |                                 ^~~~~~~~~~
+src/editor/hierarchy/../selector/../../../lib/gui/src/widget/widget.h:43:23: note: (near initialization for ‘childButtons[2].ico’)
+src/editor/hierarchy/../editor.h:31:20: note: in expansion of macro ‘GUI_ICO’
+   31 | #define ICO_CAMERA GUI_ICO(10, 5)
+      |                    ^~~~~~~
+src/editor/hierarchy/hierarchy.c:138:33: note: in expansion of macro ‘ICO_CAMERA’
+  138 |                 { "New Camera", ICO_CAMERA, newCameraEntity     },
+      |                                 ^~~~~~~~~~
+src/editor/hierarchy/../selector/../../../lib/gui/src/widget/widget.h:43:23: warning: initializer element is not constant [-Wpedantic]
+   43 | #define GUI_ICO(x, y) (guiRect) { GUI_UV(x, y), GUI_UV(x + 1,  y + 1) }
+      |                       ^
+src/editor/hierarchy/../editor.h:34:20: note: in expansion of macro ‘GUI_ICO’
+   34 | #define ICO_EMPTY  GUI_ICO(13, 5)
+      |                    ^~~~~~~
+src/editor/hierarchy/hierarchy.c:139:33: note: in expansion of macro ‘ICO_EMPTY’
+  139 |                 { "New Empty",  ICO_EMPTY,  newEntity           }
+      |                                 ^~~~~~~~~
+src/editor/hierarchy/../selector/../../../lib/gui/src/widget/widget.h:43:23: note: (near initialization for ‘childButtons[3].ico’)
+src/editor/hierarchy/../editor.h:34:20: note: in expansion of macro ‘GUI_ICO’
+   34 | #define ICO_EMPTY  GUI_ICO(13, 5)
+      |                    ^~~~~~~
+src/editor/hierarchy/hierarchy.c:139:33: note: in expansion of macro ‘ICO_EMPTY’
+  139 |                 { "New Empty",  ICO_EMPTY,  newEntity           }
+      |                                 ^~~~~~~~~
+src/scene/entity/entity.c:360:21: warning: ISO C does not allow extra ‘;’ outside of a function [-Wpedantic]
+  360 | VTABLE_FREE(texture);
+      |                     ^
+src/scene/entity/entity.c:393:18: warning: ISO C does not allow extra ‘;’ outside of a function [-Wpedantic]
+  393 | VTABLE_FREE(mesh);
+      |                  ^
+src/scene/entity/entity.c:426:22: warning: ISO C does not allow extra ‘;’ outside of a function [-Wpedantic]
+  426 | VTABLE_FREE(material);
+      |                      ^
+src/scene/entity/entity.c:459:20: warning: ISO C does not allow extra ‘;’ outside of a function [-Wpedantic]
+  459 | VTABLE_FREE(script);
+      |                    ^
+src/scene/entity/entity.c:492:20: warning: ISO C does not allow extra ‘;’ outside of a function [-Wpedantic]
+  492 | VTABLE_FREE(shader);
+      |                    ^
+lib/glad/glad.c: In function ‘open_gl’:
+lib/glad/glad.c:108:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  108 |             gladGetProcAddressPtr = (PFNGLXGETPROCADDRESSPROC_PRIVATE)dlsym(libGL,
+      |                                     ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_1_0’:
+lib/glad/glad.c:646:27: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  646 |         glad_glCullFace = (PFNGLCULLFACEPROC)load("glCullFace");
+      |                           ^
+lib/glad/glad.c:647:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  647 |         glad_glFrontFace = (PFNGLFRONTFACEPROC)load("glFrontFace");
+      |                            ^
+lib/glad/glad.c:648:23: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  648 |         glad_glHint = (PFNGLHINTPROC)load("glHint");
+      |                       ^
+lib/glad/glad.c:649:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  649 |         glad_glLineWidth = (PFNGLLINEWIDTHPROC)load("glLineWidth");
+      |                            ^
+lib/glad/glad.c:650:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  650 |         glad_glPointSize = (PFNGLPOINTSIZEPROC)load("glPointSize");
+      |                            ^
+lib/glad/glad.c:651:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  651 |         glad_glPolygonMode = (PFNGLPOLYGONMODEPROC)load("glPolygonMode");
+      |                              ^
+lib/glad/glad.c:652:26: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  652 |         glad_glScissor = (PFNGLSCISSORPROC)load("glScissor");
+      |                          ^
+lib/glad/glad.c:653:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  653 |         glad_glTexParameterf = (PFNGLTEXPARAMETERFPROC)load("glTexParameterf");
+      |                                ^
+lib/glad/glad.c:654:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  654 |         glad_glTexParameterfv = (PFNGLTEXPARAMETERFVPROC)load("glTexParameterfv");
+      |                                 ^
+lib/glad/glad.c:655:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  655 |         glad_glTexParameteri = (PFNGLTEXPARAMETERIPROC)load("glTexParameteri");
+      |                                ^
+lib/glad/glad.c:656:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  656 |         glad_glTexParameteriv = (PFNGLTEXPARAMETERIVPROC)load("glTexParameteriv");
+      |                                 ^
+lib/glad/glad.c:657:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  657 |         glad_glTexImage1D = (PFNGLTEXIMAGE1DPROC)load("glTexImage1D");
+      |                             ^
+lib/glad/glad.c:658:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  658 |         glad_glTexImage2D = (PFNGLTEXIMAGE2DPROC)load("glTexImage2D");
+      |                             ^
+lib/glad/glad.c:659:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  659 |         glad_glDrawBuffer = (PFNGLDRAWBUFFERPROC)load("glDrawBuffer");
+      |                             ^
+lib/glad/glad.c:660:24: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  660 |         glad_glClear = (PFNGLCLEARPROC)load("glClear");
+      |                        ^
+lib/glad/glad.c:661:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  661 |         glad_glClearColor = (PFNGLCLEARCOLORPROC)load("glClearColor");
+      |                             ^
+lib/glad/glad.c:662:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  662 |         glad_glClearStencil = (PFNGLCLEARSTENCILPROC)load("glClearStencil");
+      |                               ^
+lib/glad/glad.c:663:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  663 |         glad_glClearDepth = (PFNGLCLEARDEPTHPROC)load("glClearDepth");
+      |                             ^
+lib/glad/glad.c:664:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  664 |         glad_glStencilMask = (PFNGLSTENCILMASKPROC)load("glStencilMask");
+      |                              ^
+lib/glad/glad.c:665:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  665 |         glad_glColorMask = (PFNGLCOLORMASKPROC)load("glColorMask");
+      |                            ^
+lib/glad/glad.c:666:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  666 |         glad_glDepthMask = (PFNGLDEPTHMASKPROC)load("glDepthMask");
+      |                            ^
+lib/glad/glad.c:667:26: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  667 |         glad_glDisable = (PFNGLDISABLEPROC)load("glDisable");
+      |                          ^
+lib/glad/glad.c:668:25: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  668 |         glad_glEnable = (PFNGLENABLEPROC)load("glEnable");
+      |                         ^
+lib/glad/glad.c:669:25: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  669 |         glad_glFinish = (PFNGLFINISHPROC)load("glFinish");
+      |                         ^
+lib/glad/glad.c:670:24: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  670 |         glad_glFlush = (PFNGLFLUSHPROC)load("glFlush");
+      |                        ^
+lib/glad/glad.c:671:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  671 |         glad_glBlendFunc = (PFNGLBLENDFUNCPROC)load("glBlendFunc");
+      |                            ^
+lib/glad/glad.c:672:26: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  672 |         glad_glLogicOp = (PFNGLLOGICOPPROC)load("glLogicOp");
+      |                          ^
+lib/glad/glad.c:673:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  673 |         glad_glStencilFunc = (PFNGLSTENCILFUNCPROC)load("glStencilFunc");
+      |                              ^
+lib/glad/glad.c:674:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  674 |         glad_glStencilOp = (PFNGLSTENCILOPPROC)load("glStencilOp");
+      |                            ^
+lib/glad/glad.c:675:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  675 |         glad_glDepthFunc = (PFNGLDEPTHFUNCPROC)load("glDepthFunc");
+      |                            ^
+lib/glad/glad.c:676:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  676 |         glad_glPixelStoref = (PFNGLPIXELSTOREFPROC)load("glPixelStoref");
+      |                              ^
+lib/glad/glad.c:677:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  677 |         glad_glPixelStorei = (PFNGLPIXELSTOREIPROC)load("glPixelStorei");
+      |                              ^
+lib/glad/glad.c:678:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  678 |         glad_glReadBuffer = (PFNGLREADBUFFERPROC)load("glReadBuffer");
+      |                             ^
+lib/glad/glad.c:679:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  679 |         glad_glReadPixels = (PFNGLREADPIXELSPROC)load("glReadPixels");
+      |                             ^
+lib/glad/glad.c:680:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  680 |         glad_glGetBooleanv = (PFNGLGETBOOLEANVPROC)load("glGetBooleanv");
+      |                              ^
+lib/glad/glad.c:681:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  681 |         glad_glGetDoublev = (PFNGLGETDOUBLEVPROC)load("glGetDoublev");
+      |                             ^
+lib/glad/glad.c:682:27: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  682 |         glad_glGetError = (PFNGLGETERRORPROC)load("glGetError");
+      |                           ^
+lib/glad/glad.c:683:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  683 |         glad_glGetFloatv = (PFNGLGETFLOATVPROC)load("glGetFloatv");
+      |                            ^
+lib/glad/glad.c:684:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  684 |         glad_glGetIntegerv = (PFNGLGETINTEGERVPROC)load("glGetIntegerv");
+      |                              ^
+lib/glad/glad.c:685:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  685 |         glad_glGetString = (PFNGLGETSTRINGPROC)load("glGetString");
+      |                            ^
+lib/glad/glad.c:686:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  686 |         glad_glGetTexImage = (PFNGLGETTEXIMAGEPROC)load("glGetTexImage");
+      |                              ^
+lib/glad/glad.c:687:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  687 |         glad_glGetTexParameterfv = (PFNGLGETTEXPARAMETERFVPROC)load("glGetTexParameterfv");
+      |                                    ^
+lib/glad/glad.c:688:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  688 |         glad_glGetTexParameteriv = (PFNGLGETTEXPARAMETERIVPROC)load("glGetTexParameteriv");
+      |                                    ^
+lib/glad/glad.c:689:41: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  689 |         glad_glGetTexLevelParameterfv = (PFNGLGETTEXLEVELPARAMETERFVPROC)load("glGetTexLevelParameterfv");
+      |                                         ^
+lib/glad/glad.c:690:41: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  690 |         glad_glGetTexLevelParameteriv = (PFNGLGETTEXLEVELPARAMETERIVPROC)load("glGetTexLevelParameteriv");
+      |                                         ^
+lib/glad/glad.c:691:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  691 |         glad_glIsEnabled = (PFNGLISENABLEDPROC)load("glIsEnabled");
+      |                            ^
+lib/glad/glad.c:692:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  692 |         glad_glDepthRange = (PFNGLDEPTHRANGEPROC)load("glDepthRange");
+      |                             ^
+lib/glad/glad.c:693:27: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  693 |         glad_glViewport = (PFNGLVIEWPORTPROC)load("glViewport");
+      |                           ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_1_1’:
+lib/glad/glad.c:697:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  697 |         glad_glDrawArrays = (PFNGLDRAWARRAYSPROC)load("glDrawArrays");
+      |                             ^
+lib/glad/glad.c:698:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  698 |         glad_glDrawElements = (PFNGLDRAWELEMENTSPROC)load("glDrawElements");
+      |                               ^
+lib/glad/glad.c:699:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  699 |         glad_glPolygonOffset = (PFNGLPOLYGONOFFSETPROC)load("glPolygonOffset");
+      |                                ^
+lib/glad/glad.c:700:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  700 |         glad_glCopyTexImage1D = (PFNGLCOPYTEXIMAGE1DPROC)load("glCopyTexImage1D");
+      |                                 ^
+lib/glad/glad.c:701:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  701 |         glad_glCopyTexImage2D = (PFNGLCOPYTEXIMAGE2DPROC)load("glCopyTexImage2D");
+      |                                 ^
+lib/glad/glad.c:702:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  702 |         glad_glCopyTexSubImage1D = (PFNGLCOPYTEXSUBIMAGE1DPROC)load("glCopyTexSubImage1D");
+      |                                    ^
+lib/glad/glad.c:703:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  703 |         glad_glCopyTexSubImage2D = (PFNGLCOPYTEXSUBIMAGE2DPROC)load("glCopyTexSubImage2D");
+      |                                    ^
+lib/glad/glad.c:704:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  704 |         glad_glTexSubImage1D = (PFNGLTEXSUBIMAGE1DPROC)load("glTexSubImage1D");
+      |                                ^
+lib/glad/glad.c:705:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  705 |         glad_glTexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC)load("glTexSubImage2D");
+      |                                ^
+lib/glad/glad.c:706:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  706 |         glad_glBindTexture = (PFNGLBINDTEXTUREPROC)load("glBindTexture");
+      |                              ^
+lib/glad/glad.c:707:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  707 |         glad_glDeleteTextures = (PFNGLDELETETEXTURESPROC)load("glDeleteTextures");
+      |                                 ^
+lib/glad/glad.c:708:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  708 |         glad_glGenTextures = (PFNGLGENTEXTURESPROC)load("glGenTextures");
+      |                              ^
+lib/glad/glad.c:709:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  709 |         glad_glIsTexture = (PFNGLISTEXTUREPROC)load("glIsTexture");
+      |                            ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_1_2’:
+lib/glad/glad.c:713:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  713 |         glad_glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)load("glDrawRangeElements");
+      |                                    ^
+lib/glad/glad.c:714:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  714 |         glad_glTexImage3D = (PFNGLTEXIMAGE3DPROC)load("glTexImage3D");
+      |                             ^
+lib/glad/glad.c:715:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  715 |         glad_glTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC)load("glTexSubImage3D");
+      |                                ^
+lib/glad/glad.c:716:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  716 |         glad_glCopyTexSubImage3D = (PFNGLCOPYTEXSUBIMAGE3DPROC)load("glCopyTexSubImage3D");
+      |                                    ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_1_3’:
+lib/glad/glad.c:720:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  720 |         glad_glActiveTexture = (PFNGLACTIVETEXTUREPROC)load("glActiveTexture");
+      |                                ^
+lib/glad/glad.c:721:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  721 |         glad_glSampleCoverage = (PFNGLSAMPLECOVERAGEPROC)load("glSampleCoverage");
+      |                                 ^
+lib/glad/glad.c:722:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  722 |         glad_glCompressedTexImage3D = (PFNGLCOMPRESSEDTEXIMAGE3DPROC)load("glCompressedTexImage3D");
+      |                                       ^
+lib/glad/glad.c:723:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  723 |         glad_glCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)load("glCompressedTexImage2D");
+      |                                       ^
+lib/glad/glad.c:724:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  724 |         glad_glCompressedTexImage1D = (PFNGLCOMPRESSEDTEXIMAGE1DPROC)load("glCompressedTexImage1D");
+      |                                       ^
+lib/glad/glad.c:725:42: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  725 |         glad_glCompressedTexSubImage3D = (PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC)load("glCompressedTexSubImage3D");
+      |                                          ^
+lib/glad/glad.c:726:42: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  726 |         glad_glCompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC)load("glCompressedTexSubImage2D");
+      |                                          ^
+lib/glad/glad.c:727:42: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  727 |         glad_glCompressedTexSubImage1D = (PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC)load("glCompressedTexSubImage1D");
+      |                                          ^
+lib/glad/glad.c:728:40: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  728 |         glad_glGetCompressedTexImage = (PFNGLGETCOMPRESSEDTEXIMAGEPROC)load("glGetCompressedTexImage");
+      |                                        ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_1_4’:
+lib/glad/glad.c:732:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  732 |         glad_glBlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)load("glBlendFuncSeparate");
+      |                                    ^
+lib/glad/glad.c:733:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  733 |         glad_glMultiDrawArrays = (PFNGLMULTIDRAWARRAYSPROC)load("glMultiDrawArrays");
+      |                                  ^
+lib/glad/glad.c:734:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  734 |         glad_glMultiDrawElements = (PFNGLMULTIDRAWELEMENTSPROC)load("glMultiDrawElements");
+      |                                    ^
+lib/glad/glad.c:735:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  735 |         glad_glPointParameterf = (PFNGLPOINTPARAMETERFPROC)load("glPointParameterf");
+      |                                  ^
+lib/glad/glad.c:736:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  736 |         glad_glPointParameterfv = (PFNGLPOINTPARAMETERFVPROC)load("glPointParameterfv");
+      |                                   ^
+lib/glad/glad.c:737:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  737 |         glad_glPointParameteri = (PFNGLPOINTPARAMETERIPROC)load("glPointParameteri");
+      |                                  ^
+lib/glad/glad.c:738:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  738 |         glad_glPointParameteriv = (PFNGLPOINTPARAMETERIVPROC)load("glPointParameteriv");
+      |                                   ^
+lib/glad/glad.c:739:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  739 |         glad_glBlendColor = (PFNGLBLENDCOLORPROC)load("glBlendColor");
+      |                             ^
+lib/glad/glad.c:740:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  740 |         glad_glBlendEquation = (PFNGLBLENDEQUATIONPROC)load("glBlendEquation");
+      |                                ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_1_5’:
+lib/glad/glad.c:744:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  744 |         glad_glGenQueries = (PFNGLGENQUERIESPROC)load("glGenQueries");
+      |                             ^
+lib/glad/glad.c:745:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  745 |         glad_glDeleteQueries = (PFNGLDELETEQUERIESPROC)load("glDeleteQueries");
+      |                                ^
+lib/glad/glad.c:746:26: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  746 |         glad_glIsQuery = (PFNGLISQUERYPROC)load("glIsQuery");
+      |                          ^
+lib/glad/glad.c:747:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  747 |         glad_glBeginQuery = (PFNGLBEGINQUERYPROC)load("glBeginQuery");
+      |                             ^
+lib/glad/glad.c:748:27: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  748 |         glad_glEndQuery = (PFNGLENDQUERYPROC)load("glEndQuery");
+      |                           ^
+lib/glad/glad.c:749:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  749 |         glad_glGetQueryiv = (PFNGLGETQUERYIVPROC)load("glGetQueryiv");
+      |                             ^
+lib/glad/glad.c:750:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  750 |         glad_glGetQueryObjectiv = (PFNGLGETQUERYOBJECTIVPROC)load("glGetQueryObjectiv");
+      |                                   ^
+lib/glad/glad.c:751:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  751 |         glad_glGetQueryObjectuiv = (PFNGLGETQUERYOBJECTUIVPROC)load("glGetQueryObjectuiv");
+      |                                    ^
+lib/glad/glad.c:752:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  752 |         glad_glBindBuffer = (PFNGLBINDBUFFERPROC)load("glBindBuffer");
+      |                             ^
+lib/glad/glad.c:753:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  753 |         glad_glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)load("glDeleteBuffers");
+      |                                ^
+lib/glad/glad.c:754:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  754 |         glad_glGenBuffers = (PFNGLGENBUFFERSPROC)load("glGenBuffers");
+      |                             ^
+lib/glad/glad.c:755:27: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  755 |         glad_glIsBuffer = (PFNGLISBUFFERPROC)load("glIsBuffer");
+      |                           ^
+lib/glad/glad.c:756:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  756 |         glad_glBufferData = (PFNGLBUFFERDATAPROC)load("glBufferData");
+      |                             ^
+lib/glad/glad.c:757:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  757 |         glad_glBufferSubData = (PFNGLBUFFERSUBDATAPROC)load("glBufferSubData");
+      |                                ^
+lib/glad/glad.c:758:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  758 |         glad_glGetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)load("glGetBufferSubData");
+      |                                   ^
+lib/glad/glad.c:759:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  759 |         glad_glMapBuffer = (PFNGLMAPBUFFERPROC)load("glMapBuffer");
+      |                            ^
+lib/glad/glad.c:760:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  760 |         glad_glUnmapBuffer = (PFNGLUNMAPBUFFERPROC)load("glUnmapBuffer");
+      |                              ^
+lib/glad/glad.c:761:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  761 |         glad_glGetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC)load("glGetBufferParameteriv");
+      |                                       ^
+lib/glad/glad.c:762:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  762 |         glad_glGetBufferPointerv = (PFNGLGETBUFFERPOINTERVPROC)load("glGetBufferPointerv");
+      |                                    ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_2_0’:
+lib/glad/glad.c:766:40: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  766 |         glad_glBlendEquationSeparate = (PFNGLBLENDEQUATIONSEPARATEPROC)load("glBlendEquationSeparate");
+      |                                        ^
+lib/glad/glad.c:767:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  767 |         glad_glDrawBuffers = (PFNGLDRAWBUFFERSPROC)load("glDrawBuffers");
+      |                              ^
+lib/glad/glad.c:768:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  768 |         glad_glStencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC)load("glStencilOpSeparate");
+      |                                    ^
+lib/glad/glad.c:769:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  769 |         glad_glStencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEPROC)load("glStencilFuncSeparate");
+      |                                      ^
+lib/glad/glad.c:770:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  770 |         glad_glStencilMaskSeparate = (PFNGLSTENCILMASKSEPARATEPROC)load("glStencilMaskSeparate");
+      |                                      ^
+lib/glad/glad.c:771:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  771 |         glad_glAttachShader = (PFNGLATTACHSHADERPROC)load("glAttachShader");
+      |                               ^
+lib/glad/glad.c:772:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  772 |         glad_glBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)load("glBindAttribLocation");
+      |                                     ^
+lib/glad/glad.c:773:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  773 |         glad_glCompileShader = (PFNGLCOMPILESHADERPROC)load("glCompileShader");
+      |                                ^
+lib/glad/glad.c:774:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  774 |         glad_glCreateProgram = (PFNGLCREATEPROGRAMPROC)load("glCreateProgram");
+      |                                ^
+lib/glad/glad.c:775:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  775 |         glad_glCreateShader = (PFNGLCREATESHADERPROC)load("glCreateShader");
+      |                               ^
+lib/glad/glad.c:776:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  776 |         glad_glDeleteProgram = (PFNGLDELETEPROGRAMPROC)load("glDeleteProgram");
+      |                                ^
+lib/glad/glad.c:777:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  777 |         glad_glDeleteShader = (PFNGLDELETESHADERPROC)load("glDeleteShader");
+      |                               ^
+lib/glad/glad.c:778:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  778 |         glad_glDetachShader = (PFNGLDETACHSHADERPROC)load("glDetachShader");
+      |                               ^
+lib/glad/glad.c:779:43: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  779 |         glad_glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)load("glDisableVertexAttribArray");
+      |                                           ^
+lib/glad/glad.c:780:42: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  780 |         glad_glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)load("glEnableVertexAttribArray");
+      |                                          ^
+lib/glad/glad.c:781:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  781 |         glad_glGetActiveAttrib = (PFNGLGETACTIVEATTRIBPROC)load("glGetActiveAttrib");
+      |                                  ^
+lib/glad/glad.c:782:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  782 |         glad_glGetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC)load("glGetActiveUniform");
+      |                                   ^
+lib/glad/glad.c:783:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  783 |         glad_glGetAttachedShaders = (PFNGLGETATTACHEDSHADERSPROC)load("glGetAttachedShaders");
+      |                                     ^
+lib/glad/glad.c:784:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  784 |         glad_glGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)load("glGetAttribLocation");
+      |                                    ^
+lib/glad/glad.c:785:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  785 |         glad_glGetProgramiv = (PFNGLGETPROGRAMIVPROC)load("glGetProgramiv");
+      |                               ^
+lib/glad/glad.c:786:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  786 |         glad_glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)load("glGetProgramInfoLog");
+      |                                    ^
+lib/glad/glad.c:787:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  787 |         glad_glGetShaderiv = (PFNGLGETSHADERIVPROC)load("glGetShaderiv");
+      |                              ^
+lib/glad/glad.c:788:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  788 |         glad_glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)load("glGetShaderInfoLog");
+      |                                   ^
+lib/glad/glad.c:789:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  789 |         glad_glGetShaderSource = (PFNGLGETSHADERSOURCEPROC)load("glGetShaderSource");
+      |                                  ^
+lib/glad/glad.c:790:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  790 |         glad_glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)load("glGetUniformLocation");
+      |                                     ^
+lib/glad/glad.c:791:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  791 |         glad_glGetUniformfv = (PFNGLGETUNIFORMFVPROC)load("glGetUniformfv");
+      |                               ^
+lib/glad/glad.c:792:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  792 |         glad_glGetUniformiv = (PFNGLGETUNIFORMIVPROC)load("glGetUniformiv");
+      |                               ^
+lib/glad/glad.c:793:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  793 |         glad_glGetVertexAttribdv = (PFNGLGETVERTEXATTRIBDVPROC)load("glGetVertexAttribdv");
+      |                                    ^
+lib/glad/glad.c:794:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  794 |         glad_glGetVertexAttribfv = (PFNGLGETVERTEXATTRIBFVPROC)load("glGetVertexAttribfv");
+      |                                    ^
+lib/glad/glad.c:795:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  795 |         glad_glGetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC)load("glGetVertexAttribiv");
+      |                                    ^
+lib/glad/glad.c:796:42: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  796 |         glad_glGetVertexAttribPointerv = (PFNGLGETVERTEXATTRIBPOINTERVPROC)load("glGetVertexAttribPointerv");
+      |                                          ^
+lib/glad/glad.c:797:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  797 |         glad_glIsProgram = (PFNGLISPROGRAMPROC)load("glIsProgram");
+      |                            ^
+lib/glad/glad.c:798:27: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  798 |         glad_glIsShader = (PFNGLISSHADERPROC)load("glIsShader");
+      |                           ^
+lib/glad/glad.c:799:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  799 |         glad_glLinkProgram = (PFNGLLINKPROGRAMPROC)load("glLinkProgram");
+      |                              ^
+lib/glad/glad.c:800:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  800 |         glad_glShaderSource = (PFNGLSHADERSOURCEPROC)load("glShaderSource");
+      |                               ^
+lib/glad/glad.c:801:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  801 |         glad_glUseProgram = (PFNGLUSEPROGRAMPROC)load("glUseProgram");
+      |                             ^
+lib/glad/glad.c:802:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  802 |         glad_glUniform1f = (PFNGLUNIFORM1FPROC)load("glUniform1f");
+      |                            ^
+lib/glad/glad.c:803:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  803 |         glad_glUniform2f = (PFNGLUNIFORM2FPROC)load("glUniform2f");
+      |                            ^
+lib/glad/glad.c:804:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  804 |         glad_glUniform3f = (PFNGLUNIFORM3FPROC)load("glUniform3f");
+      |                            ^
+lib/glad/glad.c:805:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  805 |         glad_glUniform4f = (PFNGLUNIFORM4FPROC)load("glUniform4f");
+      |                            ^
+lib/glad/glad.c:806:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  806 |         glad_glUniform1i = (PFNGLUNIFORM1IPROC)load("glUniform1i");
+      |                            ^
+lib/glad/glad.c:807:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  807 |         glad_glUniform2i = (PFNGLUNIFORM2IPROC)load("glUniform2i");
+      |                            ^
+lib/glad/glad.c:808:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  808 |         glad_glUniform3i = (PFNGLUNIFORM3IPROC)load("glUniform3i");
+      |                            ^
+lib/glad/glad.c:809:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  809 |         glad_glUniform4i = (PFNGLUNIFORM4IPROC)load("glUniform4i");
+      |                            ^
+lib/glad/glad.c:810:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  810 |         glad_glUniform1fv = (PFNGLUNIFORM1FVPROC)load("glUniform1fv");
+      |                             ^
+lib/glad/glad.c:811:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  811 |         glad_glUniform2fv = (PFNGLUNIFORM2FVPROC)load("glUniform2fv");
+      |                             ^
+lib/glad/glad.c:812:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  812 |         glad_glUniform3fv = (PFNGLUNIFORM3FVPROC)load("glUniform3fv");
+      |                             ^
+lib/glad/glad.c:813:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  813 |         glad_glUniform4fv = (PFNGLUNIFORM4FVPROC)load("glUniform4fv");
+      |                             ^
+lib/glad/glad.c:814:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  814 |         glad_glUniform1iv = (PFNGLUNIFORM1IVPROC)load("glUniform1iv");
+      |                             ^
+lib/glad/glad.c:815:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  815 |         glad_glUniform2iv = (PFNGLUNIFORM2IVPROC)load("glUniform2iv");
+      |                             ^
+lib/glad/glad.c:816:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  816 |         glad_glUniform3iv = (PFNGLUNIFORM3IVPROC)load("glUniform3iv");
+      |                             ^
+lib/glad/glad.c:817:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  817 |         glad_glUniform4iv = (PFNGLUNIFORM4IVPROC)load("glUniform4iv");
+      |                             ^
+lib/glad/glad.c:818:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  818 |         glad_glUniformMatrix2fv = (PFNGLUNIFORMMATRIX2FVPROC)load("glUniformMatrix2fv");
+      |                                   ^
+lib/glad/glad.c:819:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  819 |         glad_glUniformMatrix3fv = (PFNGLUNIFORMMATRIX3FVPROC)load("glUniformMatrix3fv");
+      |                                   ^
+lib/glad/glad.c:820:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  820 |         glad_glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)load("glUniformMatrix4fv");
+      |                                   ^
+lib/glad/glad.c:821:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  821 |         glad_glValidateProgram = (PFNGLVALIDATEPROGRAMPROC)load("glValidateProgram");
+      |                                  ^
+lib/glad/glad.c:822:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  822 |         glad_glVertexAttrib1d = (PFNGLVERTEXATTRIB1DPROC)load("glVertexAttrib1d");
+      |                                 ^
+lib/glad/glad.c:823:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  823 |         glad_glVertexAttrib1dv = (PFNGLVERTEXATTRIB1DVPROC)load("glVertexAttrib1dv");
+      |                                  ^
+lib/glad/glad.c:824:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  824 |         glad_glVertexAttrib1f = (PFNGLVERTEXATTRIB1FPROC)load("glVertexAttrib1f");
+      |                                 ^
+lib/glad/glad.c:825:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  825 |         glad_glVertexAttrib1fv = (PFNGLVERTEXATTRIB1FVPROC)load("glVertexAttrib1fv");
+      |                                  ^
+lib/glad/glad.c:826:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  826 |         glad_glVertexAttrib1s = (PFNGLVERTEXATTRIB1SPROC)load("glVertexAttrib1s");
+      |                                 ^
+lib/glad/glad.c:827:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  827 |         glad_glVertexAttrib1sv = (PFNGLVERTEXATTRIB1SVPROC)load("glVertexAttrib1sv");
+      |                                  ^
+lib/glad/glad.c:828:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  828 |         glad_glVertexAttrib2d = (PFNGLVERTEXATTRIB2DPROC)load("glVertexAttrib2d");
+      |                                 ^
+lib/glad/glad.c:829:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  829 |         glad_glVertexAttrib2dv = (PFNGLVERTEXATTRIB2DVPROC)load("glVertexAttrib2dv");
+      |                                  ^
+lib/glad/glad.c:830:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  830 |         glad_glVertexAttrib2f = (PFNGLVERTEXATTRIB2FPROC)load("glVertexAttrib2f");
+      |                                 ^
+lib/glad/glad.c:831:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  831 |         glad_glVertexAttrib2fv = (PFNGLVERTEXATTRIB2FVPROC)load("glVertexAttrib2fv");
+      |                                  ^
+lib/glad/glad.c:832:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  832 |         glad_glVertexAttrib2s = (PFNGLVERTEXATTRIB2SPROC)load("glVertexAttrib2s");
+      |                                 ^
+lib/glad/glad.c:833:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  833 |         glad_glVertexAttrib2sv = (PFNGLVERTEXATTRIB2SVPROC)load("glVertexAttrib2sv");
+      |                                  ^
+lib/glad/glad.c:834:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  834 |         glad_glVertexAttrib3d = (PFNGLVERTEXATTRIB3DPROC)load("glVertexAttrib3d");
+      |                                 ^
+lib/glad/glad.c:835:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  835 |         glad_glVertexAttrib3dv = (PFNGLVERTEXATTRIB3DVPROC)load("glVertexAttrib3dv");
+      |                                  ^
+lib/glad/glad.c:836:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  836 |         glad_glVertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC)load("glVertexAttrib3f");
+      |                                 ^
+lib/glad/glad.c:837:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  837 |         glad_glVertexAttrib3fv = (PFNGLVERTEXATTRIB3FVPROC)load("glVertexAttrib3fv");
+      |                                  ^
+lib/glad/glad.c:838:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  838 |         glad_glVertexAttrib3s = (PFNGLVERTEXATTRIB3SPROC)load("glVertexAttrib3s");
+      |                                 ^
+lib/glad/glad.c:839:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  839 |         glad_glVertexAttrib3sv = (PFNGLVERTEXATTRIB3SVPROC)load("glVertexAttrib3sv");
+      |                                  ^
+lib/glad/glad.c:840:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  840 |         glad_glVertexAttrib4Nbv = (PFNGLVERTEXATTRIB4NBVPROC)load("glVertexAttrib4Nbv");
+      |                                   ^
+lib/glad/glad.c:841:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  841 |         glad_glVertexAttrib4Niv = (PFNGLVERTEXATTRIB4NIVPROC)load("glVertexAttrib4Niv");
+      |                                   ^
+lib/glad/glad.c:842:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  842 |         glad_glVertexAttrib4Nsv = (PFNGLVERTEXATTRIB4NSVPROC)load("glVertexAttrib4Nsv");
+      |                                   ^
+lib/glad/glad.c:843:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  843 |         glad_glVertexAttrib4Nub = (PFNGLVERTEXATTRIB4NUBPROC)load("glVertexAttrib4Nub");
+      |                                   ^
+lib/glad/glad.c:844:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  844 |         glad_glVertexAttrib4Nubv = (PFNGLVERTEXATTRIB4NUBVPROC)load("glVertexAttrib4Nubv");
+      |                                    ^
+lib/glad/glad.c:845:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  845 |         glad_glVertexAttrib4Nuiv = (PFNGLVERTEXATTRIB4NUIVPROC)load("glVertexAttrib4Nuiv");
+      |                                    ^
+lib/glad/glad.c:846:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  846 |         glad_glVertexAttrib4Nusv = (PFNGLVERTEXATTRIB4NUSVPROC)load("glVertexAttrib4Nusv");
+      |                                    ^
+lib/glad/glad.c:847:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  847 |         glad_glVertexAttrib4bv = (PFNGLVERTEXATTRIB4BVPROC)load("glVertexAttrib4bv");
+      |                                  ^
+lib/glad/glad.c:848:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  848 |         glad_glVertexAttrib4d = (PFNGLVERTEXATTRIB4DPROC)load("glVertexAttrib4d");
+      |                                 ^
+lib/glad/glad.c:849:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  849 |         glad_glVertexAttrib4dv = (PFNGLVERTEXATTRIB4DVPROC)load("glVertexAttrib4dv");
+      |                                  ^
+lib/glad/glad.c:850:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  850 |         glad_glVertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC)load("glVertexAttrib4f");
+      |                                 ^
+lib/glad/glad.c:851:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  851 |         glad_glVertexAttrib4fv = (PFNGLVERTEXATTRIB4FVPROC)load("glVertexAttrib4fv");
+      |                                  ^
+lib/glad/glad.c:852:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  852 |         glad_glVertexAttrib4iv = (PFNGLVERTEXATTRIB4IVPROC)load("glVertexAttrib4iv");
+      |                                  ^
+lib/glad/glad.c:853:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  853 |         glad_glVertexAttrib4s = (PFNGLVERTEXATTRIB4SPROC)load("glVertexAttrib4s");
+      |                                 ^
+lib/glad/glad.c:854:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  854 |         glad_glVertexAttrib4sv = (PFNGLVERTEXATTRIB4SVPROC)load("glVertexAttrib4sv");
+      |                                  ^
+lib/glad/glad.c:855:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  855 |         glad_glVertexAttrib4ubv = (PFNGLVERTEXATTRIB4UBVPROC)load("glVertexAttrib4ubv");
+      |                                   ^
+lib/glad/glad.c:856:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  856 |         glad_glVertexAttrib4uiv = (PFNGLVERTEXATTRIB4UIVPROC)load("glVertexAttrib4uiv");
+      |                                   ^
+lib/glad/glad.c:857:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  857 |         glad_glVertexAttrib4usv = (PFNGLVERTEXATTRIB4USVPROC)load("glVertexAttrib4usv");
+      |                                   ^
+lib/glad/glad.c:858:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  858 |         glad_glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)load("glVertexAttribPointer");
+      |                                      ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_2_1’:
+lib/glad/glad.c:862:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  862 |         glad_glUniformMatrix2x3fv = (PFNGLUNIFORMMATRIX2X3FVPROC)load("glUniformMatrix2x3fv");
+      |                                     ^
+lib/glad/glad.c:863:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  863 |         glad_glUniformMatrix3x2fv = (PFNGLUNIFORMMATRIX3X2FVPROC)load("glUniformMatrix3x2fv");
+      |                                     ^
+lib/glad/glad.c:864:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  864 |         glad_glUniformMatrix2x4fv = (PFNGLUNIFORMMATRIX2X4FVPROC)load("glUniformMatrix2x4fv");
+      |                                     ^
+lib/glad/glad.c:865:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  865 |         glad_glUniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC)load("glUniformMatrix4x2fv");
+      |                                     ^
+lib/glad/glad.c:866:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  866 |         glad_glUniformMatrix3x4fv = (PFNGLUNIFORMMATRIX3X4FVPROC)load("glUniformMatrix3x4fv");
+      |                                     ^
+lib/glad/glad.c:867:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  867 |         glad_glUniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC)load("glUniformMatrix4x3fv");
+      |                                     ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_3_0’:
+lib/glad/glad.c:871:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  871 |         glad_glColorMaski = (PFNGLCOLORMASKIPROC)load("glColorMaski");
+      |                             ^
+lib/glad/glad.c:872:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  872 |         glad_glGetBooleani_v = (PFNGLGETBOOLEANI_VPROC)load("glGetBooleani_v");
+      |                                ^
+lib/glad/glad.c:873:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  873 |         glad_glGetIntegeri_v = (PFNGLGETINTEGERI_VPROC)load("glGetIntegeri_v");
+      |                                ^
+lib/glad/glad.c:874:26: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  874 |         glad_glEnablei = (PFNGLENABLEIPROC)load("glEnablei");
+      |                          ^
+lib/glad/glad.c:875:27: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  875 |         glad_glDisablei = (PFNGLDISABLEIPROC)load("glDisablei");
+      |                           ^
+lib/glad/glad.c:876:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  876 |         glad_glIsEnabledi = (PFNGLISENABLEDIPROC)load("glIsEnabledi");
+      |                             ^
+lib/glad/glad.c:877:41: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  877 |         glad_glBeginTransformFeedback = (PFNGLBEGINTRANSFORMFEEDBACKPROC)load("glBeginTransformFeedback");
+      |                                         ^
+lib/glad/glad.c:878:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  878 |         glad_glEndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC)load("glEndTransformFeedback");
+      |                                       ^
+lib/glad/glad.c:879:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  879 |         glad_glBindBufferRange = (PFNGLBINDBUFFERRANGEPROC)load("glBindBufferRange");
+      |                                  ^
+lib/glad/glad.c:880:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  880 |         glad_glBindBufferBase = (PFNGLBINDBUFFERBASEPROC)load("glBindBufferBase");
+      |                                 ^
+lib/glad/glad.c:881:44: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  881 |         glad_glTransformFeedbackVaryings = (PFNGLTRANSFORMFEEDBACKVARYINGSPROC)load("glTransformFeedbackVaryings");
+      |                                            ^
+lib/glad/glad.c:882:46: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  882 |         glad_glGetTransformFeedbackVarying = (PFNGLGETTRANSFORMFEEDBACKVARYINGPROC)load("glGetTransformFeedbackVarying");
+      |                                              ^
+lib/glad/glad.c:883:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  883 |         glad_glClampColor = (PFNGLCLAMPCOLORPROC)load("glClampColor");
+      |                             ^
+lib/glad/glad.c:884:41: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  884 |         glad_glBeginConditionalRender = (PFNGLBEGINCONDITIONALRENDERPROC)load("glBeginConditionalRender");
+      |                                         ^
+lib/glad/glad.c:885:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  885 |         glad_glEndConditionalRender = (PFNGLENDCONDITIONALRENDERPROC)load("glEndConditionalRender");
+      |                                       ^
+lib/glad/glad.c:886:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  886 |         glad_glVertexAttribIPointer = (PFNGLVERTEXATTRIBIPOINTERPROC)load("glVertexAttribIPointer");
+      |                                       ^
+lib/glad/glad.c:887:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  887 |         glad_glGetVertexAttribIiv = (PFNGLGETVERTEXATTRIBIIVPROC)load("glGetVertexAttribIiv");
+      |                                     ^
+lib/glad/glad.c:888:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  888 |         glad_glGetVertexAttribIuiv = (PFNGLGETVERTEXATTRIBIUIVPROC)load("glGetVertexAttribIuiv");
+      |                                      ^
+lib/glad/glad.c:889:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  889 |         glad_glVertexAttribI1i = (PFNGLVERTEXATTRIBI1IPROC)load("glVertexAttribI1i");
+      |                                  ^
+lib/glad/glad.c:890:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  890 |         glad_glVertexAttribI2i = (PFNGLVERTEXATTRIBI2IPROC)load("glVertexAttribI2i");
+      |                                  ^
+lib/glad/glad.c:891:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  891 |         glad_glVertexAttribI3i = (PFNGLVERTEXATTRIBI3IPROC)load("glVertexAttribI3i");
+      |                                  ^
+lib/glad/glad.c:892:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  892 |         glad_glVertexAttribI4i = (PFNGLVERTEXATTRIBI4IPROC)load("glVertexAttribI4i");
+      |                                  ^
+lib/glad/glad.c:893:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  893 |         glad_glVertexAttribI1ui = (PFNGLVERTEXATTRIBI1UIPROC)load("glVertexAttribI1ui");
+      |                                   ^
+lib/glad/glad.c:894:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  894 |         glad_glVertexAttribI2ui = (PFNGLVERTEXATTRIBI2UIPROC)load("glVertexAttribI2ui");
+      |                                   ^
+lib/glad/glad.c:895:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  895 |         glad_glVertexAttribI3ui = (PFNGLVERTEXATTRIBI3UIPROC)load("glVertexAttribI3ui");
+      |                                   ^
+lib/glad/glad.c:896:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  896 |         glad_glVertexAttribI4ui = (PFNGLVERTEXATTRIBI4UIPROC)load("glVertexAttribI4ui");
+      |                                   ^
+lib/glad/glad.c:897:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  897 |         glad_glVertexAttribI1iv = (PFNGLVERTEXATTRIBI1IVPROC)load("glVertexAttribI1iv");
+      |                                   ^
+lib/glad/glad.c:898:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  898 |         glad_glVertexAttribI2iv = (PFNGLVERTEXATTRIBI2IVPROC)load("glVertexAttribI2iv");
+      |                                   ^
+lib/glad/glad.c:899:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  899 |         glad_glVertexAttribI3iv = (PFNGLVERTEXATTRIBI3IVPROC)load("glVertexAttribI3iv");
+      |                                   ^
+lib/glad/glad.c:900:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  900 |         glad_glVertexAttribI4iv = (PFNGLVERTEXATTRIBI4IVPROC)load("glVertexAttribI4iv");
+      |                                   ^
+lib/glad/glad.c:901:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  901 |         glad_glVertexAttribI1uiv = (PFNGLVERTEXATTRIBI1UIVPROC)load("glVertexAttribI1uiv");
+      |                                    ^
+lib/glad/glad.c:902:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  902 |         glad_glVertexAttribI2uiv = (PFNGLVERTEXATTRIBI2UIVPROC)load("glVertexAttribI2uiv");
+      |                                    ^
+lib/glad/glad.c:903:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  903 |         glad_glVertexAttribI3uiv = (PFNGLVERTEXATTRIBI3UIVPROC)load("glVertexAttribI3uiv");
+      |                                    ^
+lib/glad/glad.c:904:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  904 |         glad_glVertexAttribI4uiv = (PFNGLVERTEXATTRIBI4UIVPROC)load("glVertexAttribI4uiv");
+      |                                    ^
+lib/glad/glad.c:905:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  905 |         glad_glVertexAttribI4bv = (PFNGLVERTEXATTRIBI4BVPROC)load("glVertexAttribI4bv");
+      |                                   ^
+lib/glad/glad.c:906:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  906 |         glad_glVertexAttribI4sv = (PFNGLVERTEXATTRIBI4SVPROC)load("glVertexAttribI4sv");
+      |                                   ^
+lib/glad/glad.c:907:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  907 |         glad_glVertexAttribI4ubv = (PFNGLVERTEXATTRIBI4UBVPROC)load("glVertexAttribI4ubv");
+      |                                    ^
+lib/glad/glad.c:908:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  908 |         glad_glVertexAttribI4usv = (PFNGLVERTEXATTRIBI4USVPROC)load("glVertexAttribI4usv");
+      |                                    ^
+lib/glad/glad.c:909:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  909 |         glad_glGetUniformuiv = (PFNGLGETUNIFORMUIVPROC)load("glGetUniformuiv");
+      |                                ^
+lib/glad/glad.c:910:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  910 |         glad_glBindFragDataLocation = (PFNGLBINDFRAGDATALOCATIONPROC)load("glBindFragDataLocation");
+      |                                       ^
+lib/glad/glad.c:911:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  911 |         glad_glGetFragDataLocation = (PFNGLGETFRAGDATALOCATIONPROC)load("glGetFragDataLocation");
+      |                                      ^
+lib/glad/glad.c:912:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  912 |         glad_glUniform1ui = (PFNGLUNIFORM1UIPROC)load("glUniform1ui");
+      |                             ^
+lib/glad/glad.c:913:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  913 |         glad_glUniform2ui = (PFNGLUNIFORM2UIPROC)load("glUniform2ui");
+      |                             ^
+lib/glad/glad.c:914:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  914 |         glad_glUniform3ui = (PFNGLUNIFORM3UIPROC)load("glUniform3ui");
+      |                             ^
+lib/glad/glad.c:915:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  915 |         glad_glUniform4ui = (PFNGLUNIFORM4UIPROC)load("glUniform4ui");
+      |                             ^
+lib/glad/glad.c:916:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  916 |         glad_glUniform1uiv = (PFNGLUNIFORM1UIVPROC)load("glUniform1uiv");
+      |                              ^
+lib/glad/glad.c:917:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  917 |         glad_glUniform2uiv = (PFNGLUNIFORM2UIVPROC)load("glUniform2uiv");
+      |                              ^
+lib/glad/glad.c:918:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  918 |         glad_glUniform3uiv = (PFNGLUNIFORM3UIVPROC)load("glUniform3uiv");
+      |                              ^
+lib/glad/glad.c:919:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  919 |         glad_glUniform4uiv = (PFNGLUNIFORM4UIVPROC)load("glUniform4uiv");
+      |                              ^
+lib/glad/glad.c:920:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  920 |         glad_glTexParameterIiv = (PFNGLTEXPARAMETERIIVPROC)load("glTexParameterIiv");
+      |                                  ^
+lib/glad/glad.c:921:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  921 |         glad_glTexParameterIuiv = (PFNGLTEXPARAMETERIUIVPROC)load("glTexParameterIuiv");
+      |                                   ^
+lib/glad/glad.c:922:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  922 |         glad_glGetTexParameterIiv = (PFNGLGETTEXPARAMETERIIVPROC)load("glGetTexParameterIiv");
+      |                                     ^
+lib/glad/glad.c:923:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  923 |         glad_glGetTexParameterIuiv = (PFNGLGETTEXPARAMETERIUIVPROC)load("glGetTexParameterIuiv");
+      |                                      ^
+lib/glad/glad.c:924:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  924 |         glad_glClearBufferiv = (PFNGLCLEARBUFFERIVPROC)load("glClearBufferiv");
+      |                                ^
+lib/glad/glad.c:925:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  925 |         glad_glClearBufferuiv = (PFNGLCLEARBUFFERUIVPROC)load("glClearBufferuiv");
+      |                                 ^
+lib/glad/glad.c:926:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  926 |         glad_glClearBufferfv = (PFNGLCLEARBUFFERFVPROC)load("glClearBufferfv");
+      |                                ^
+lib/glad/glad.c:927:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  927 |         glad_glClearBufferfi = (PFNGLCLEARBUFFERFIPROC)load("glClearBufferfi");
+      |                                ^
+lib/glad/glad.c:928:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  928 |         glad_glGetStringi = (PFNGLGETSTRINGIPROC)load("glGetStringi");
+      |                             ^
+lib/glad/glad.c:929:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  929 |         glad_glIsRenderbuffer = (PFNGLISRENDERBUFFERPROC)load("glIsRenderbuffer");
+      |                                 ^
+lib/glad/glad.c:930:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  930 |         glad_glBindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC)load("glBindRenderbuffer");
+      |                                   ^
+lib/glad/glad.c:931:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  931 |         glad_glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC)load("glDeleteRenderbuffers");
+      |                                      ^
+lib/glad/glad.c:932:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  932 |         glad_glGenRenderbuffers = (PFNGLGENRENDERBUFFERSPROC)load("glGenRenderbuffers");
+      |                                   ^
+lib/glad/glad.c:933:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  933 |         glad_glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEPROC)load("glRenderbufferStorage");
+      |                                      ^
+lib/glad/glad.c:934:45: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  934 |         glad_glGetRenderbufferParameteriv = (PFNGLGETRENDERBUFFERPARAMETERIVPROC)load("glGetRenderbufferParameteriv");
+      |                                             ^
+lib/glad/glad.c:935:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  935 |         glad_glIsFramebuffer = (PFNGLISFRAMEBUFFERPROC)load("glIsFramebuffer");
+      |                                ^
+lib/glad/glad.c:936:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  936 |         glad_glBindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC)load("glBindFramebuffer");
+      |                                  ^
+lib/glad/glad.c:937:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  937 |         glad_glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC)load("glDeleteFramebuffers");
+      |                                     ^
+lib/glad/glad.c:938:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  938 |         glad_glGenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)load("glGenFramebuffers");
+      |                                  ^
+lib/glad/glad.c:939:41: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  939 |         glad_glCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)load("glCheckFramebufferStatus");
+      |                                         ^
+lib/glad/glad.c:940:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  940 |         glad_glFramebufferTexture1D = (PFNGLFRAMEBUFFERTEXTURE1DPROC)load("glFramebufferTexture1D");
+      |                                       ^
+lib/glad/glad.c:941:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  941 |         glad_glFramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DPROC)load("glFramebufferTexture2D");
+      |                                       ^
+lib/glad/glad.c:942:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  942 |         glad_glFramebufferTexture3D = (PFNGLFRAMEBUFFERTEXTURE3DPROC)load("glFramebufferTexture3D");
+      |                                       ^
+lib/glad/glad.c:943:42: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  943 |         glad_glFramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC)load("glFramebufferRenderbuffer");
+      |                                          ^
+lib/glad/glad.c:944:54: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  944 |         glad_glGetFramebufferAttachmentParameteriv = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC)load("glGetFramebufferAttachmentParameteriv");
+      |                                                      ^
+lib/glad/glad.c:945:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  945 |         glad_glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)load("glGenerateMipmap");
+      |                                 ^
+lib/glad/glad.c:946:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  946 |         glad_glBlitFramebuffer = (PFNGLBLITFRAMEBUFFERPROC)load("glBlitFramebuffer");
+      |                                  ^
+lib/glad/glad.c:947:49: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  947 |         glad_glRenderbufferStorageMultisample = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC)load("glRenderbufferStorageMultisample");
+      |                                                 ^
+lib/glad/glad.c:948:42: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  948 |         glad_glFramebufferTextureLayer = (PFNGLFRAMEBUFFERTEXTURELAYERPROC)load("glFramebufferTextureLayer");
+      |                                          ^
+lib/glad/glad.c:949:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  949 |         glad_glMapBufferRange = (PFNGLMAPBUFFERRANGEPROC)load("glMapBufferRange");
+      |                                 ^
+lib/glad/glad.c:950:41: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  950 |         glad_glFlushMappedBufferRange = (PFNGLFLUSHMAPPEDBUFFERRANGEPROC)load("glFlushMappedBufferRange");
+      |                                         ^
+lib/glad/glad.c:951:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  951 |         glad_glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)load("glBindVertexArray");
+      |                                  ^
+lib/glad/glad.c:952:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  952 |         glad_glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)load("glDeleteVertexArrays");
+      |                                     ^
+lib/glad/glad.c:953:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  953 |         glad_glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)load("glGenVertexArrays");
+      |                                  ^
+lib/glad/glad.c:954:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  954 |         glad_glIsVertexArray = (PFNGLISVERTEXARRAYPROC)load("glIsVertexArray");
+      |                                ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_3_1’:
+lib/glad/glad.c:958:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  958 |         glad_glDrawArraysInstanced = (PFNGLDRAWARRAYSINSTANCEDPROC)load("glDrawArraysInstanced");
+      |                                      ^
+lib/glad/glad.c:959:40: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  959 |         glad_glDrawElementsInstanced = (PFNGLDRAWELEMENTSINSTANCEDPROC)load("glDrawElementsInstanced");
+      |                                        ^
+lib/glad/glad.c:960:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  960 |         glad_glTexBuffer = (PFNGLTEXBUFFERPROC)load("glTexBuffer");
+      |                            ^
+lib/glad/glad.c:961:40: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  961 |         glad_glPrimitiveRestartIndex = (PFNGLPRIMITIVERESTARTINDEXPROC)load("glPrimitiveRestartIndex");
+      |                                        ^
+lib/glad/glad.c:962:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  962 |         glad_glCopyBufferSubData = (PFNGLCOPYBUFFERSUBDATAPROC)load("glCopyBufferSubData");
+      |                                    ^
+lib/glad/glad.c:963:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  963 |         glad_glGetUniformIndices = (PFNGLGETUNIFORMINDICESPROC)load("glGetUniformIndices");
+      |                                    ^
+lib/glad/glad.c:964:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  964 |         glad_glGetActiveUniformsiv = (PFNGLGETACTIVEUNIFORMSIVPROC)load("glGetActiveUniformsiv");
+      |                                      ^
+lib/glad/glad.c:965:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  965 |         glad_glGetActiveUniformName = (PFNGLGETACTIVEUNIFORMNAMEPROC)load("glGetActiveUniformName");
+      |                                       ^
+lib/glad/glad.c:966:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  966 |         glad_glGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC)load("glGetUniformBlockIndex");
+      |                                       ^
+lib/glad/glad.c:967:42: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  967 |         glad_glGetActiveUniformBlockiv = (PFNGLGETACTIVEUNIFORMBLOCKIVPROC)load("glGetActiveUniformBlockiv");
+      |                                          ^
+lib/glad/glad.c:968:44: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  968 |         glad_glGetActiveUniformBlockName = (PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC)load("glGetActiveUniformBlockName");
+      |                                            ^
+lib/glad/glad.c:969:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  969 |         glad_glUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC)load("glUniformBlockBinding");
+      |                                      ^
+lib/glad/glad.c:970:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  970 |         glad_glBindBufferRange = (PFNGLBINDBUFFERRANGEPROC)load("glBindBufferRange");
+      |                                  ^
+lib/glad/glad.c:971:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  971 |         glad_glBindBufferBase = (PFNGLBINDBUFFERBASEPROC)load("glBindBufferBase");
+      |                                 ^
+lib/glad/glad.c:972:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  972 |         glad_glGetIntegeri_v = (PFNGLGETINTEGERI_VPROC)load("glGetIntegeri_v");
+      |                                ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_3_2’:
+lib/glad/glad.c:976:41: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  976 |         glad_glDrawElementsBaseVertex = (PFNGLDRAWELEMENTSBASEVERTEXPROC)load("glDrawElementsBaseVertex");
+      |                                         ^
+lib/glad/glad.c:977:46: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  977 |         glad_glDrawRangeElementsBaseVertex = (PFNGLDRAWRANGEELEMENTSBASEVERTEXPROC)load("glDrawRangeElementsBaseVertex");
+      |                                              ^
+lib/glad/glad.c:978:50: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  978 |         glad_glDrawElementsInstancedBaseVertex = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC)load("glDrawElementsInstancedBaseVertex");
+      |                                                  ^
+lib/glad/glad.c:979:46: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  979 |         glad_glMultiDrawElementsBaseVertex = (PFNGLMULTIDRAWELEMENTSBASEVERTEXPROC)load("glMultiDrawElementsBaseVertex");
+      |                                              ^
+lib/glad/glad.c:980:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  980 |         glad_glProvokingVertex = (PFNGLPROVOKINGVERTEXPROC)load("glProvokingVertex");
+      |                                  ^
+lib/glad/glad.c:981:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  981 |         glad_glFenceSync = (PFNGLFENCESYNCPROC)load("glFenceSync");
+      |                            ^
+lib/glad/glad.c:982:25: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  982 |         glad_glIsSync = (PFNGLISSYNCPROC)load("glIsSync");
+      |                         ^
+lib/glad/glad.c:983:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  983 |         glad_glDeleteSync = (PFNGLDELETESYNCPROC)load("glDeleteSync");
+      |                             ^
+lib/glad/glad.c:984:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  984 |         glad_glClientWaitSync = (PFNGLCLIENTWAITSYNCPROC)load("glClientWaitSync");
+      |                                 ^
+lib/glad/glad.c:985:27: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  985 |         glad_glWaitSync = (PFNGLWAITSYNCPROC)load("glWaitSync");
+      |                           ^
+lib/glad/glad.c:986:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  986 |         glad_glGetInteger64v = (PFNGLGETINTEGER64VPROC)load("glGetInteger64v");
+      |                                ^
+lib/glad/glad.c:987:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  987 |         glad_glGetSynciv = (PFNGLGETSYNCIVPROC)load("glGetSynciv");
+      |                            ^
+lib/glad/glad.c:988:34: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  988 |         glad_glGetInteger64i_v = (PFNGLGETINTEGER64I_VPROC)load("glGetInteger64i_v");
+      |                                  ^
+lib/glad/glad.c:989:41: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  989 |         glad_glGetBufferParameteri64v = (PFNGLGETBUFFERPARAMETERI64VPROC)load("glGetBufferParameteri64v");
+      |                                         ^
+lib/glad/glad.c:990:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  990 |         glad_glFramebufferTexture = (PFNGLFRAMEBUFFERTEXTUREPROC)load("glFramebufferTexture");
+      |                                     ^
+lib/glad/glad.c:991:40: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  991 |         glad_glTexImage2DMultisample = (PFNGLTEXIMAGE2DMULTISAMPLEPROC)load("glTexImage2DMultisample");
+      |                                        ^
+lib/glad/glad.c:992:40: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  992 |         glad_glTexImage3DMultisample = (PFNGLTEXIMAGE3DMULTISAMPLEPROC)load("glTexImage3DMultisample");
+      |                                        ^
+lib/glad/glad.c:993:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  993 |         glad_glGetMultisamplefv = (PFNGLGETMULTISAMPLEFVPROC)load("glGetMultisamplefv");
+      |                                   ^
+lib/glad/glad.c:994:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  994 |         glad_glSampleMaski = (PFNGLSAMPLEMASKIPROC)load("glSampleMaski");
+      |                              ^
+lib/glad/glad.c: In function ‘load_GL_VERSION_3_3’:
+lib/glad/glad.c:998:46: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  998 |         glad_glBindFragDataLocationIndexed = (PFNGLBINDFRAGDATALOCATIONINDEXEDPROC)load("glBindFragDataLocationIndexed");
+      |                                              ^
+lib/glad/glad.c:999:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+  999 |         glad_glGetFragDataIndex = (PFNGLGETFRAGDATAINDEXPROC)load("glGetFragDataIndex");
+      |                                   ^
+lib/glad/glad.c:1000:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1000 |         glad_glGenSamplers = (PFNGLGENSAMPLERSPROC)load("glGenSamplers");
+      |                              ^
+lib/glad/glad.c:1001:33: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1001 |         glad_glDeleteSamplers = (PFNGLDELETESAMPLERSPROC)load("glDeleteSamplers");
+      |                                 ^
+lib/glad/glad.c:1002:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1002 |         glad_glIsSampler = (PFNGLISSAMPLERPROC)load("glIsSampler");
+      |                            ^
+lib/glad/glad.c:1003:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1003 |         glad_glBindSampler = (PFNGLBINDSAMPLERPROC)load("glBindSampler");
+      |                              ^
+lib/glad/glad.c:1004:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1004 |         glad_glSamplerParameteri = (PFNGLSAMPLERPARAMETERIPROC)load("glSamplerParameteri");
+      |                                    ^
+lib/glad/glad.c:1005:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1005 |         glad_glSamplerParameteriv = (PFNGLSAMPLERPARAMETERIVPROC)load("glSamplerParameteriv");
+      |                                     ^
+lib/glad/glad.c:1006:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1006 |         glad_glSamplerParameterf = (PFNGLSAMPLERPARAMETERFPROC)load("glSamplerParameterf");
+      |                                    ^
+lib/glad/glad.c:1007:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1007 |         glad_glSamplerParameterfv = (PFNGLSAMPLERPARAMETERFVPROC)load("glSamplerParameterfv");
+      |                                     ^
+lib/glad/glad.c:1008:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1008 |         glad_glSamplerParameterIiv = (PFNGLSAMPLERPARAMETERIIVPROC)load("glSamplerParameterIiv");
+      |                                      ^
+lib/glad/glad.c:1009:39: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1009 |         glad_glSamplerParameterIuiv = (PFNGLSAMPLERPARAMETERIUIVPROC)load("glSamplerParameterIuiv");
+      |                                       ^
+lib/glad/glad.c:1010:40: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1010 |         glad_glGetSamplerParameteriv = (PFNGLGETSAMPLERPARAMETERIVPROC)load("glGetSamplerParameteriv");
+      |                                        ^
+lib/glad/glad.c:1011:41: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1011 |         glad_glGetSamplerParameterIiv = (PFNGLGETSAMPLERPARAMETERIIVPROC)load("glGetSamplerParameterIiv");
+      |                                         ^
+lib/glad/glad.c:1012:40: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1012 |         glad_glGetSamplerParameterfv = (PFNGLGETSAMPLERPARAMETERFVPROC)load("glGetSamplerParameterfv");
+      |                                        ^
+lib/glad/glad.c:1013:42: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1013 |         glad_glGetSamplerParameterIuiv = (PFNGLGETSAMPLERPARAMETERIUIVPROC)load("glGetSamplerParameterIuiv");
+      |                                          ^
+lib/glad/glad.c:1014:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1014 |         glad_glQueryCounter = (PFNGLQUERYCOUNTERPROC)load("glQueryCounter");
+      |                               ^
+lib/glad/glad.c:1015:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1015 |         glad_glGetQueryObjecti64v = (PFNGLGETQUERYOBJECTI64VPROC)load("glGetQueryObjecti64v");
+      |                                     ^
+lib/glad/glad.c:1016:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1016 |         glad_glGetQueryObjectui64v = (PFNGLGETQUERYOBJECTUI64VPROC)load("glGetQueryObjectui64v");
+      |                                      ^
+lib/glad/glad.c:1017:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1017 |         glad_glVertexAttribDivisor = (PFNGLVERTEXATTRIBDIVISORPROC)load("glVertexAttribDivisor");
+      |                                      ^
+lib/glad/glad.c:1018:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1018 |         glad_glVertexAttribP1ui = (PFNGLVERTEXATTRIBP1UIPROC)load("glVertexAttribP1ui");
+      |                                   ^
+lib/glad/glad.c:1019:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1019 |         glad_glVertexAttribP1uiv = (PFNGLVERTEXATTRIBP1UIVPROC)load("glVertexAttribP1uiv");
+      |                                    ^
+lib/glad/glad.c:1020:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1020 |         glad_glVertexAttribP2ui = (PFNGLVERTEXATTRIBP2UIPROC)load("glVertexAttribP2ui");
+      |                                   ^
+lib/glad/glad.c:1021:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1021 |         glad_glVertexAttribP2uiv = (PFNGLVERTEXATTRIBP2UIVPROC)load("glVertexAttribP2uiv");
+      |                                    ^
+lib/glad/glad.c:1022:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1022 |         glad_glVertexAttribP3ui = (PFNGLVERTEXATTRIBP3UIPROC)load("glVertexAttribP3ui");
+      |                                   ^
+lib/glad/glad.c:1023:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1023 |         glad_glVertexAttribP3uiv = (PFNGLVERTEXATTRIBP3UIVPROC)load("glVertexAttribP3uiv");
+      |                                    ^
+lib/glad/glad.c:1024:35: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1024 |         glad_glVertexAttribP4ui = (PFNGLVERTEXATTRIBP4UIPROC)load("glVertexAttribP4ui");
+      |                                   ^
+lib/glad/glad.c:1025:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1025 |         glad_glVertexAttribP4uiv = (PFNGLVERTEXATTRIBP4UIVPROC)load("glVertexAttribP4uiv");
+      |                                    ^
+lib/glad/glad.c:1026:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1026 |         glad_glVertexP2ui = (PFNGLVERTEXP2UIPROC)load("glVertexP2ui");
+      |                             ^
+lib/glad/glad.c:1027:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1027 |         glad_glVertexP2uiv = (PFNGLVERTEXP2UIVPROC)load("glVertexP2uiv");
+      |                              ^
+lib/glad/glad.c:1028:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1028 |         glad_glVertexP3ui = (PFNGLVERTEXP3UIPROC)load("glVertexP3ui");
+      |                             ^
+lib/glad/glad.c:1029:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1029 |         glad_glVertexP3uiv = (PFNGLVERTEXP3UIVPROC)load("glVertexP3uiv");
+      |                              ^
+lib/glad/glad.c:1030:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1030 |         glad_glVertexP4ui = (PFNGLVERTEXP4UIPROC)load("glVertexP4ui");
+      |                             ^
+lib/glad/glad.c:1031:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1031 |         glad_glVertexP4uiv = (PFNGLVERTEXP4UIVPROC)load("glVertexP4uiv");
+      |                              ^
+lib/glad/glad.c:1032:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1032 |         glad_glTexCoordP1ui = (PFNGLTEXCOORDP1UIPROC)load("glTexCoordP1ui");
+      |                               ^
+lib/glad/glad.c:1033:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1033 |         glad_glTexCoordP1uiv = (PFNGLTEXCOORDP1UIVPROC)load("glTexCoordP1uiv");
+      |                                ^
+lib/glad/glad.c:1034:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1034 |         glad_glTexCoordP2ui = (PFNGLTEXCOORDP2UIPROC)load("glTexCoordP2ui");
+      |                               ^
+lib/glad/glad.c:1035:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1035 |         glad_glTexCoordP2uiv = (PFNGLTEXCOORDP2UIVPROC)load("glTexCoordP2uiv");
+      |                                ^
+lib/glad/glad.c:1036:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1036 |         glad_glTexCoordP3ui = (PFNGLTEXCOORDP3UIPROC)load("glTexCoordP3ui");
+      |                               ^
+lib/glad/glad.c:1037:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1037 |         glad_glTexCoordP3uiv = (PFNGLTEXCOORDP3UIVPROC)load("glTexCoordP3uiv");
+      |                                ^
+lib/glad/glad.c:1038:31: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1038 |         glad_glTexCoordP4ui = (PFNGLTEXCOORDP4UIPROC)load("glTexCoordP4ui");
+      |                               ^
+lib/glad/glad.c:1039:32: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1039 |         glad_glTexCoordP4uiv = (PFNGLTEXCOORDP4UIVPROC)load("glTexCoordP4uiv");
+      |                                ^
+lib/glad/glad.c:1040:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1040 |         glad_glMultiTexCoordP1ui = (PFNGLMULTITEXCOORDP1UIPROC)load("glMultiTexCoordP1ui");
+      |                                    ^
+lib/glad/glad.c:1041:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1041 |         glad_glMultiTexCoordP1uiv = (PFNGLMULTITEXCOORDP1UIVPROC)load("glMultiTexCoordP1uiv");
+      |                                     ^
+lib/glad/glad.c:1042:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1042 |         glad_glMultiTexCoordP2ui = (PFNGLMULTITEXCOORDP2UIPROC)load("glMultiTexCoordP2ui");
+      |                                    ^
+lib/glad/glad.c:1043:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1043 |         glad_glMultiTexCoordP2uiv = (PFNGLMULTITEXCOORDP2UIVPROC)load("glMultiTexCoordP2uiv");
+      |                                     ^
+lib/glad/glad.c:1044:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1044 |         glad_glMultiTexCoordP3ui = (PFNGLMULTITEXCOORDP3UIPROC)load("glMultiTexCoordP3ui");
+      |                                    ^
+lib/glad/glad.c:1045:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1045 |         glad_glMultiTexCoordP3uiv = (PFNGLMULTITEXCOORDP3UIVPROC)load("glMultiTexCoordP3uiv");
+      |                                     ^
+lib/glad/glad.c:1046:36: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1046 |         glad_glMultiTexCoordP4ui = (PFNGLMULTITEXCOORDP4UIPROC)load("glMultiTexCoordP4ui");
+      |                                    ^
+lib/glad/glad.c:1047:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1047 |         glad_glMultiTexCoordP4uiv = (PFNGLMULTITEXCOORDP4UIVPROC)load("glMultiTexCoordP4uiv");
+      |                                     ^
+lib/glad/glad.c:1048:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1048 |         glad_glNormalP3ui = (PFNGLNORMALP3UIPROC)load("glNormalP3ui");
+      |                             ^
+lib/glad/glad.c:1049:30: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1049 |         glad_glNormalP3uiv = (PFNGLNORMALP3UIVPROC)load("glNormalP3uiv");
+      |                              ^
+lib/glad/glad.c:1050:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1050 |         glad_glColorP3ui = (PFNGLCOLORP3UIPROC)load("glColorP3ui");
+      |                            ^
+lib/glad/glad.c:1051:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1051 |         glad_glColorP3uiv = (PFNGLCOLORP3UIVPROC)load("glColorP3uiv");
+      |                             ^
+lib/glad/glad.c:1052:28: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1052 |         glad_glColorP4ui = (PFNGLCOLORP4UIPROC)load("glColorP4ui");
+      |                            ^
+lib/glad/glad.c:1053:29: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1053 |         glad_glColorP4uiv = (PFNGLCOLORP4UIVPROC)load("glColorP4uiv");
+      |                             ^
+lib/glad/glad.c:1054:37: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1054 |         glad_glSecondaryColorP3ui = (PFNGLSECONDARYCOLORP3UIPROC)load("glSecondaryColorP3ui");
+      |                                     ^
+lib/glad/glad.c:1055:38: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1055 |         glad_glSecondaryColorP3uiv = (PFNGLSECONDARYCOLORP3UIVPROC)load("glSecondaryColorP3uiv");
+      |                                      ^
+lib/glad/glad.c: In function ‘gladLoadGLLoader’:
+lib/glad/glad.c:1120:23: warning: ISO C forbids conversion of object pointer to function pointer type [-Wpedantic]
+ 1120 |         glGetString = (PFNGLGETSTRINGPROC)load("glGetString");
+      |                       ^
+lib/gui/src/widget/widget.c: In function ‘guiPushQuad’:
+lib/gui/src/widget/widget.c:127:38: warning: missing braces around initializer [-Wmissing-braces]
+  127 |         guiPush(&ctx->layers[layId], (guiQuad){
+      |                                      ^
+  128 |                 rect.x, rect.y + ctx->layers[layId].vPos,
+      |                 {
+  129 |                 rect.w, rect.h,
+      |                               }
+lib/gui/src/widget/widget.c: In function ‘guiTextN’:
+lib/gui/src/widget/widget.c:173:46: warning: missing braces around initializer [-Wmissing-braces]
+  173 |                 guiPush(&ctx->layers[layId], (guiQuad){
+      |                                              ^
+  174 |                         pos.x + n * GUI_TXT_WIDTH, ctx->layers[layId].vPos + pos.y,
+      |                         {
+  175 |                         GUI_TXT_WIDTH, GUI_TXT_HEIGHT,
+      |                                                      }
+lib/gui/src/widget/widget.c: In function ‘guiIcon’:
+lib/gui/src/widget/widget.c:215:38: warning: missing braces around initializer [-Wmissing-braces]
+  215 |         guiPush(&ctx->layers[layId], (guiQuad){
+      |                                      ^
+  216 |                 pos.x - GUI_ICO_OFFSET / 2.0f,
+      |                 {
+  217 |                 pos.y + ctx->layers[layId].vPos - GUI_ICO_OFFSET / 2.0f,
+  218 |                 GUI_ICO_SIZ + GUI_ICO_OFFSET, GUI_ICO_SIZ + GUI_ICO_OFFSET,
+      |                                                                           }
+lib/json/json.c:30:12: warning: ‘isDigit’ defined but not used [-Wunused-function]
+   30 | static int isDigit(char* buf) {
+      |            ^~~~~~~

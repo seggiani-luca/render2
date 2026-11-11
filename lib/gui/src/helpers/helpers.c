@@ -17,6 +17,15 @@ void* xmalloc(size_t size) {
 	return ptr;
 }
 
+// current error message
+static const char* strError = NULL;
+
+const char* guiError() {
+	const char* prev = strError;
+	strError = NULL;
+	return prev;
+}
+
 // macro for OpenGL errors
 #define GL_ERR(func)               \
 	{                              \
@@ -58,37 +67,38 @@ char* guiReadShader(const char* path) {
 }
 
 // macro for OpenGL shader compilation errors
-#define GL_COMPILE_ERR(shader) \
-	    glGetShaderiv(         \
-	        shader,            \
-	        GL_COMPILE_STATUS, \
-	        &success           \
-	    );                     \
-	    if(!success) {         \
-	        return 0;          \
-	    }                      \
+#define GL_COMPILE_ERR(shader)                      \
+	    glGetShaderiv(                              \
+	        shader,                                 \
+	        GL_COMPILE_STATUS,                      \
+	        &success                                \
+	    );                                          \
+	    if(!success) {                              \
+			strError = "Shader compilation failed"; \
+	        return 0;                               \
+	    }                                           \
 
 // macro for OpenGL shader linking errors
-#define GL_LINK_ERR(program) \
-	    glGetProgramiv(      \
-	        program,         \
-	        GL_LINK_STATUS,  \
-	        &success         \
-	    );                   \
-	    if(!success) {       \
-	        return 0;        \
+#define GL_LINK_ERR(program)                    \
+	    glGetProgramiv(                         \
+	        program,                            \
+	        GL_LINK_STATUS,                     \
+	        &success                            \
+	    );                                      \
+	    if(!success) {                          \
+			strError = "Shader linking failed"; \
+	        return 0;                           \
 	    }      
 
 GLuint guiImportShader(const char* vertPath, const char* fragPath) {
 	if(!shaderRefs) {
 		// initialize buffers
-		char* vertShader = guiReadShader(vertPath);		
-		if(!vertShader) return 0;
+		char* vertShader = guiReadShader(vertPath);
 		char* fragShader = guiReadShader(fragPath);
-		if(!fragShader) return 0;
 
 		// return on failure
 		if(!vertShader || !fragShader) {
+			strError = "Couldn't open shader files";
 			free(vertShader);
 			free(fragShader);
 			return 0;
@@ -207,13 +217,17 @@ typedef struct __attribute__((packed)) {
 GLuint guiImportTexture(const char* path) {
 	if(!textureRefs) {
 		FILE* textureFile = fopen(path, "r");
-		if(textureFile == NULL) return 0;
+		if(textureFile == NULL) {
+			strError = "Couldn't open texture file";
+			return 0;
+		}
 
 		fseek(textureFile, 0, SEEK_SET);
 
 		// read header
 		guiHeaderTGA head;
 		if (fread(&head, sizeof head, 1, textureFile) != 1) {
+			strError = "Texture file has invalid header";
 			fclose(textureFile);
 			return 0;
 		}
@@ -225,6 +239,7 @@ GLuint guiImportTexture(const char* path) {
 		|| head.width == 0
 		|| head.height == 0
 		|| (head.imageDescriptor & 0xC0) != 0) {
+			strError = "Texture file has invalid header parameters";
 			fclose(textureFile);
 			return 0;
 		}
@@ -244,6 +259,7 @@ GLuint guiImportTexture(const char* path) {
 
 			// read data
 			if (fread(word, bpp, 1, textureFile) != 1) {
+				strError = "Texture file EOF unexpected";
 				fclose(textureFile);
 				free(data);
 				return 0;
