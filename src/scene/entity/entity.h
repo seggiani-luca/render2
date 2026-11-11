@@ -9,10 +9,10 @@
 // -- fields
 
 // size of entity and field names
-#define ENT_NAME_SIZ 64
+#define ENT_NAME_SIZ PATH_MAX
 
 // size of string fields
-#define ENT_STR_SIZ 64
+#define ENT_STR_SIZ PATH_MAX
 
 // forward declarations for fieldVtable
 typedef struct field field;

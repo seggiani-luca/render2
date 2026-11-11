@@ -1,19 +1,109 @@
 #include "json.h"
-#include "../../parse/parse.h"
-#include "../../exception/exception.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <setjmp.h>
+
+// -- utils
+
+// JSON exception handling
+static jmp_buf* jsonCpPointer = NULL;
+
+// throws to return to previous jump pointer
+#define JSON_THROW()                    \
+	do {                                \
+	    if(jsonCpPointer)               \
+		    longjmp(*jsonCpPointer, 1); \
+	    abort();                        \
+	} while(0)
+
+// current error message
+static const char* strError = NULL;
+
+static int isWhitespace(char c) {
+	return c == '\n'
+	    || c == '\r'
+	    || c == '\t'
+	    || c == ' ';
+}
+
+static int isDigit(char* buf) {
+	// first check this digit
+	char c0 = *buf;
+	if(c0 >= '0' && c0 <= '9') return 1;
+
+	// then check if positive/negative
+	char c1 = *(buf + 1);
+	if(c0 == '+' || c0 == '-')
+		if(c1 >= '0' && c1 <= '9') return 1;
+
+	return 0;
+}
+
+static void eatWhitespace(char** buf) {
+	while(buf && *buf && isWhitespace(**buf)) {
+		(*buf)++;
+	}
+}
+
+static void expect(char** buf, const char* key) {
+	int len = strlen(key);
+	if(strncmp(*buf, key, len)) {
+		strError = "Unexpected token";
+		JSON_THROW();	
+	} 
+	
+	*buf += len;
+}
+
+static int consume(char** buf, const char* key) {
+	int len = strlen(key);
+	if(strncmp(*buf, key, len)) return 0;
+	
+	*buf += len;
+	return 1;
+}
+
+static const char* readString(char** buf) {
+	// begin string
+	expect(buf, "\"");
+
+	// find end of string
+	char* next = strchr(*buf, '\"');
+	if(next == NULL) {
+		strError = "Non terminated string";
+		JSON_THROW();	
+	} 
+
+	// get return
+	const char* ret = *buf;
+	*next = '\0';
+
+	// advance
+	*buf = next + 1;
+
+	return ret;
+}
+
+// inserts tabs to reach given depth
+static void ftabulate(FILE* file, int depth) {
+	for(int i = 0; i < depth; i++) fprintf(file, "\t");
+}
+
+// prints a string to a file 
+static void fprintString(FILE* file, const char* str) {
+	fprintf(file, "\"%s\"", str);
+}
 
 // -- getting 
 
 jsonElement* getJsonAtKey(const jsonElement* elem, const char* key) {
 	if(!elem) {
-		logEvent(WARN, SERIAL, "No element to search for key %s in", key);
+		strError = "No element to search for key in";
 		return NULL;
 	}
 	if(elem->type != JSON_OBJECT) {
-		logEvent(WARN, SERIAL, "Can't look for key %s in non-object element", key);
+		strError = "Can't look for key in non-object element";
 		return NULL;
 	}
 
@@ -29,11 +119,11 @@ jsonElement* getJsonAtKey(const jsonElement* elem, const char* key) {
 
 jsonElement* getJsonHead(const jsonElement* elem) {
 	if(!elem) {
-		logEvent(WARN, SERIAL, "No element to get head of");
+		strError = "No element to get head of";
 		return NULL;
 	}
 	if(elem->type != JSON_OBJECT && elem->type != JSON_ARRAY) {
-		logEvent(WARN, SERIAL, "Can't get head of non-iterable element");
+		strError = "Can't get head of non-iterable element";
 		return NULL;
 	}
 
@@ -42,7 +132,7 @@ jsonElement* getJsonHead(const jsonElement* elem) {
 
 jsonElement* getJsonNext(const jsonElement* elem) {
 	if(!elem) {
-		logEvent(WARN, SERIAL, "No element to get next of");
+		strError = "No element to get next of";
 		return NULL;
 	}
 	
@@ -51,11 +141,11 @@ jsonElement* getJsonNext(const jsonElement* elem) {
 
 const char* getJsonString(const jsonElement* elem) {
 	if(!elem) {
-		logEvent(WARN, SERIAL, "No element to get string of");
+		strError = "No element to get string of";
 		return NULL;
 	}
 	if(elem->type != JSON_STRING) {
-		logEvent(WARN, SERIAL, "Can't get string of non-string element");
+		strError = "Can't get string of non-string element";
 		return NULL;
 	}
 
@@ -64,11 +154,11 @@ const char* getJsonString(const jsonElement* elem) {
 
 float getJsonNumber(const jsonElement* elem) {
 	if(!elem) {
-		logEvent(WARN, SERIAL, "No element to get number of, defaulting to 0");
+		strError = "No element to get number of, defaulting to 0";
 		return 0.0f; 
 	}
 	if(elem->type != JSON_NUMBER) {
-		logEvent(WARN, SERIAL, "Can't get number of non-number element, defaulting to 0");
+		strError = "Can't get number of non-number element, defaulting to 0";
 		return 0.0f;
 	}
 	
@@ -77,11 +167,11 @@ float getJsonNumber(const jsonElement* elem) {
 
 int getJsonBoolean(const jsonElement* elem) {
 	if(!elem) {
-		logEvent(WARN, SERIAL, "No element to get boolean of, defaulting to false");
+		strError = "No element to get boolean of, defaulting to false";
 		return 0; 
 	}
 	if(elem->type != JSON_BOOLEAN) {
-		logEvent(WARN, SERIAL, "Can't get boolean of non-boolean element, defaulting to false");
+		strError = "Can't get boolean of non-boolean element, defaulting to false";
 		return 0; 
 	}	
 	return elem->value.boolean;
@@ -89,7 +179,7 @@ int getJsonBoolean(const jsonElement* elem) {
 
 int isJsonNull(const jsonElement* elem) {
 	if(!elem) {
-		logEvent(WARN, SERIAL, "No element to check NULLness of, defaulting to NULL");
+		strError = "No element to check NULLness of, defaulting to NULL";
 		return 1; 
 	}
 	return elem->type == JSON_NULL;
@@ -118,10 +208,14 @@ jsonElement* addJsonAtTail(jsonElement* elem, jsonElement* n) {
 	return elem;
 }
 
-jsonElement* newJsonString(const char* val) {
+jsonElement* newJsonString(jsonAllocator a, const char* val) {
 	// allocate element
-	jsonElement* new = xmalloc(sizeof(jsonElement));
-	
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		return NULL;
+	}
+
 	// setup element 
 	new->type = JSON_STRING;
 	new->next = NULL;
@@ -130,9 +224,13 @@ jsonElement* newJsonString(const char* val) {
 	return new;
 }
 
-jsonElement* newJsonNumber(float val) {
+jsonElement* newJsonNumber(jsonAllocator a, float val) {
 	// allocate element
-	jsonElement* new = xmalloc(sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		return NULL;
+	}
 	
 	// setup element 
 	new->type = JSON_NUMBER;
@@ -142,9 +240,13 @@ jsonElement* newJsonNumber(float val) {
 	return new;
 }
 
-jsonElement* newJsonObject() {
+jsonElement* newJsonObject(jsonAllocator a) {
 	// allocate element
-	jsonElement* new = xmalloc(sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		return NULL;
+	}
 	
 	// setup element 
 	new->type = JSON_OBJECT;
@@ -154,9 +256,13 @@ jsonElement* newJsonObject() {
 	return new;
 }
 
-jsonElement* newJsonArray() {
+jsonElement* newJsonArray(jsonAllocator a) {
 	// allocate element
-	jsonElement* new = xmalloc(sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		return NULL;
+	}
 	
 	// setup element 
 	new->type = JSON_ARRAY;
@@ -166,9 +272,13 @@ jsonElement* newJsonArray() {
 	return new;
 }
 
-jsonElement* newJsonBoolean(int val) {
+jsonElement* newJsonBoolean(jsonAllocator a, int val) {
 	// allocate element
-	jsonElement* new = xmalloc(sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		return NULL;
+	}
 	
 	// setup element 
 	new->type = JSON_BOOLEAN;
@@ -178,9 +288,13 @@ jsonElement* newJsonBoolean(int val) {
 	return new;
 }
 
-jsonElement* newJsonNull() {
+jsonElement* newJsonNull(jsonAllocator a) {
 	// allocate element
-	jsonElement* new = xmalloc(sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		return NULL;
+	}
 	
 	// setup element 
 	new->type = JSON_NULL;
@@ -190,16 +304,6 @@ jsonElement* newJsonNull() {
 }
 
 // -- serialization
-
-// inserts tabs to reach given depth
-void ftabulate(FILE* file, int depth) {
-	for(int i = 0; i < depth; i++) fprintf(file, "\t");
-}
-
-// prints a string to a file 
-void fprintString(FILE* file, const char* str) {
-	fprintf(file, "\"%s\"", str);
-}
 
 // forward declarations for JSON object printing 
 void serializeJsonKey(FILE* file, jsonElement* elem);
@@ -235,10 +339,6 @@ void doSerializeJsonObject(FILE* file, jsonElement* elem, int depth) {
 	// close object
 	ftabulate(file, depth);
 	fprintf(file, "}");
-}
-
-void serializeJsonObject(FILE* file, jsonElement* elem) {
-	doSerializeJsonObject(file, elem, 0);
 }
 
 // serializes a JSON array to a file
@@ -310,15 +410,23 @@ void serializeJsonValue(FILE* file, jsonElement* elem, int depth) {
 	}
 }
 
+void serializeJsonObject(FILE* file, jsonElement* elem) {
+	doSerializeJsonObject(file, elem, 0);
+}
+
 // -- deserialization 
 
 // forward declarations for JSON object parsing
-const char* deserializeJsonKey(arena* a, char** buf);
-jsonElement* deserializeJsonValue(arena* a, char** buf);
+const char* deserializeJsonKey(jsonAllocator a, char** buf);
+jsonElement* deserializeJsonValue(jsonAllocator a, char** buf);
 
-jsonElement* deserializeJsonObject(arena* a, char** buf) {
+jsonElement* doDeserializeJsonObject(jsonAllocator a, char** buf) {
 	// allocate element
-	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		JSON_THROW();
+	}
 	
 	// setup element 
 	new->type = JSON_OBJECT;
@@ -367,9 +475,13 @@ jsonElement* deserializeJsonObject(arena* a, char** buf) {
 }
 
 // parses a JSON array from a buffer
-jsonElement* deserializeJsonArray(arena* a, char** buf) {
+jsonElement* deserializeJsonArray(jsonAllocator a, char** buf) {
 	// allocate element
-	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		JSON_THROW();
+	}
 	
 	// setup element 
 	new->type = JSON_ARRAY;
@@ -407,9 +519,13 @@ jsonElement* deserializeJsonArray(arena* a, char** buf) {
 }
 
 // parses a JSON string from a buffer
-jsonElement* deserializeJsonString(arena* a, char** buf) {
+jsonElement* deserializeJsonString(jsonAllocator a, char** buf) {
 	// allocate element
-	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		JSON_THROW();
+	}
 	
 	// setup element 
 	new->type = JSON_STRING;
@@ -423,9 +539,13 @@ jsonElement* deserializeJsonString(arena* a, char** buf) {
 }
 
 // parses a JSON boolean from a buffer
-jsonElement* deserializeJsonBool(arena* a, char** buf) {
+jsonElement* deserializeJsonBool(jsonAllocator a, char** buf) {
 	// allocate element
-	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		JSON_THROW();
+	}
 	
 	// setup element 
 	new->type = JSON_BOOLEAN;
@@ -437,17 +557,21 @@ jsonElement* deserializeJsonBool(arena* a, char** buf) {
 	} else if(consume(buf, "false")) {
 		new->value.boolean = 0;
 	} else {
-		logEvent(ERROR, JSON, "Invalid JSON boolean value near %.20s", *buf);
-		throw;
+		strError = "Invalid JSON boolean value";
+		JSON_THROW();
 	}
 	
 	return new;
 }
 
 // parses a JSON null from a buffer
-jsonElement* deserializeJsonNull(arena* a, char** buf) {
+jsonElement* deserializeJsonNull(jsonAllocator a, char** buf) {
 	// allocate element
-	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		JSON_THROW();
+	}
 	
 	// setup element 
 	new->type = JSON_NULL;
@@ -460,9 +584,13 @@ jsonElement* deserializeJsonNull(arena* a, char** buf) {
 }
 
 // parses a JSON numbe from a buffer
-jsonElement* deserializeJsonNumber(arena* a, char** buf) {
+jsonElement* deserializeJsonNumber(jsonAllocator a, char** buf) {
 	// allocate element
-	jsonElement* new = arenaAlloc(a, sizeof(jsonElement));
+	jsonElement* new = a(sizeof(jsonElement));
+	if(!new) {
+		strError = "Memory allocation failed";
+		JSON_THROW();
+	}
 	
 	// setup element 
 	new->type = JSON_NUMBER;
@@ -474,8 +602,8 @@ jsonElement* deserializeJsonNumber(arena* a, char** buf) {
 
 	// validate trash reads
 	if (end == *buf) {
-		logEvent(ERROR, JSON, "Invalid number in JSON near %.20s", *buf);
-		throw;
+		strError = "Invalid JSON number value";
+		JSON_THROW();
 	}
 
 	// advance 
@@ -485,17 +613,17 @@ jsonElement* deserializeJsonNumber(arena* a, char** buf) {
 }
 
 // parses a JSON key from a buffer
-const char* deserializeJsonKey(arena* a __attribute__((unused)), char** buf) {
+const char* deserializeJsonKey(jsonAllocator a __attribute__((unused)), char** buf) {
 	return readString(buf);	
 }
 
 // parses a JSON value from a buffer
-jsonElement* deserializeJsonValue(arena* a, char** buf) {
+jsonElement* deserializeJsonValue(jsonAllocator a, char** buf) {
 	eatWhitespace(buf);
 
 	// distinguish value type
 	switch(**buf) {
-		case '{': return deserializeJsonObject(a, buf);
+		case '{': return doDeserializeJsonObject(a, buf);
 		case '[': return deserializeJsonArray(a, buf);
 		case '"': return deserializeJsonString(a, buf);
 		case 't':
@@ -505,20 +633,54 @@ jsonElement* deserializeJsonValue(arena* a, char** buf) {
 	}
 }
 
+jsonElement* deserializeJsonObject(jsonAllocator a, char** buf) {
+	// save previous exception handler
+	strError = NULL;
+	jmp_buf* prev = jsonCpPointer;
+
+	// install local exception handler
+	jmp_buf env;
+	jsonCpPointer = &env;
+
+	// attempt deserialization
+	if(setjmp(env) == 0) {
+		jsonElement* result = doDeserializeJsonObject(a, buf);
+
+		// restore previous exception handler
+		jsonCpPointer = prev;
+
+		return result;
+	}
+
+	// restore previous exception handler after exception
+	jsonCpPointer = prev;
+
+	return NULL;
+}
+
 // -- cleanup
 
-void freeJsonObject(jsonElement* elem) {
+void freeJsonObject(jsonDeallocator d, jsonElement* elem) {
 	if(!elem) return;
 
 	// free children if present 
 	if(elem->type == JSON_OBJECT
 	|| elem->type == JSON_ARRAY) {
-		freeJsonObject(elem->value.head);
+		freeJsonObject(d, elem->value.head);
 	}
 
 	// free next if present
-	if(elem->next) freeJsonObject(elem->next);
+	if(elem->next) freeJsonObject(d, elem->next);
 
 	// free this
-	free(elem);
+	d(elem);
+}
+
+// -- errors
+
+// reports JSON errors
+const char* jsonError() {
+	const char* prev = strError;
+	strError = NULL;
+	return prev;
 }

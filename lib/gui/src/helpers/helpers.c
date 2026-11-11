@@ -3,6 +3,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// -- utils
+
+__attribute__((weak))
+void* xmalloc(size_t size) {
+	void* ptr = malloc(size);
+
+	if(!ptr && size != 0) {
+		printf("Memory allocation failed via malloc()\n");
+		exit(1);
+	}
+
+	return ptr;
+}
+
 // macro for OpenGL errors
 #define GL_ERR(func)               \
 	{                              \
@@ -10,6 +24,8 @@
 	    if(err != GL_NO_ERROR)     \
 	    return 0;                  \
 	}
+
+// -- shaders
 
 // GUI shader users 
 int shaderRefs = 0;
@@ -29,8 +45,7 @@ char* guiReadShader(const char* path) {
 	rewind(shaderFile);
 
 	// allocate buffer
-	char *buf = malloc(size + 1);
-	if(!buf) return 0;
+	char *buf = xmalloc(size + 1);
 
 	// store file in buffer and terminate
 	fread(buf, 1, size, shaderFile);
@@ -161,6 +176,8 @@ void guiFreeShader(GLuint program) {
 	}
 }
 
+// -- textures
+
 // GUI texture users 
 int textureRefs = 0;
 
@@ -219,11 +236,7 @@ GLuint guiImportTexture(const char* path) {
 		size_t bpp = head.pixelDepth / 8;
 		size_t pixels = head.width * head.height;
 		size_t size = pixels * 4;
-		uint8_t* data = malloc(size);
-		if(!data) {
-			fclose(textureFile);
-			return 0;
-		}
+		uint8_t* data = xmalloc(size);
 
 		// read texture
 		for(size_t i = 0; i < pixels; i++) {

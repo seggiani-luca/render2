@@ -1,8 +1,35 @@
+/**
+ * Minimal JSON serialization / deserialization library.
+ * Example usage:
+ *
+ * // TODO
+ *
+ * 2026 - Luca Seggiani
+ */
+
 #ifndef JSON_H
 #define JSON_H
 
-#include "../../arena/arena.h"
 #include <stdio.h>
+
+// -- setup
+
+/*
+ * Allocator template to feed to deserialization functions.
+ *
+ * This is meant to allow for the caller to do cleanup on the objects allocated
+ * by the library in case of library failure.
+ *
+ * It can also be used to allocate JSON objects in arbitrary memory allocators.
+ */
+typedef void* (*jsonAllocator)(size_t);
+
+/*
+ * Deallocator for the above allocator. 
+ */
+typedef void (*jsonDeallocator)(void*);
+
+// -- definitions
 
 // type of JSON element
 typedef enum {
@@ -73,32 +100,42 @@ jsonElement* addJsonAtKey(jsonElement* elem, jsonElement* n, const char* key);
 jsonElement* addJsonAtTail(jsonElement* elem, jsonElement* n);
 
 // creates a new JSON string element
-jsonElement* newJsonString(const char* val);
+jsonElement* newJsonString(jsonAllocator a, const char* val);
 
 // creates a new JSON number element
-jsonElement* newJsonNumber(float val);
+jsonElement* newJsonNumber(jsonAllocator a, float val);
 
 // creates a new JSON object element
-jsonElement* newJsonObject();
+jsonElement* newJsonObject(jsonAllocator a);
 
 // creates a new JSON array element
-jsonElement* newJsonArray();
+jsonElement* newJsonArray(jsonAllocator a);
 
 // creates a new JSON boolean element
-jsonElement* newJsonBoolean(int val);
+jsonElement* newJsonBoolean(jsonAllocator a, int val);
 
 // creates a new JSON null element
-jsonElement* newJsonNull(); 
+jsonElement* newJsonNull(jsonAllocator a); 
 
 // -- serialization / deserialization
 
-// print a JSON object to a file: the OS handles dynamic size writes
+// print a JSON object to a file: let the OS handle dynamic size writes
 void serializeJsonObject(FILE* file, jsonElement* elem);
 
 // parses a JSON object from a buffer: slurp before deserializing
-jsonElement* deserializeJsonObject(arena* a, char** buf);
+jsonElement* deserializeJsonObject(jsonAllocator a, char** buf);
 
 // frees a JSON object
-void freeJsonObject(jsonElement* elem);
+void freeJsonObject(jsonDeallocator d, jsonElement* elem);
+
+// -- errors
+
+/**
+ * Reports an error that happened in the library, for instance from a returned
+ * NULL.
+ *
+ * @return a string representing the last error that happened
+ */
+const char* jsonError();
 
 #endif

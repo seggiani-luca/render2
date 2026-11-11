@@ -2,15 +2,25 @@
 #include "../scene/scene.h"
 #include "../parse/parse.h"
 #include "../exception/exception.h"
-#include "../data/includes.h"
-#include "json/json.h"
+#include "../../lib/json/json.h"
 #include <stdlib.h>
 #include <string.h>
+
+// -- allocation
+
+// current deserialization arena
+static arena* deserialArena = NULL;
+
+// JSON allocator adapter
+static void* deserialAllocator(size_t size) {
+	if(!deserialArena) return NULL;
+	return arenaAlloc(deserialArena, size);
+}
 
 // -- fields
 
 jsonElement* intFieldSerialize(const field* f) {
-	jsonElement* elem = newJsonNumber(((intField*)f)->val);
+	jsonElement* elem = newJsonNumber(xmalloc, ((intField*)f)->val);
 	return elem;
 }
 
@@ -19,7 +29,7 @@ void intFieldDeserialize(field* f, const jsonElement* elem) {
 }
 
 jsonElement* floatFieldSerialize(const field* f) {
-	jsonElement* elem = newJsonNumber(((floatField*)f)->val);
+	jsonElement* elem = newJsonNumber(xmalloc, ((floatField*)f)->val);
 	return elem;
 }
 
@@ -28,7 +38,7 @@ void floatFieldDeserialize(field* f, const jsonElement* elem) {
 }
 
 jsonElement* stringFieldSerialize(const field* f) {
-	jsonElement* elem = newJsonString(((stringField*)f)->str);
+	jsonElement* elem = newJsonString(xmalloc, ((stringField*)f)->str);
 	return elem;
 }
 
@@ -36,6 +46,7 @@ void stringFieldDeserialize(field* f, const jsonElement* elem) {
 	// get original string
 	const char* src = getJsonString(elem);
 	if(!src) {
+		logEvent(WARN, JSON, jsonError());
 		logEvent(WARN, SERIAL, "Couldn't deserialize string field, defaulting to \"nil\"");
 		src = "nil";
 	}
@@ -48,12 +59,12 @@ void stringFieldDeserialize(field* f, const jsonElement* elem) {
 
 // serializes a vector
 jsonElement* vectorSerialize(void* val, int n) {
-	jsonElement* elem = newJsonArray();
+	jsonElement* elem = newJsonArray(xmalloc);
 
 	// add each component
 	for(int i = 0; i < n; i++) {
 		addJsonAtTail(elem, newJsonNumber(
-			*(float*)(val + i * sizeof(float))
+			xmalloc, *(float*)(val + i * sizeof(float))
 		));
 	}
 
@@ -91,15 +102,15 @@ VEC_SERIAL_IMPL(4)
 
 // serializes a matrix
 jsonElement* matrixSerialize(void* val, int n) {
-	jsonElement* elem = newJsonArray();
+	jsonElement* elem = newJsonArray(xmalloc);
 
 	// add each entry
 	for(int r = 0; r < n; r++) {
-		jsonElement* row = newJsonArray();
+		jsonElement* row = newJsonArray(xmalloc);
 
 		for(int c = 0; c < n; c++) {
 			addJsonAtTail(row, newJsonNumber(
-				*(float*)(val + (r + c * n) * sizeof(float))
+				xmalloc, *(float*)(val + (r + c * n) * sizeof(float))
 			));
 		}
 		
@@ -153,7 +164,7 @@ void quatFieldDeserialize(field* f, const jsonElement* elem) {
 
 jsonElement* transformFieldSerialize(const field* f) {
 	transformField* tf = (transformField*)f;
-	jsonElement* elem = newJsonObject();
+	jsonElement* elem = newJsonObject(xmalloc);
 
 	// add position
 	addJsonAtKey(elem, vectorSerialize(
@@ -194,17 +205,17 @@ void transformFieldDeserialize(field* f, const jsonElement* elem) {
 
 jsonElement* cameraFieldSerialize(const field* f) {
 	cameraField* cf = (cameraField*)f;
-	jsonElement* elem = newJsonObject();
+	jsonElement* elem = newJsonObject(xmalloc);
 
 	// add properties
 	addJsonAtKey(elem, newJsonNumber(
-		cf->val.fov
+		xmalloc, cf->val.fov
 	), "fov");
 	addJsonAtKey(elem, newJsonNumber(
-		cf->val.nearPlane
+		xmalloc, cf->val.nearPlane
 	), "nearPlane");
 	addJsonAtKey(elem, newJsonNumber(
-		cf->val.farPlane
+		xmalloc, cf->val.farPlane
 	), "farPlane");
 
 	return elem;
@@ -227,7 +238,7 @@ void cameraFieldDeserialize(field* f, const jsonElement* elem) {
 
 jsonElement* atmosphereFieldSerialize(const field* f) {
 	atmosphereField* af = (atmosphereField*)f;
-	jsonElement* elem = newJsonObject();
+	jsonElement* elem = newJsonObject(xmalloc);
 
 	// add properties
 	addJsonAtKey(elem, vectorSerialize(
@@ -243,13 +254,13 @@ jsonElement* atmosphereFieldSerialize(const field* f) {
 	// add cubemap
 	dataRef* cubemapRef = af->val.ambientMap;
 	if(cubemapRef) addJsonAtKey(elem, newJsonString(
-		af->val.ambientMap->path	
+		xmalloc, af->val.ambientMap->path	
 	), "cubemap");
 
 	// add skybox 
 	dataRef* skyboxRef = af->val.backgroundMap;
 	if(skyboxRef) addJsonAtKey(elem, newJsonString(
-		af->val.backgroundMap->path	
+		xmalloc, af->val.backgroundMap->path	
 	), "skybox");
 
 	return elem;
@@ -265,8 +276,10 @@ void atmosphereFieldDeserialize(field* f, const jsonElement* elem) {
 
 	// cubemap 
 	const char* cubemapPath = getJsonString(getJsonAtKey(elem, "cubemap"));
-	if(!cubemapPath) logEvent(WARN, SERIAL, "Couldn't get cubemap path");
-	else {
+	if(!cubemapPath) {
+		logEvent(WARN, JSON, jsonError());
+		logEvent(WARN, SERIAL, "Couldn't get cubemap path");
+	} else {
 		af->val.ambientMap = textureImport(cubemapPath);
 		if(!af->val.ambientMap) logEvent(WARN, IO, "Couldn't load cubemap");
 	}
@@ -281,8 +294,10 @@ void atmosphereFieldDeserialize(field* f, const jsonElement* elem) {
 
 	// skybox
 	const char* skyboxPath = getJsonString(getJsonAtKey(elem, "skybox"));
-	if(!skyboxPath) logEvent(WARN, SERIAL, "Couldn't get skybox path");
-	else {
+	if(!skyboxPath) {
+		logEvent(WARN, JSON, jsonError());
+		logEvent(WARN, SERIAL, "Couldn't get skybox path");
+	} else {
 		af->val.backgroundMap = textureImport(skyboxPath);
 		if(!af->val.backgroundMap) logEvent(WARN, IO, "Couldn't load skybox");
 	}
@@ -293,8 +308,8 @@ jsonElement* textureFieldSerialize(const field* f) {
 
 	// add path
 	dataRef* ref = tf->ref;
-	if(ref) return newJsonString(ref->path);
-	else return newJsonNull();
+	if(ref) return newJsonString(xmalloc, ref->path);
+	else return newJsonNull(xmalloc);
 }
 
 void textureFieldDeserialize(field* f, const jsonElement* elem) {
@@ -302,8 +317,10 @@ void textureFieldDeserialize(field* f, const jsonElement* elem) {
 
 	// import data
 	const char* path = getJsonString(elem);
-	if(!path) logEvent(WARN, SERIAL, "Couldn't get texture path");
-	else {
+	if(!path) {
+		logEvent(WARN, JSON, jsonError());
+		logEvent(WARN, SERIAL, "Couldn't get texture path");
+	} else {
 		tf->ref = textureImport(path);
 		if(!tf->ref) logEvent(WARN, IO, "Couldn't load texture");
 	}
@@ -314,8 +331,8 @@ jsonElement* meshFieldSerialize(const field* f) {
 
 	// add path
 	dataRef* ref = mf->ref;
-	if(ref) return newJsonString(ref->path);
-	else return newJsonNull();
+	if(ref) return newJsonString(xmalloc, ref->path);
+	else return newJsonNull(xmalloc);
 }
 
 void meshFieldDeserialize(field* f, const jsonElement* elem) {
@@ -323,8 +340,10 @@ void meshFieldDeserialize(field* f, const jsonElement* elem) {
 
 	// import data 
 	const char* path = getJsonString(elem);
-	if(!path) logEvent(WARN, SERIAL, "Couldn't get mesh path");
-	else {
+	if(!path) {
+		logEvent(WARN, JSON, jsonError());
+		logEvent(WARN, SERIAL, "Couldn't get mesh path");
+	} else {
 		mf->ref = meshImport(path);
 		if(!mf->ref) logEvent(WARN, IO, "Couldn't load mesh");
 	}
@@ -335,8 +354,8 @@ jsonElement* materialFieldSerialize(const field* f) {
 
 	// add path
 	dataRef* ref = mf->ref;
-	if(ref) return newJsonString(ref->path);
-	else return newJsonNull();
+	if(ref) return newJsonString(xmalloc, ref->path);
+	else return newJsonNull(xmalloc);
 }
 
 void materialFieldDeserialize(field* f, const  jsonElement* elem) {
@@ -344,8 +363,10 @@ void materialFieldDeserialize(field* f, const  jsonElement* elem) {
 
 	// import data 
 	const char* path = getJsonString(elem);
-	if(!path) logEvent(WARN, SERIAL, "Couldn't get material path");
-	else {
+	if(!path) {
+		logEvent(WARN, JSON, jsonError());
+		logEvent(WARN, SERIAL, "Couldn't get material path");
+	} else {
 		mf->ref = materialImport(path);
 		if(!mf->ref) logEvent(WARN, IO, "Couldn't load material");
 	}
@@ -356,8 +377,8 @@ jsonElement* scriptFieldSerialize(const field* f) {
 
 	// add path
 	dataRef* ref = sf->ref;
-	if(ref) return newJsonString(ref->path);
-	else return newJsonNull();
+	if(ref) return newJsonString(xmalloc, ref->path);
+	else return newJsonNull(xmalloc);
 }
 
 void scriptFieldDeserialize(field* f, const  jsonElement* elem) {
@@ -365,8 +386,10 @@ void scriptFieldDeserialize(field* f, const  jsonElement* elem) {
 
 	// import data 
 	const char* path = getJsonString(elem);
-	if(!path) logEvent(WARN, SERIAL, "Couldn't get script path");
-	else {
+	if(!path) {
+		logEvent(WARN, JSON, jsonError());
+		logEvent(WARN, SERIAL, "Couldn't get script path");
+	} else {
 		sf->ref = scriptImport(path);
 		if(!sf->ref) logEvent(WARN, IO, "Couldn't load script");
 	}
@@ -377,8 +400,8 @@ jsonElement* shaderFieldSerialize(const field* f) {
 
 	// add path
 	dataRef* ref = sf->ref;
-	if(ref) return newJsonString(ref->path);
-	else return newJsonNull();
+	if(ref) return newJsonString(xmalloc, ref->path);
+	else return newJsonNull(xmalloc);
 }
 
 void shaderFieldDeserialize(field* f, const  jsonElement* elem) {
@@ -386,7 +409,12 @@ void shaderFieldDeserialize(field* f, const  jsonElement* elem) {
 
 	// get path
 	const char* jsonPath = getJsonString(elem);
-	if(!jsonPath) logEvent(WARN, SERIAL, "Couldn't get shader path");
+	if(!jsonPath) {
+		logEvent(WARN, JSON, jsonError());
+		logEvent(WARN, SERIAL, "Couldn't get shader path");
+
+		return;
+	}
 	
 	// use temporary buffer
 	char path[DAT_PATH_SIZ];
@@ -470,12 +498,12 @@ const fieldVtable* getFieldVtable(const char* tag, fieldCtor* ctor) {
 // serializes a field into a JSON element 
 jsonElement* serializeField(const field* fld) {
 	// build field object
-	jsonElement* obj = newJsonObject();
+	jsonElement* obj = newJsonObject(xmalloc);
 	addJsonAtKey(obj, newJsonString(
-		fld->name	
+		xmalloc, fld->name	
 	), "name");
 	addJsonAtKey(obj, newJsonString(
-		getFieldTag(fld)
+		xmalloc, getFieldTag(fld)
 	), "type");
 
 	// serialize field payload
@@ -492,6 +520,7 @@ field* deserializeField(jsonElement* elem) {
 	// get type
 	const char* type = getJsonString(getJsonAtKey(elem, "type"));
 	if(!type) {
+		logEvent(WARN, JSON, jsonError());
 		logEvent(ERROR, SERIAL, "Unknown field type");
 		return NULL;
 	}
@@ -499,14 +528,25 @@ field* deserializeField(jsonElement* elem) {
 	// get constructor and vtable
 	fieldCtor ctor = NULL;
 	getFieldVtable(type, &ctor);
+	if(!ctor) {
+		logEvent(ERROR, SERIAL, "Unknown field type \"%s\"", type);
+		return NULL;
+	}
 
 	// parse field object
 	const char* name = getJsonString(getJsonAtKey(elem, "name"));
 	if(!name) {
+		logEvent(WARN, JSON, jsonError());
 		logEvent(ERROR, SERIAL, "Unknown field name");
 		return NULL;
 	}
+	
+	// construct field
 	field* fld = ctor(name);
+	if(!fld) {
+		logEvent(ERROR, SERIAL, "Couldn't construct field \"%s\"", name);
+		return NULL;
+	}
 
 	// deserialize field payload
 	fld->vtable->deserialize(fld, getJsonAtKey(elem, "value"));
@@ -520,13 +560,13 @@ field* deserializeField(jsonElement* elem) {
 // serializes an entity into a JSON element
 jsonElement* serializeEntity(const entity* ent) {
 	// build entity object
-	jsonElement* obj = newJsonObject();
+	jsonElement* obj = newJsonObject(xmalloc);
 	addJsonAtKey(obj, newJsonString(
-		ent->name	
+		xmalloc, ent->name	
 	), "name");
 
 	// serialize each field
-	jsonElement* fields = newJsonArray();
+	jsonElement* fields = newJsonArray(xmalloc);
 	addJsonAtKey(obj, fields, "fields");
 	field* curField = ent->root;
 	while(curField) {
@@ -538,7 +578,7 @@ jsonElement* serializeEntity(const entity* ent) {
 	}
 	
 	// serialize each child
-	jsonElement* children = newJsonArray();
+	jsonElement* children = newJsonArray(xmalloc);
 	addJsonAtKey(obj, children, "children");
 	entity* curChild = ent->child;
 	while(curChild) {
@@ -558,6 +598,7 @@ entity* deserializeEntity(jsonElement* elem) {
 	// parse entity object
 	const char* name = getJsonString(getJsonAtKey(elem, "name"));
 	if(!name) {
+		logEvent(WARN, JSON, jsonError());
 		logEvent(WARN, SERIAL, "Unknown entity name, defaulting to \"Entity\"");
 		name = "Entity";
 	}
@@ -567,7 +608,7 @@ entity* deserializeEntity(jsonElement* elem) {
 	jsonElement* curField = getJsonHead(getJsonAtKey(elem, "fields"));
 	while(curField) {
 		field* fld = deserializeField(curField);
-		appendField(ent, fld);
+		if(fld) appendField(ent, fld);
 
 		curField = getJsonNext(curField);
 	}
@@ -576,7 +617,7 @@ entity* deserializeEntity(jsonElement* elem) {
 	jsonElement* curChild = getJsonHead(getJsonAtKey(elem, "children"));
 	while(curChild) {
 		entity* child = deserializeEntity(curChild);
-		appendChild(ent, child);
+		if(child) appendChild(ent, child);
 
 		curChild = getJsonNext(curChild);
 	}
@@ -593,7 +634,7 @@ void serializeEntityFile(const entity* ent, const char* path) {
 	FILE* file = fopen(path, "wb");
 	if(!file) {
 		logEvent(ERROR, IO, "Couldn't open entity file at \"%s\"", path);
-		freeJsonObject(obj);
+		freeJsonObject(free, obj);
 		return;
 	}
 
@@ -602,7 +643,7 @@ void serializeEntityFile(const entity* ent, const char* path) {
 
 	// cleanup
 	fclose(file);
-	freeJsonObject(obj);
+	freeJsonObject(free, obj);
 }
 
 entity* deserializeEntityFile(const char* path) {
@@ -621,19 +662,25 @@ entity* deserializeEntityFile(const char* path) {
 	
 	// initialize arena
 	arena a = newArena();
+	deserialArena = &a;
 
 	// parse JSON from file
 	char* ptr = buf;
 	jsonElement* obj = NULL;
-	try {
-		obj = deserializeJsonObject(&a, &ptr);
-	} catch {
+	
+	obj = deserializeJsonObject(deserialAllocator, &ptr);
+	
+	// clear allocator context
+	deserialArena = NULL;
+	
+	if(!obj) {
+		logEvent(WARN, JSON, jsonError());
 		logEvent(ERROR, JSON, "Couldn't parse JSON for entity at \"%s\"", path);
 		freeArena(&a);
 		free(buf);
-	}
 
-	if(!obj) return NULL;
+		return NULL;
+	}
 
 	// deserialize entity from JSON
 	entity* ent = deserializeEntity(obj);
@@ -650,13 +697,13 @@ entity* deserializeEntityFile(const char* path) {
 // serializes a scene into a JSON element
 jsonElement* serializeScene(const scene* scn) {
 	// build scene object
-	jsonElement* obj = newJsonObject();
+	jsonElement* obj = newJsonObject(xmalloc);
 	addJsonAtKey(obj, newJsonString(
-		scn->name
+		xmalloc, scn->name
 	), "name");
 	
 	// add all root entities
-	jsonElement* root = newJsonArray();
+	jsonElement* root = newJsonArray(xmalloc);
 	entity* cur = scn->root.child;
 	while(cur) {
 		addJsonAtTail(root, serializeEntity(cur));
@@ -705,7 +752,7 @@ void serializeSceneFile(const scene* scn, const char* path) {
 	FILE* file = fopen(path, "wb");
 	if(!file) {
 		logEvent(ERROR, IO, "Couldn't open scene file at \"%s\"", path);
-		freeJsonObject(obj);
+		freeJsonObject(free, obj);
 		return;
 	}
 
@@ -714,7 +761,7 @@ void serializeSceneFile(const scene* scn, const char* path) {
 
 	// cleanup
 	fclose(file);
-	freeJsonObject(obj);
+	freeJsonObject(free, obj);
 }
 
 void deserializeSceneFile(scene* scn, const char* path) {
@@ -733,16 +780,24 @@ void deserializeSceneFile(scene* scn, const char* path) {
 
 	// initialize arena
 	arena a = newArena();
+	deserialArena = &a;
 
 	// parse JSON from file
 	char* ptr = buf;
 	jsonElement* obj = NULL;
-	try {
-		obj = deserializeJsonObject(&a, &ptr);
-	} catch {
+		
+	obj = deserializeJsonObject(deserialAllocator, &ptr);
+	
+	// clear allocator context
+	deserialArena = NULL;
+	
+	if(!obj) {
+		logEvent(WARN, JSON, jsonError());
 		logEvent(ERROR, JSON, "Couldn't parse JSON for scene at \"%s\"", path);
 		freeArena(&a);
 		free(buf);
+
+		return;
 	}
 
 	if(!obj) return;
