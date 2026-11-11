@@ -2,6 +2,7 @@
 #define EDITOR_HIERARCHY_H
 
 #include "../../scene/scene.h"
+#include "../../../lib/window/window.h"
 
 // -- constants 
 
@@ -22,6 +23,6 @@
 // -- scenes
 
 // gets a callback object for a scene hierarchy
-renderCallback makeSceneCallback(scene* scn);
+winRenderCallback makeSceneCallback(scene* scn);
 
 #endif

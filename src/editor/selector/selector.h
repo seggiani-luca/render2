@@ -1,8 +1,7 @@
 #ifndef EDITOR_SELECTOR_H
 #define EDITOR_SELECTOR_H
 
-#include "../../gui/gui.h"
-#include "../../gui/widget/widget.h"
+#include "../../../lib/gui/gui.h"
 #include "../../data/includes.h"
 
 // -- constants
@@ -27,7 +26,7 @@
 int dataGui(
 	guiContext* ctx,
 	guiLayerId layId,
-	rectangle rect,
+	guiRect rect,
 	dataRef** ref,
 	dataTable* tab
 );
@@ -37,7 +36,7 @@ int dataGui(
 	static inline int data##Gui(                                        \
 	    guiContext* ctx,                                                \
 	    guiLayerId layId,                                               \
-	    rectangle rect,                                                 \
+	    guiRect rect,                                                 \
 	    void* val                                                       \
 	) {                                                                 \
 	    return dataGui(ctx, layId, rect, (dataRef**)val, &data##Table); \
@@ -50,25 +49,25 @@ SELECTOR_GUI(material)
 SELECTOR_GUI(script)
 
 // selects shader data
-int shaderGui(guiContext* ctx, guiLayerId layId, rectangle rect, void* val);
+int shaderGui(guiContext* ctx, guiLayerId layId, guiRect rect, void* val);
 
 // selects a path 
-int pathGui(guiContext* ctx, guiLayerId layId, rectangle rect, void* val);
+int pathGui(guiContext* ctx, guiLayerId layId, guiRect rect, void* val);
 
 // -- callbacks
 
 // makes data selector callback
-renderCallback makeDataselCallback(
+winRenderCallback makeDataselCallback(
 	dataRef** ref,
 	dataTable* tab,
 	guiContext* orig
 );
 
 // makes shader selector callback
-renderCallback makeShaderselCallback(dataRef** ref, guiContext* orig);
+winRenderCallback makeShaderselCallback(dataRef** ref, guiContext* orig);
 
 // makes path selector callback
-renderCallback makePathselCallback(
+winRenderCallback makePathselCallback(
 	char* path,
 	guiContext* orig,
 	char* curPath

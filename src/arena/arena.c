@@ -37,6 +37,7 @@ arena newArena() {
 }
 
 void* arenaAlloc(arena* a, size_t size) {
+	// don't allow objets to span chunks
 	if(size > ARENA_SIZE_STEP) {
 		logEvent(FATAL, MEMORY, "Arena allocation won't fit in chunk");
 		exit(1);

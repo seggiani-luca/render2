@@ -332,14 +332,14 @@ void freeRender(void* vCtx) {
 	free(rCtx);
 }
 
-renderCallback makeRenderCallback(scene* scn) {
+winRenderCallback makeRenderCallback(scene* scn) {
 	// initialize context
 	renderingContext* rCtx = xmalloc(sizeof(renderingContext));
 	rCtx->scn = scn;
 	rCtx->gl.shd = NULL; // flag via shader
 
 	// return callback
-	return (renderCallback){
+	return (winRenderCallback){
 		render,
 		rCtx,
 		freeRender

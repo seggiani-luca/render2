@@ -20,8 +20,7 @@ typedef struct __attribute__((packed)) {
 
 	uint8_t pixelDepth;
 	uint8_t imageDescriptor;
-}
-headerTGA;
+} headerTGA;
 
 // imports a texture in .tga format
 int textureDecode(texture* tex, FILE* file) {

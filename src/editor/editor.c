@@ -1,4 +1,5 @@
 #include "editor.h"
+#include "../../lib/window/window.h"
 #include "hierarchy/hierarchy.h"
 #include "inspector/inspector.h"
 #include "../exception/exception.h"
@@ -13,24 +14,24 @@ extern window* inspectorWin;
 
 void createEditorWindows(scene* scn) {
 	// create hierarchy
-	hierarchyWin = newWindow(
+	hierarchyWin = winNew(
 		HIERARCHY_WIDTH,
 		HIERARCHY_HEIGHT,
 		"Hierarchy",
 		makeSceneCallback(scn),
-		loadIcon(WIN_HIERCHY_ICO),
-		0
+		NULL,
+		WIN_DEPTH_OFF
 	);
 	if(!hierarchyWin) logEvent(ERROR, GUI, "Couldn't create hierarchy window");
 
 	// create inspector
-	inspectorWin = newWindow(
+	inspectorWin = winNew(
 		INSPECTOR_WIDTH,
 		INSPECTOR_HEIGHT,
 		"Inspector",
 		makeEntityCallback(NULL),
-		loadIcon(WIN_INSPECT_ICO),
-		0
+		NULL,
+		WIN_DEPTH_OFF
 	);
 	if(!inspectorWin) logEvent(ERROR, GUI, "Couldn't create inspector window");
 }

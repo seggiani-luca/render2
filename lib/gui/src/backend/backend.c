@@ -1,18 +1,32 @@
-#include "render.h"
-#include "../../render/render.h"
-#include <GLFW/glfw3.h>
+#include "backend.h"
+#include "../gui.h"
+#include "../helpers/helpers.h"
 #include <stdlib.h>
+#include <stdio.h>
+
+// select shader paths
+#define GUI_VERT_PATH "lib/gui/dat/shader/gui_vert.glsl"
+#define GUI_FRAG_PATH "lib/gui/dat/shader/gui_frag.glsl"
+
+// select theme path
+#if defined GUI_THEME_DARK
+	#define GUI_ATLAS_PATH "lib/gui/dat/texture/gui_atlas_dark.tga"
+#elif defined  GUI_THEME_LIGHT
+	#define GUI_ATLAS_PATH "lib/gui/dat/texture/gui_atlas_light.tga"
+#else
+	#error "No GUI theme set"
+#endif
 
 // -- rendering
 
-void pushGui(guiLayer* lay, quad q) {
+void guiPush(guiLayer* lay, guiQuad q) {
 	// don't overflow
 	if(lay->queue.last == QUEUE_SIZ) return;
 	lay->queue.vec[lay->queue.last++] = q;
 }
 
 // flushes a single GUI layer
-void flushLayer(guiContext* ctx, guiLayer* lay) {
+void guiFlushLayer(guiContext* ctx, guiLayer* lay) {
 	if(lay->queue.last == 0) return;
 
 	// bind GUI quad instance VBO
@@ -26,7 +40,7 @@ void flushLayer(guiContext* ctx, guiLayer* lay) {
 	glBufferSubData(
 		GL_ARRAY_BUFFER,
 		0,
-		sizeof(quad) * lay->queue.last,
+		sizeof(guiQuad) * lay->queue.last,
 		lay->queue.vec
 	);
 	GL_ERR("gui instance VBO data (flush)")
@@ -36,19 +50,19 @@ void flushLayer(guiContext* ctx, guiLayer* lay) {
 	GL_ERR("gui VAO binding (flush)")
 
 	// use shader program
-	glUseProgram(ctx->gl.shd->program);
+	glUseProgram(ctx->gl.shd);
 
 	// bind texture
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(
 		GL_TEXTURE_2D,
-		ctx->gl.tex->tex
+		ctx->gl.tex
 	);
 
 	// bind shader uniforms
 	glUniform2f(
 		glGetUniformLocation(
-			ctx->gl.shd->program,
+			ctx->gl.shd,
 			"uScreenSize"
 		),
 		ctx->win->width,
@@ -56,7 +70,7 @@ void flushLayer(guiContext* ctx, guiLayer* lay) {
 	);
 	glUniform1i(
 		glGetUniformLocation(
-			ctx->gl.shd->program,
+			ctx->gl.shd,
 			"uTex"
 		),
 		0
@@ -72,7 +86,7 @@ void flushLayer(guiContext* ctx, guiLayer* lay) {
 	GL_ERR("gui drawing")
 }
 
-void flushGui(guiContext* ctx) {
+void guiFlush(guiContext* ctx) {
 	// clear buffer
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -81,14 +95,14 @@ void flushGui(guiContext* ctx) {
 	for(int i = 0; i < GUI_LAYERS; i++) {
 		guiLayer* lay = &ctx->layers[i];
 		lay->lastHeight = lay->height;
-		flushLayer(ctx, lay);
+		guiFlushLayer(ctx, lay);
 	}
 }
 
 // -- initialization
 
 // initializes GUI OpenGL data
-int newGui(guiContext* ctx) {
+int guiNew(guiContext* ctx) {
 	float quadTris[] =
 	{
 		0.0f, 0.0f, // tri 0
@@ -157,7 +171,7 @@ int newGui(guiContext* ctx) {
 	// fill quad instance VBO with empty data
 	glBufferData(
 		GL_ARRAY_BUFFER,
-		sizeof(quad) * QUEUE_SIZ,
+		sizeof(guiQuad) * QUEUE_SIZ,
 		NULL,
 		GL_DYNAMIC_DRAW
 	);
@@ -169,7 +183,7 @@ int newGui(guiContext* ctx) {
 		4,
 		GL_FLOAT,
 		GL_FALSE,
-		sizeof(quad),
+		sizeof(guiQuad),
 		(void*)0
 	);
 	GL_ERR("gui instance vertex attrib")
@@ -186,7 +200,7 @@ int newGui(guiContext* ctx) {
 		4,
 		GL_FLOAT,
 		GL_FALSE,
-		sizeof(quad),
+		sizeof(guiQuad),
 		(void*)(4 * sizeof(float))
 	);
 	GL_ERR("gui instance UV attrib")
@@ -198,33 +212,19 @@ int newGui(guiContext* ctx) {
 	GL_ERR("gui instance UV attrib enable")
 
 	// import shader
-	dataRef* shd = shaderImport(GUI_VERT_PATH, GUI_FRAG_PATH);
-	if(!shd) {
-		logEvent(FATAL, IO, "Couldn't load default GUI shader");
-		exit(0);
-	}
-	ctx->gl.shd = shd->data;
+	ctx->gl.shd = guiImportShader(GUI_VERT_PATH, GUI_FRAG_PATH);
 
 	// import texture
-	dataRef* tex = textureImport(GUI_ATLAS_PATH);
-	if(!tex) {
-		logEvent(FATAL, IO, "Couldn't load default GUI texture");
-		exit(0);
-	}
-	ctx->gl.tex = tex->data;
-
-	// set to SRGB
-	textureColor(ctx->gl.tex, 1);
-	textureFilter(ctx->gl.tex, 0);
+	ctx->gl.tex = guiImportTexture(GUI_ATLAS_PATH);
 
 	return 1;
 }
 
-void freeGui(void* vCtx) {
+void guiFree(void* vCtx) {
 	guiContext* ctx = (guiContext*)vCtx;
 	
 	// free child first if present
-	if(ctx->child) freeWindow(ctx->child);
+	if(ctx->child) winFree(ctx->child);
 
 	// free VBOs and VAO
 	glDeleteBuffers(
@@ -241,31 +241,37 @@ void freeGui(void* vCtx) {
 	);
 
 	// free shader
-	shaderFree(ctx->gl.shd);
+	guiFreeShader(ctx->gl.shd);
 
 	// free texture
-	textureFree(ctx->gl.tex);
+	guiFreeTexture(ctx->gl.tex);
 
 	free(ctx);
 }
 
 // forward declarations for GLFW callbacks
-void charCallback(GLFWwindow* gl, unsigned int codepoint);
-void keyCallback(GLFWwindow* gl, int key, int scancode, int action, int mods);
-void scrollCallback(GLFWwindow* gl, double x, double y);
+void guiCharCallback(GLFWwindow* gl, unsigned int codepoint);
+void guiKeyCallback(
+	GLFWwindow* gl,
+	int key,
+	int scancode,
+	int action,
+	int mods
+);
+void guiScrollCallback(GLFWwindow* gl, double x, double y);
 
-guiContext* initGui(window* win) {
+guiContext* guiInit(window* win) {
 	guiContext* ctx = (guiContext*)win->cbak.ctx;
 
 	// make context if NULL 
 	if(ctx->win == NULL) {
-		if(!newGui(ctx)) return NULL;
+		if(!guiNew(ctx)) return NULL;
 		ctx->win = win;
 
 		// attach callbacks
-		glfwSetCharCallback(win->gl, charCallback);
-		glfwSetKeyCallback(win->gl, keyCallback);
-		glfwSetScrollCallback(win->gl, scrollCallback);
+		glfwSetCharCallback(win->gl, guiCharCallback);
+		glfwSetKeyCallback(win->gl, guiKeyCallback);
+		glfwSetScrollCallback(win->gl, guiScrollCallback);
 
 		// set other values
 		ctx->inactive = 0;
@@ -278,8 +284,8 @@ guiContext* initGui(window* win) {
 
 	// update child first if present
 	if(ctx->child) {
-		if(!updateWindow(ctx->child)) {
-			freeWindow(ctx->child);
+		if(!winUpdate(ctx->child)) {
+			winFree(ctx->child);
 			ctx->child = NULL;
 			ctx->inactive = 0;
 		}
@@ -304,7 +310,7 @@ guiContext* initGui(window* win) {
 // -- input
 
 // GLFW character callback
-void charCallback(GLFWwindow* gl, unsigned int codepoint) {
+void guiCharCallback(GLFWwindow* gl, unsigned int codepoint) {
 	// get context
 	window* win = glfwGetWindowUserPointer(gl);
 	guiContext* ctx = win->cbak.ctx;
@@ -312,7 +318,7 @@ void charCallback(GLFWwindow* gl, unsigned int codepoint) {
 	// check if should input
 	if(!ctx 
 	|| ctx->in.hotId == 0
-	|| ctx->in.keyBufSiz == IN_BUF_SIZ - 2) {
+	|| ctx->in.keyBufSiz == GUI_IN_BUF_SIZ - 2) {
 		return;
 	}
 
@@ -321,7 +327,7 @@ void charCallback(GLFWwindow* gl, unsigned int codepoint) {
 }
 
 // GLFW key callback
-void keyCallback(
+void guiKeyCallback(
 	GLFWwindow* gl,
 	int key,
 	int scancode __attribute__((unused)),
@@ -341,7 +347,7 @@ void keyCallback(
 }
 
 // GLFW scroll callback
-void scrollCallback(
+void guiScrollCallback(
 	GLFWwindow* gl,
 	double x __attribute__((unused)),
 	double y
@@ -356,14 +362,14 @@ void scrollCallback(
 // currently focused window
 static window* curFocus = NULL;
 
-void inputGui(window* win) {
+void guiInput(window* win) {
 	guiContext* ctx = (guiContext*)win->cbak.ctx;
 
 	// get mouse position
 	double x, y;
 	glfwGetCursorPos(win->gl, &x, &y);
-	ctx->in.xCur = USE_WAYLAND ? x : fbToWinW(win, x);
-	ctx->in.yCur = USE_WAYLAND ? y : fbToWinW(win, y);
+	ctx->in.xCur = WIN_USE_WAYLAND ? x : fbToWinW(win, x);
+	ctx->in.yCur = WIN_USE_WAYLAND ? y : fbToWinH(win, y);
 
 	// reset all on inactive window
 	if(ctx->inactive) {

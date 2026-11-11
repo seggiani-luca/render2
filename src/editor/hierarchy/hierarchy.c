@@ -1,7 +1,6 @@
 #include "hierarchy.h"
 #include "../editor.h"
 #include "../selector/selector.h"
-#include "../../gui/widget/widget.h"
 #include "../inspector/inspector.h"
 #include "../../exception/exception.h"
 #include <stdlib.h>
@@ -21,7 +20,7 @@ typedef struct {
 	entity* moving;
 
 	// path of scene to load
-	char load[IN_BUF_SIZ];
+	char load[GUI_IN_BUF_SIZ];
 } sceneGuiContext;
 
 // context for new child GUI callback
@@ -36,10 +35,10 @@ typedef struct {
 	scene* scn;
 
 	// name buffer
-	char name[IN_BUF_SIZ];
+	char name[GUI_IN_BUF_SIZ];
 
 	// path of entity to load 
-	char load[IN_BUF_SIZ];
+	char load[GUI_IN_BUF_SIZ];
 } addChildGuiContext;
 
 // hook into inspector window
@@ -59,14 +58,14 @@ typedef enum {
 // renders the add field GUI
 void addChildGui(window* win) {
 	// get context
-	addChildGuiContext* aCtx = (addChildGuiContext*)initGui(win);
+	addChildGuiContext* aCtx = (addChildGuiContext*)guiInit(win);
 	guiContext* ctx = &aCtx->gui;
 	entity* ent = aCtx->ent;
 	scene* scn = aCtx->scn;
 	char* name = aCtx->name;
 
 	// update input state
-	inputGui(win);
+	guiInput(win);
 
 	// realize early if entity path changed
 	if(ctx->in.dataPtr == aCtx->load && ctx->in.dataSet) {
@@ -85,52 +84,52 @@ void addChildGui(window* win) {
 	}
 
 	// push background
-	quadGui(ctx, BACKGROUND, (rectangle){
+	guiPushQuad(ctx, BACKGROUND, (guiRect){
 		0, 0,
-		WIN, HEIG 
-	}, BG_ABS);
+		WIN_WIDTH, WIN_HEIGHT 
+	}, GUI_BG_ABS);
 
 	// push name edit box
 	{
 		// mask
-		quadGui(ctx, SCROLL, (rectangle){
+		guiPushQuad(ctx, SCROLL, (guiRect){
 			0, 0,
-			WIN, TXT_HEIGHT + 4 PAD
-		}, BG_ABS);
+			WIN_WIDTH, GUI_TXT_HEIGHT + 4 GUI_PAD
+		}, GUI_BG_ABS);
 
 		// push label
-		textGui(ctx, SCROLL, (position){
-			1 PAD, 2 PAD
+		guiText(ctx, SCROLL, (guiPos){
+			1 GUI_PAD, 2 GUI_PAD
 		}, "Name:");
 
 		// push name edit box
-		stringGui(ctx, SCROLL, (rectangle){
-			1 PAD + CHILD_OFF, 1 PAD,
-			WIN - 5 PAD - ICO_SIZ - CHILD_OFF, TXT_HEIGHT + 2 PAD
+		stringGui(ctx, SCROLL, (guiRect){
+			1 GUI_PAD + CHILD_OFF, 1 GUI_PAD,
+			WIN_WIDTH - 5 GUI_PAD - GUI_ICO_SIZ - CHILD_OFF, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, name);
 
-		if(buttonGui(ctx, SCROLL, (rectangle){
-			WIN - 7 PAD, 1 PAD,
-			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, SCROLL, (guiRect){
+			WIN_WIDTH - 7 GUI_PAD, 1 GUI_PAD,
+			2 GUI_PAD + GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, ICO_LOAD, "")) {	
 			// prepare to load entity 
 			ctx->in.dataPtr = aCtx->load;
-			subWindowGui(ctx, newWindow(
+			guiChildWindow(ctx, winNew(
 				PATHSEL_WIDTH,
 				PATHSEL_HEIGHT,
 				"Select Entity",
 				makePathselCallback(aCtx->load, ctx, ENTITY_DIR),
-				loadIcon(WIN_PATHSEL_ICO),
-				0
+				NULL,
+				WIN_DEPTH_OFF
 			));
 		}
 	}
-	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 
 	// declare child button table
 	typedef struct {
 		const char* label;
-		rectangle ico;
+		guiRect ico;
 		entity* (*ctor)(const char* name);
 	} childButton;
 	static const childButton childButtons[] = {
@@ -145,9 +144,9 @@ void addChildGui(window* win) {
 		const childButton* c = &childButtons[i];
 
 		// push new child button
-		if(buttonGui(ctx, SCROLL, (rectangle){
-			1 PAD, 1 PAD,
-			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, SCROLL, (guiRect){
+			1 GUI_PAD, 1 GUI_PAD,
+			WIN_WIDTH - 2 GUI_PAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, c->ico, c->label)) {
 			// no objects named the same as root
 			if(strcmp(name, ROOT_NAME) == 0) break; 
@@ -162,18 +161,18 @@ void addChildGui(window* win) {
 			// should close
 			glfwSetWindowShouldClose(win->gl, 1);
 		}
-		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+		guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 	}
 
-	downGui(ctx, SCROLL, 1 PAD);
-	trimGui(ctx);
+	guiDown(ctx, SCROLL, 1 GUI_PAD);
+	guiTrim(ctx, SCROLL);
 
 	// flush changes
-	flushGui(ctx);
+	guiFlush(ctx);
 }
 
 // gets a callback object for a "new field" menu
-renderCallback makeAddChildCallback(entity* ent, scene* scn) {
+winRenderCallback makeAddChildCallback(entity* ent, scene* scn) {
 	// initialize context
 	addChildGuiContext* aCtx = xmalloc(sizeof(addChildGuiContext));
 	aCtx->gui.win = NULL;
@@ -183,10 +182,10 @@ renderCallback makeAddChildCallback(entity* ent, scene* scn) {
 	*aCtx->name = '\0';
 
 	// return callback
-	return (renderCallback){
+	return (winRenderCallback){
 		addChildGui,
 		aCtx,
-		freeGui
+		guiFree
 	};
 }
 
@@ -196,46 +195,46 @@ hierAction entityHierGui(guiContext* ctx, entity* ent, int depth) {
 
 	// push icon
 	if(depth > 0) {
-		iconGui(ctx, SCROLL, (position){
-			1 PAD + (depth - 1) * (ICO_SIZ + 1 PAD), 1 PAD
+		guiIcon(ctx, SCROLL, (guiPos){
+			1 GUI_PAD + (depth - 1) * (GUI_ICO_SIZ + 1 GUI_PAD), 1 GUI_PAD
 		}, ICO_INDENT);
 	}
 
 	// push entity button
-	if(buttonGui(ctx, SCROLL, (rectangle){
-		1 PAD + depth * (ICO_SIZ + 1 PAD), 1 PAD,
-		HIER_ELEM_WIDTH, TXT_HEIGHT + 2 PAD
+	if(guiButton(ctx, SCROLL, (guiRect){
+		1 GUI_PAD + depth * (GUI_ICO_SIZ + 1 GUI_PAD), 1 GUI_PAD,
+		HIER_ELEM_WIDTH, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, ICO_ENTITY, ent->name)) {
 		act = INSPECT;
 	}
 
 	// push new child button
-	if(buttonGui(ctx, SCROLL, (rectangle){
-		WIN - 3 PAD - ICO_SIZ, 1 PAD,
-		2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+	if(guiButton(ctx, SCROLL, (guiRect){
+		WIN_WIDTH - 3 GUI_PAD - GUI_ICO_SIZ, 1 GUI_PAD,
+		2 GUI_PAD + GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, ICO_NEW, "")) {
 		act = NEW;
 	}
 
 	if(depth != 0) {
 		// push delete child button
-		if(buttonGui(ctx, SCROLL, (rectangle){
-			WIN - 6 PAD - 2 * ICO_SIZ, 1 PAD,
-			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, SCROLL, (guiRect){
+			WIN_WIDTH - 6 GUI_PAD - 2 * GUI_ICO_SIZ, 1 GUI_PAD,
+			2 GUI_PAD + GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, ICO_DELETE, "")) {
 			act = DELETE;
 		}
 
 		// push move child button
-		if(buttonGui(ctx, SCROLL, (rectangle){
-			WIN - 9 PAD - 3 * ICO_SIZ, 1 PAD,
-			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, SCROLL, (guiRect){
+			WIN_WIDTH - 9 GUI_PAD - 3 * GUI_ICO_SIZ, 1 GUI_PAD,
+			2 GUI_PAD + GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, ICO_MOVE, "")) {
 			act = MOVE;
 		}
 	}
 
-	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 
 	return act;
 }
@@ -243,12 +242,12 @@ hierAction entityHierGui(guiContext* ctx, entity* ent, int depth) {
 // renders the hierarchy GUI
 void sceneGui(window* win) {
 	// get context
-	sceneGuiContext* sCtx = (sceneGuiContext*)initGui(win);
+	sceneGuiContext* sCtx = (sceneGuiContext*)guiInit(win);
 	guiContext* ctx = &sCtx->gui;
 	scene* scn = sCtx->scn;
 
 	// update input state
-	inputGui(win);
+	guiInput(win);
 
 	// realize early if scene path changed
 	if(ctx->in.dataPtr == sCtx->load && ctx->in.dataSet) {
@@ -260,51 +259,51 @@ void sceneGui(window* win) {
 	}
 
 	// push background
-	quadGui(ctx, BACKGROUND, (rectangle){
+	guiPushQuad(ctx, BACKGROUND, (guiRect){
 		0, 0,
-		WIN, HEIG 
-	}, BG_ABS);
+		WIN_WIDTH, WIN_HEIGHT 
+	}, GUI_BG_ABS);
 
 	// push scene label
 	{
 		// mask
-		quadGui(ctx, FIXED, (rectangle){
+		guiPushQuad(ctx, FIXED, (guiRect){
 			0, 0,
-			WIN, TXT_HEIGHT + 4 PAD
-		}, BG_ABS);
+			WIN_WIDTH, GUI_TXT_HEIGHT + 4 GUI_PAD
+		}, GUI_BG_ABS);
 
 		// push icon
-		iconGui(ctx, FIXED, (position){
-			2 PAD, 2 PAD
+		guiIcon(ctx, FIXED, (guiPos){
+			2 GUI_PAD, 2 GUI_PAD
 		}, ICO_SCENE);
 
 		// push name edit box
-		stringGui(ctx, FIXED, (rectangle){
-			3 PAD + ICO_SIZ, 1 PAD,
-			WIN - 10 PAD - 3 * ICO_SIZ, TXT_HEIGHT + 2 PAD
+		stringGui(ctx, FIXED, (guiRect){
+			3 GUI_PAD + GUI_ICO_SIZ, 1 GUI_PAD,
+			WIN_WIDTH - 10 GUI_PAD - 3 * GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, scn ? scn->name : NULL);
 
 		// push load button
-		if(buttonGui(ctx, FIXED, (rectangle){
-			WIN - 10 PAD - ICO_SIZ, 1 PAD,
-			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, FIXED, (guiRect){
+			WIN_WIDTH - 10 GUI_PAD - GUI_ICO_SIZ, 1 GUI_PAD,
+			2 GUI_PAD + GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, ICO_LOAD, "")) {	
 			// prepare to load scene 
 			ctx->in.dataPtr = sCtx->load;
-			subWindowGui(ctx, newWindow(
+			guiChildWindow(ctx, winNew(
 				PATHSEL_WIDTH,
 				PATHSEL_HEIGHT,
 				"Select Scene",
 				makePathselCallback(sCtx->load, ctx, SCENE_DIR),
-				loadIcon(WIN_PATHSEL_ICO),
-				0
+				NULL,
+				WIN_DEPTH_OFF
 			));
 		}
 		
 		// push save button
-		if(buttonGui(ctx, FIXED, (rectangle){
-			WIN - 3 PAD - ICO_SIZ, 1 PAD,
-			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, FIXED, (guiRect){
+			WIN_WIDTH - 3 GUI_PAD - GUI_ICO_SIZ, 1 GUI_PAD,
+			2 GUI_PAD + GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, ICO_SAVE, "")) {	
 			if(*scn->name == '\0') {
 				logEvent(ERROR, IO, "Couldn't serialize scene with empty path");
@@ -317,10 +316,10 @@ void sceneGui(window* win) {
 			return; // early quit
 		}
 	}
-	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 
 	// scroll field layer
-	scrollGui(ctx, SCROLL);
+	guiScroll(ctx, SCROLL);
 
 	// go through scene hierarchy
 	sceneIter iter = getScIter(scn);
@@ -385,13 +384,13 @@ void sceneGui(window* win) {
 				sCtx->moving = NULL;
 
 				// create new child window
-				subWindowGui(ctx, newWindow(
+				guiChildWindow(ctx, winNew(
 					ADD_CHILD_WIDTH,
 					ADD_CHILD_HEIGHT,
 					"Append Child",
 					makeAddChildCallback(cur, scn),
-					loadIcon(WIN_NEWITEM_ICO),
-					0
+					NULL,
+					WIN_DEPTH_OFF
 				));
 			} break;
 
@@ -400,13 +399,13 @@ void sceneGui(window* win) {
 
 		if(!next) break;
 	}
-	downGui(ctx, SCROLL, 1 PAD);
+	guiDown(ctx, SCROLL, 1 GUI_PAD);
 
 	// flush changes
-	flushGui(ctx);
+	guiFlush(ctx);
 }
 
-renderCallback makeSceneCallback(scene* scn) {
+winRenderCallback makeSceneCallback(scene* scn) {
 	// initialize context
 	sceneGuiContext* sCtx = xmalloc(sizeof(sceneGuiContext));
 	sCtx->gui.win = NULL;
@@ -415,10 +414,10 @@ renderCallback makeSceneCallback(scene* scn) {
 	sCtx->moving = NULL;
 
 	// return callback
-	return (renderCallback){
+	return (winRenderCallback){
 		sceneGui,
 		sCtx,
-		freeGui
+		guiFree
 	};
 }
 

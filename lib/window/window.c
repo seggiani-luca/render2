@@ -92,7 +92,7 @@ void winPrintGL() {
 }
 
 // loads OpenGL (done when the first window is created)
-int loadGL() {
+int winLoadGL() {
 	// load OpenGL via GLAD
 	if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return 0;
 	glLoaded = 1;
@@ -137,12 +137,6 @@ window* winNew(
 	winIcon* ico,
 	int depth	
 ) {
-	if(!ico) {
-		strError = "Invalid window icon";
-		if(cbak.ctx) cbak.free(cbak.ctx);
-		return NULL;
-	}
-
 	// allocate window data
 	window* win = xmalloc(sizeof(window));
 
@@ -203,7 +197,7 @@ window* winNew(
 
 	// load OpenGL if needed
 	if(!glLoaded) {
-		if(!loadGL()) {
+		if(!winLoadGL()) {
 			strError = "Couldn't load OpenGL hooks";
 			if(cbak.ctx) cbak.free(cbak.ctx);
 			glfwDestroyWindow(win->gl);
@@ -234,9 +228,11 @@ window* winNew(
 	// setup SRGB
 	glEnable(GL_FRAMEBUFFER_SRGB);
 
-	// setup icon
-	glfwSetWindowIcon(win->gl, 1, ico);
-	free(ico->pixels);
+	// setup icon, if present
+	if(ico) {
+		glfwSetWindowIcon(win->gl, 1, ico);
+		free(ico->pixels);
+	}
 	free(ico);
 
 	// inc. window counter

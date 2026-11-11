@@ -1,7 +1,6 @@
 #include "inspector.h"
 #include "../editor.h"
 #include "../selector/selector.h"
-#include "../../gui/widget/widget.h"
 #include "../widget/widget.h"
 #include "../../scene/scene.h"
 #include "../../exception/exception.h"
@@ -29,7 +28,7 @@ typedef struct {
 	entity* ent;
 
 	// name buffer
-	char name[IN_BUF_SIZ];
+	char name[GUI_IN_BUF_SIZ];
 } addFieldGuiContext;
 
 // enum for inspector action
@@ -45,37 +44,37 @@ typedef enum {
 int fieldGui(
 	guiContext* ctx,
 	const char* name,
-	rectangle ico,
-	int (*gui)(guiContext* ctx, guiLayerId id, rectangle rect, void* val),
+	guiRect ico,
+	int (*gui)(guiContext* ctx, guiLayerId id, guiRect rect, void* val),
 	void* val,
 	int rows
 ) {
 	inspAction act = NONE;
 
 	// push panel
-	float height = ROW + 2 PAD;
-	float bigHeight = HROW + HROW * rows + 2 PAD;
+	float height = GUI_ROW + 2 GUI_PAD;
+	float bigHeight = GUI_HROW + GUI_HROW * rows + 2 GUI_PAD;
 	if(bigHeight > height) height = bigHeight;
-	quadGui(ctx, SCROLL, (rectangle){
-		1 PAD, 1 PAD,
-		WIN - 2 PAD, height
-	}, BG_LIGHT);
+	guiPushQuad(ctx, SCROLL, (guiRect){
+		1 GUI_PAD, 1 GUI_PAD,
+		WIN_WIDTH - 2 GUI_PAD, height
+	}, GUI_BG_LIGHT);
 
 	// push icon
-	iconGui(ctx, SCROLL, (position){
-		2 PAD, 2 PAD + HPAD
+	guiIcon(ctx, SCROLL, (guiPos){
+		2 GUI_PAD, 2 GUI_PAD + GUI_HPAD
 	}, ico);
 
 	// push name
-	separatorGui(ctx, SCROLL, (rectangle){
-		3 PAD + ICO_SIZ, 2 PAD + HPAD,
-		WIN - 8 PAD - 2 * ICO_SIZ, TXT_HEIGHT
+	guiSeparator(ctx, SCROLL, (guiRect){
+		3 GUI_PAD + GUI_ICO_SIZ, 2 GUI_PAD + GUI_HPAD,
+		WIN_WIDTH - 8 GUI_PAD - 2 * GUI_ICO_SIZ, GUI_TXT_HEIGHT
 	}, name);
 
 	// push delete button
-	if(buttonGui(ctx, SCROLL, (rectangle){
-		WIN - 4 PAD - ICO_SIZ, 2 PAD,
-		 2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+	if(guiButton(ctx, SCROLL, (guiRect){
+		WIN_WIDTH - 4 GUI_PAD - GUI_ICO_SIZ, 2 GUI_PAD,
+		 2 GUI_PAD + GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, ICO_DELETE, "")) {
 		act = DELETE;
 	}
@@ -83,14 +82,14 @@ int fieldGui(
 	// push edit box
 	float vPos = ctx->layers[SCROLL].vPos;
 	float lastHeight = ctx->layers[SCROLL].height;
-	int ret = gui(ctx, SCROLL, (rectangle){
-		2 PAD, 3 PAD + HROW,
-		WIN - 4 PAD, HROW - 1 PAD
+	int ret = gui(ctx, SCROLL, (guiRect){
+		2 GUI_PAD, 3 GUI_PAD + GUI_HROW,
+		WIN_WIDTH - 4 GUI_PAD, GUI_HROW - 1 GUI_PAD
 	}, val);
 	ctx->layers[SCROLL].vPos = vPos;
 	ctx->layers[SCROLL].height = lastHeight;
 
-	downGui(ctx, SCROLL, height + 1 PAD);
+	guiDown(ctx, SCROLL, height + 1 GUI_PAD);
 
 	// signal if modified
 	if(ret) act = MODIFY;
@@ -326,44 +325,44 @@ int shaderFieldGui(const field* f, guiContext* ctx) {
 // renders the add field GUI
 void addFieldGui(window* win) {
 	// get context
-	addFieldGuiContext* eCtx = (addFieldGuiContext*)initGui(win);
+	addFieldGuiContext* eCtx = (addFieldGuiContext*)guiInit(win);
 	guiContext* ctx = &eCtx->gui;
 	entity* ent = eCtx->ent;
 	char* name = eCtx->name;
 
 	// update input state
-	inputGui(win);
+	guiInput(win);
 
 	// push background
-	quadGui(ctx, BACKGROUND, (rectangle){
-		0, 0, WIN, HEIG 
-	}, BG_ABS);
+	guiPushQuad(ctx, BACKGROUND, (guiRect){
+		0, 0, WIN_WIDTH, WIN_HEIGHT 
+	}, GUI_BG_ABS);
 
 	// push name edit box
 	{
 		// mask
-		quadGui(ctx, FIXED, (rectangle){
+		guiPushQuad(ctx, FIXED, (guiRect){
 			0, 0,
-			WIN, TXT_HEIGHT + 4 PAD
-		}, BG_ABS);
+			WIN_WIDTH, GUI_TXT_HEIGHT + 4 GUI_PAD
+		}, GUI_BG_ABS);
 
 		// push label
-		textGui(ctx, FIXED, (position){
-			1 PAD, 2 PAD
+		guiText(ctx, FIXED, (guiPos){
+			1 GUI_PAD, 2 GUI_PAD
 		}, "Name:");
 
 		// push name edit box
-		stringGui(ctx, FIXED, (rectangle){
-			1 PAD + NEW_OFF, 1 PAD,
-			WIN - 2 PAD - NEW_OFF, TXT_HEIGHT + 2 PAD
+		stringGui(ctx, FIXED, (guiRect){
+			1 GUI_PAD + NEW_OFF, 1 GUI_PAD,
+			WIN_WIDTH - 2 GUI_PAD - NEW_OFF, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, name);
 	}
-	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 
 	// declare field button table
 	typedef struct {
 		const char* label;
-		rectangle ico;
+		guiRect ico;
 		field* (*ctor)(const char* name);
 	} fieldButton;
 	static const fieldButton fieldButtons[] = {
@@ -401,9 +400,9 @@ void addFieldGui(window* win) {
 		int side = i % 2;
 
 		// push new field button
-		if(buttonGui(ctx, SCROLL, (rectangle){
-			1 PAD + (HWIN - HPAD) * side, 1 PAD,
-			HWIN - 1 PAD - HPAD, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, SCROLL, (guiRect){
+			1 GUI_PAD + (HWIN_WIDTH - GUI_HPAD) * side, 1 GUI_PAD,
+			HWIN_WIDTH - 1 GUI_PAD - GUI_HPAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, f->ico, f->label)) {
 			// actually construct and append field
 			appendField(ent, f->ctor(name));
@@ -416,18 +415,18 @@ void addFieldGui(window* win) {
 			glfwSetWindowShouldClose(win->gl, 1);
 		}
 
-		if(side || i == fieldButtonCount - 1) downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+		if(side || i == fieldButtonCount - 1) guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 	}
 
-	downGui(ctx, SCROLL, 1 PAD);
-	trimGui(ctx);
+	guiDown(ctx, SCROLL, 1 GUI_PAD);
+	guiTrim(ctx, SCROLL);
 
 	// flush changes
-	flushGui(ctx);
+	guiFlush(ctx);
 }
 
 // gets a callback object for a "new field" menu
-renderCallback makeAddFieldCallback(entity* ent) {
+winRenderCallback makeAddFieldCallback(entity* ent) {
 	// initialize context
 	addFieldGuiContext* eCtx = xmalloc(sizeof(addFieldGuiContext));
 	eCtx->gui.win = NULL;
@@ -436,62 +435,62 @@ renderCallback makeAddFieldCallback(entity* ent) {
 	*eCtx->name = '\0';
 
 	// return callback
-	return (renderCallback){
+	return (winRenderCallback){
 		addFieldGui,
 		eCtx,
-		freeGui
+		guiFree
 	};
 }
 
 // renders the inspector GUI
 void entityGui(window* win) {
 	// get context
-	entityGuiContext* eCtx = (entityGuiContext*)initGui(win);
+	entityGuiContext* eCtx = (entityGuiContext*)guiInit(win);
 	guiContext* ctx = &eCtx->gui;
 	entity* ent = eCtx->ent;
 
 	// update input state
-	inputGui(win);
+	guiInput(win);
 
 	// push background
-	quadGui(ctx, BACKGROUND, (rectangle){
+	guiPushQuad(ctx, BACKGROUND, (guiRect){
 		0, 0,
-		WIN, HEIG 
-	}, BG_ABS);
+		WIN_WIDTH, WIN_HEIGHT 
+	}, GUI_BG_ABS);
 
 	// push entity label
 	{
 		// mask
-		quadGui(ctx, FIXED, (rectangle){
+		guiPushQuad(ctx, FIXED, (guiRect){
 			0, 0,
-			WIN, TXT_HEIGHT + 4 PAD
-		}, BG_ABS);
+			WIN_WIDTH, GUI_TXT_HEIGHT + 4 GUI_PAD
+		}, GUI_BG_ABS);
 
 		// push icon
-		iconGui(ctx, FIXED, (position){
-			2 PAD, 2 PAD
+		guiIcon(ctx, FIXED, (guiPos){
+			2 GUI_PAD, 2 GUI_PAD
 		}, ICO_ENTITY);
 
 		// push name edit box
-		stringGui(ctx, FIXED, (rectangle){
-			3 PAD + ICO_SIZ, 1 PAD,
-			WIN - 7 PAD - 2 * ICO_SIZ, TXT_HEIGHT + 2 PAD
+		stringGui(ctx, FIXED, (guiRect){
+			3 GUI_PAD + GUI_ICO_SIZ, 1 GUI_PAD,
+			WIN_WIDTH - 7 GUI_PAD - 2 * GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, ent ? ent->name : NULL);
 
 		// push save button
-		if(buttonGui(ctx, FIXED, (rectangle){
-			WIN - 3 PAD - ICO_SIZ, 1 PAD,
-			2 PAD + ICO_SIZ, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, FIXED, (guiRect){
+			WIN_WIDTH - 3 GUI_PAD - GUI_ICO_SIZ, 1 GUI_PAD,
+			2 GUI_PAD + GUI_ICO_SIZ, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, ICO_SAVE, "")) {
 			// save entity
 			serializeEntityFile(ent, getEntityPath(ent->name));
 			return; // early quit
 		}
 	}
-	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 
 	// scroll field layer
-	scrollGui(ctx, SCROLL);
+	guiScroll(ctx, SCROLL);
 
 	// go through fields, pushing to gui
 	field* f = ent ? ent->root : NULL;
@@ -526,27 +525,27 @@ void entityGui(window* win) {
 	}
 
 	// push new field button
-	if(buttonGui(ctx, SCROLL, (rectangle){
-		1 PAD, 1 PAD,
-		WIN - 1 PAD, TXT_HEIGHT + 2 PAD
+	if(guiButton(ctx, SCROLL, (guiRect){
+		1 GUI_PAD, 1 GUI_PAD,
+		WIN_WIDTH - 1 GUI_PAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, ICO_NEW, "Field") && ent) {
 		// create add field window
-		subWindowGui(ctx, newWindow(
+		guiChildWindow(ctx, winNew(
 			ADD_FIELD_WIDTH,
 			ADD_FIELD_HEIGHT,
 			"Append Field",
 			makeAddFieldCallback(ent),
-			loadIcon(WIN_NEWITEM_ICO),
-			0
+			NULL,
+			WIN_DEPTH_OFF
 		));
 	}
-	downGui(ctx, SCROLL, TXT_HEIGHT + 4 PAD);
+	guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 4 GUI_PAD);
 
 	// flush changes
-	flushGui(ctx);
+	guiFlush(ctx);
 }
 
-renderCallback makeEntityCallback(entity* ent) {
+winRenderCallback makeEntityCallback(entity* ent) {
 	// initialize context
 	entityGuiContext* eCtx = xmalloc(sizeof(entityGuiContext));
 	eCtx->gui.win = NULL;
@@ -554,10 +553,10 @@ renderCallback makeEntityCallback(entity* ent) {
 	eCtx->ent = ent;
 
 	// return callback
-	return (renderCallback){
+	return (winRenderCallback){
 		entityGui,
 		eCtx,
-		freeGui
+		guiFree
 	};
 }
 

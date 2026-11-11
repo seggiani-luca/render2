@@ -16,8 +16,8 @@ LIB_OUT_C := $(subst $(LIB), $(OUT), $(LIB_C:.c=.o))
 C := gcc
 L := gcc
 CFLAGS_STRICT := -Wall -Wextra -Wno-missing-braces
-CFLAGS := -g
-LFLAGS := -lglfw -lGL -lm
+CFLAGS := -g -Ilib
+LFLAGS := -lglfw -lGL -lm 
 OFLAGS := -fsanitize=address
 SUPP := LSAN_OPTIONS=suppressions=tst/lsan.supp
 TABS := 12

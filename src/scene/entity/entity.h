@@ -1,7 +1,6 @@
 #ifndef SCENE_ENTITY_H
 #define SCENE_ENTITY_H
 
-#include "../../gui/gui.h"
 #include "../../math/math.h"
 #include "../../render/render.h"
 #include "../../serial/serial.h"
@@ -15,8 +14,9 @@
 // size of string fields
 #define ENT_STR_SIZ 64
 
-// forward declaration for fieldVtable
+// forward declarations for fieldVtable
 typedef struct field field;
+typedef struct guiContext guiContext;
 
 // vtable of methods for field access operations
 typedef struct {

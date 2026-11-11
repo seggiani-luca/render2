@@ -1,6 +1,5 @@
 #include "selector.h"
 #include "../editor.h"
-#include "../../gui/widget/widget.h"
 #include <dirent.h>
 #include <string.h>
 
@@ -18,7 +17,7 @@ typedef struct {
 	dataTable* tab;
 
 	// path of data to find
-	char path[IN_BUF_SIZ];
+	char path[GUI_IN_BUF_SIZ];
 
 	// original GUI context
 	guiContext* orig;
@@ -33,10 +32,10 @@ typedef struct {
 	dataRef** ref;
 
 	// path of vert 
-	char vert[IN_BUF_SIZ];
+	char vert[GUI_IN_BUF_SIZ];
 	
 	// path of frag 
-	char frag[IN_BUF_SIZ];
+	char frag[GUI_IN_BUF_SIZ];
 
 	// original GUI context
 	guiContext* orig;
@@ -54,7 +53,7 @@ typedef struct {
 	DIR* cur;
 
 	// current directory patih
-	char curPath[IN_BUF_SIZ];	
+	char curPath[GUI_IN_BUF_SIZ];	
 
 	// original GUI context
 	guiContext* orig;
@@ -63,42 +62,42 @@ typedef struct {
 // renders the data selector GUI
 void dataselGui(window* win) {
 	// get context
-	dataselGuiContext* dCtx = (dataselGuiContext*)initGui(win);
+	dataselGuiContext* dCtx = (dataselGuiContext*)guiInit(win);
 	guiContext* ctx = &dCtx->gui;
 	dataTable* tab = dCtx->tab;
 	char* path = dCtx->path;
 	guiContext* orig = dCtx->orig;
 
 	// update input state
-	inputGui(win);
+	guiInput(win);
 
 	// push background
-	quadGui(ctx, BACKGROUND, (rectangle){
+	guiPushQuad(ctx, BACKGROUND, (guiRect){
 		0, 0,
-		WIN, HEIG 
-	}, BG_ABS);
+		WIN_WIDTH, WIN_HEIGHT 
+	}, GUI_BG_ABS);
 
 	// push bottom frame
-	quadGui(ctx, FIXED, (rectangle) {
-		0, HEIG - TXT_HEIGHT - 4 PAD,
-		WIN, TXT_HEIGHT + 4 PAD
-	}, BG_LIGHT);
+	guiPushQuad(ctx, FIXED, (guiRect) {
+		0, WIN_HEIGHT - GUI_TXT_HEIGHT - 4 GUI_PAD,
+		WIN_WIDTH, GUI_TXT_HEIGHT + 4 GUI_PAD
+	}, GUI_BG_LIGHT);
 
 	// push label
-	textGui(ctx, FIXED, (position){
-		1 PAD, HEIG - TXT_HEIGHT - 2 PAD
+	guiText(ctx, FIXED, (guiPos){
+		1 GUI_PAD, WIN_HEIGHT - GUI_TXT_HEIGHT - 2 GUI_PAD
 	}, "Path:");
 
 	// push path edit box
-	pathGui(ctx, FIXED, (rectangle){
-		1 PAD + PATH_OFF, HEIG - TXT_HEIGHT - 3 PAD,
-		IMPORT_OFF - 2 PAD - PATH_OFF, TXT_HEIGHT + 2 PAD
+	pathGui(ctx, FIXED, (guiRect){
+		1 GUI_PAD + PATH_OFF, WIN_HEIGHT - GUI_TXT_HEIGHT - 3 GUI_PAD,
+		IMPORT_OFF - 2 GUI_PAD - PATH_OFF, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, path);
 
 	// push import button
-	if(buttonGui(ctx, FIXED, (rectangle){
-		IMPORT_OFF, HEIG - TXT_HEIGHT - 3 PAD,
-		WIN - IMPORT_OFF - 1 PAD, TXT_HEIGHT + 2 PAD
+	if(guiButton(ctx, FIXED, (guiRect){
+		IMPORT_OFF, WIN_HEIGHT - GUI_TXT_HEIGHT - 3 GUI_PAD,
+		WIN_WIDTH - IMPORT_OFF - 1 GUI_PAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, ICO_NUFILE, "Import")) {
 		// import data
 		if((*dCtx->ref)) freeData((*dCtx->ref)->data, tab);
@@ -112,7 +111,7 @@ void dataselGui(window* win) {
 	}
 	
 	// scroll reference layer
-	scrollGui(ctx, SCROLL);
+	guiScroll(ctx, SCROLL);
 
 	// go through references, pushing to gui
 	dataRef* cur = tab->root;
@@ -121,9 +120,9 @@ void dataselGui(window* win) {
 		snprintf(str, DAT_PATH_SIZ + 16, "%s (%d refs)", 
 				cur->path, cur->refCount);
 
-		if(buttonGui(ctx, SCROLL, (rectangle){
-			1 PAD, 1 PAD,
-			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, SCROLL, (guiRect){
+			1 GUI_PAD, 1 GUI_PAD,
+			WIN_WIDTH - 2 GUI_PAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, ICO_FILE, str)) {
 			// keep path, unspeakable things may happen
 			char path[DAT_PATH_SIZ];
@@ -143,66 +142,66 @@ void dataselGui(window* win) {
 			return;
 		}
 
-		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+		guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 		cur = cur->next;
 	}
 
-	downGui(ctx, SCROLL, 1 PAD);
+	guiDown(ctx, SCROLL, 1 GUI_PAD);
 
 	// flush changes
-	flushGui(ctx);
+	guiFlush(ctx);
 }
 
 // renders the shader selector GUI
 void shaderselGui(window* win) {
 	// get context
-	shaderselGuiContext* dCtx = (shaderselGuiContext*)initGui(win);
+	shaderselGuiContext* dCtx = (shaderselGuiContext*)guiInit(win);
 	guiContext* ctx = &dCtx->gui;
 	char* vert = dCtx->vert;
 	char* frag = dCtx->frag;
 	guiContext* orig = dCtx->orig;
 
 	// update input state
-	inputGui(win);
+	guiInput(win);
 
 	// push background
-	quadGui(ctx, BACKGROUND, (rectangle){
+	guiPushQuad(ctx, BACKGROUND, (guiRect){
 		0, 0,
-		WIN, HEIG 
-	}, BG_ABS);
+		WIN_WIDTH, WIN_HEIGHT
+	}, GUI_BG_ABS);
 
 	// push bottom frame
-	quadGui(ctx, FIXED, (rectangle) {
-		0, HEIG - TXT_HEIGHT - 4 PAD,
-		WIN, TXT_HEIGHT + 4 PAD
-	}, BG_LIGHT);
+	guiPushQuad(ctx, FIXED, (guiRect) {
+		0, WIN_HEIGHT - GUI_TXT_HEIGHT - 4 GUI_PAD,
+		WIN_WIDTH, GUI_TXT_HEIGHT + 4 GUI_PAD
+	}, GUI_BG_LIGHT);
 
 	// push vert label
-	textGui(ctx, FIXED, (position){
-		1 PAD, HEIG - TXT_HEIGHT - 2 PAD
+	guiText(ctx, FIXED, (guiPos){
+		1 GUI_PAD, WIN_HEIGHT - GUI_TXT_HEIGHT - 2 GUI_PAD
 	}, "Vert:");
 
 	// push vert edit box
-	pathGui(ctx, FIXED, (rectangle){
-		1 PAD + PATH_OFF, HEIG - TXT_HEIGHT - 3 PAD,
-		IMPORT_OFF / 2 - 2 PAD - PATH_OFF, TXT_HEIGHT + 2 PAD
+	pathGui(ctx, FIXED, (guiRect){
+		1 GUI_PAD + PATH_OFF, WIN_HEIGHT - GUI_TXT_HEIGHT - 3 GUI_PAD,
+		IMPORT_OFF / 2 - 2 GUI_PAD - PATH_OFF, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, vert);
 	
 	// push frag label
-	textGui(ctx, FIXED, (position){
-		1 PAD + IMPORT_OFF / 2, HEIG - TXT_HEIGHT - 2 PAD
+	guiText(ctx, FIXED, (guiPos){
+		1 GUI_PAD + IMPORT_OFF / 2, WIN_HEIGHT - GUI_TXT_HEIGHT - 2 GUI_PAD
 	}, "Frag:");
 
 	// push frag edit box
-	pathGui(ctx, FIXED, (rectangle){
-		1 PAD + PATH_OFF + IMPORT_OFF / 2, HEIG - TXT_HEIGHT - 3 PAD,
-		IMPORT_OFF / 2 - 2 PAD - PATH_OFF, TXT_HEIGHT + 2 PAD
+	pathGui(ctx, FIXED, (guiRect){
+		1 GUI_PAD + PATH_OFF + IMPORT_OFF / 2, WIN_HEIGHT - GUI_TXT_HEIGHT - 3 GUI_PAD,
+		IMPORT_OFF / 2 - 2 GUI_PAD - PATH_OFF, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, frag);
 
 	// push import button
-	if(buttonGui(ctx, FIXED, (rectangle){
-		IMPORT_OFF, HEIG - TXT_HEIGHT - 3 PAD,
-		WIN - IMPORT_OFF - 1 PAD, TXT_HEIGHT + 2 PAD
+	if(guiButton(ctx, FIXED, (guiRect){
+		IMPORT_OFF, WIN_HEIGHT - GUI_TXT_HEIGHT - 3 GUI_PAD,
+		WIN_WIDTH - IMPORT_OFF - 1 GUI_PAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, ICO_NUFILE, "Import")) {
 		// import data
 		if((*dCtx->ref)) shaderFree((*dCtx->ref)->data);
@@ -216,7 +215,7 @@ void shaderselGui(window* win) {
 	}
 	
 	// scroll reference layer
-	scrollGui(ctx, SCROLL);
+	guiScroll(ctx, SCROLL);
 
 	// go through references, pushing to gui
 	dataRef* cur = shaderTable.root;
@@ -225,9 +224,9 @@ void shaderselGui(window* win) {
 		snprintf(str, DAT_PATH_SIZ + 16, "%s (%d refs)", 
 				cur->path, cur->refCount);
 
-		if(buttonGui(ctx, SCROLL, (rectangle){
-			1 PAD, 1 PAD,
-			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, SCROLL, (guiRect){
+			1 GUI_PAD, 1 GUI_PAD,
+			WIN_WIDTH - 2 GUI_PAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, ICO_FILE, str)) {
 			// keep path, unspeakable things may happen
 			char path[DAT_PATH_SIZ];
@@ -252,45 +251,45 @@ void shaderselGui(window* win) {
 			return;
 		}
 
-		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+		guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 		cur = cur->next;
 	}
 
-	downGui(ctx, SCROLL, 1 PAD);
+	guiDown(ctx, SCROLL, 1 GUI_PAD);
 
 	// flush changes
-	flushGui(ctx);
+	guiFlush(ctx);
 }
 
 // renders the path selector GUI
 void pathselGui(window* win) {
 	// get context
-	pathselGuiContext* pCtx = (pathselGuiContext*)initGui(win);
+	pathselGuiContext* pCtx = (pathselGuiContext*)guiInit(win);
 	guiContext* ctx = &pCtx->gui;
 	char* path = pCtx->path;
 	guiContext* orig = pCtx->orig;
 	char* curPath = pCtx->curPath;
 
 	// update input state
-	inputGui(win);
+	guiInput(win);
 
 	// push background
-	quadGui(ctx, BACKGROUND, (rectangle){
+	guiPushQuad(ctx, BACKGROUND, (guiRect){
 		0, 0,
-		WIN, HEIG 
-	}, BG_ABS);
+		WIN_WIDTH, WIN_HEIGHT 
+	}, GUI_BG_ABS);
 
 	// open data directory if needed
 	if(!pCtx->cur) pCtx->cur = opendir(curPath);
 	DIR* cur = pCtx->cur;
 	
 	// scroll explorer layer
-	scrollGui(ctx, SCROLL);
+	guiScroll(ctx, SCROLL);
 
 	// push upwards button
-	if(buttonGui(ctx, SCROLL, (rectangle){
-		1 PAD, 1 PAD,
-		WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+	if(guiButton(ctx, SCROLL, (guiRect){
+		1 GUI_PAD, 1 GUI_PAD,
+		WIN_WIDTH - 2 GUI_PAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 	}, ICO_MOVE, "..")) {
 		// remove last directory from path
 		char *slash = strrchr(pCtx->curPath, '/');
@@ -309,7 +308,7 @@ void pathselGui(window* win) {
 
 		return; // early exit;
 	}	
-	downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+	guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 
 	// go through entries, pushing to gui
 	struct dirent *ent;
@@ -332,9 +331,9 @@ void pathselGui(window* win) {
 			ent->d_name
 		);
 
-		if(buttonGui(ctx, SCROLL, (rectangle){
-			1 PAD, 1 PAD,
-			WIN - 2 PAD, TXT_HEIGHT + 2 PAD
+		if(guiButton(ctx, SCROLL, (guiRect){
+			1 GUI_PAD, 1 GUI_PAD,
+			WIN_WIDTH - 2 GUI_PAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, dir ? ICO_DIR : ICO_FILE, str)) {
 			if(dir) {
 				// build new directory path
@@ -381,21 +380,21 @@ void pathselGui(window* win) {
 			}
 		}
 
-		downGui(ctx, SCROLL, TXT_HEIGHT + 3 PAD);
+		guiDown(ctx, SCROLL, GUI_TXT_HEIGHT + 3 GUI_PAD);
 	}
 
 	// rewind directory
 	rewinddir(cur);
 
-	downGui(ctx, SCROLL, 1 PAD);
+	guiDown(ctx, SCROLL, 1 GUI_PAD);
 
 	// flush changes
-	flushGui(ctx);
+	guiFlush(ctx);
 }
 
 // -- callbacks
 
-renderCallback makeDataselCallback(
+winRenderCallback makeDataselCallback(
 	dataRef** ref,
 	dataTable* tab,
 	guiContext* orig
@@ -410,14 +409,14 @@ renderCallback makeDataselCallback(
 	dCtx->orig = orig;
 
 	// return callback
-	return (renderCallback){
+	return (winRenderCallback){
 		dataselGui,
 		dCtx,
-		freeGui
+		guiFree	
 	};
 }
 
-renderCallback makeShaderselCallback(dataRef** ref, guiContext* orig) {
+winRenderCallback makeShaderselCallback(dataRef** ref, guiContext* orig) {
 	// initialize context
 	shaderselGuiContext* dCtx = xmalloc(sizeof(shaderselGuiContext));
 	dCtx->gui.win = NULL;
@@ -428,10 +427,10 @@ renderCallback makeShaderselCallback(dataRef** ref, guiContext* orig) {
 	dCtx->orig = orig;
 
 	// return callback
-	return (renderCallback){
+	return (winRenderCallback){
 		shaderselGui,
 		dCtx,
-		freeGui
+		guiFree	
 	};
 }
 
@@ -442,10 +441,10 @@ void freePathsel(void* vCtx) {
 	// close open directory
 	if(ctx->cur) closedir(ctx->cur);
 	
-	freeGui(vCtx);
+	guiFree(vCtx);
 }
 
-renderCallback makePathselCallback(
+winRenderCallback makePathselCallback(
 	char* path,
 	guiContext* orig,
 	char* curPath
@@ -463,7 +462,7 @@ renderCallback makePathselCallback(
 	pCtx->curPath[DAT_PATH_SIZ - 1] = '\0';
 
 	// return callback
-	return (renderCallback){
+	return (winRenderCallback){
 		pathselGui,
 		pCtx,
 		freePathsel	
@@ -475,34 +474,34 @@ renderCallback makePathselCallback(
 int dataGui(
 	guiContext* ctx,
 	guiLayerId layId,
-	rectangle rect,
+	guiRect rect,
 	dataRef** ref,
 	dataTable* tab
 ) {
 	// ref to string 
-	char str[OUT_BUF_SIZ];
-	snprintf(str, OUT_BUF_SIZ, "%.*s", OUT_BUF_SIZ - 1, 
+	char str[GUI_OUT_BUF_SIZ];
+	snprintf(str, GUI_OUT_BUF_SIZ, "%.*s", GUI_OUT_BUF_SIZ - 1, 
 		*ref ? (*ref)->path : "(null path)");
 
 	// make gui
-	rect.w -= 3 PAD + ICO_SIZ;
-	textBoxGui(ctx, layId, rect, str);
+	rect.w -= 3 GUI_PAD + GUI_ICO_SIZ;
+	guiTextBox(ctx, layId, rect, str);
 
 	// search button
-	if(buttonGui(ctx, SCROLL, (rectangle){
-		rect.x + rect.w + 1 PAD, rect.y,
-		2 PAD + ICO_SIZ, 1 PAD + ICO_SIZ 
+	if(guiButton(ctx, SCROLL, (guiRect){
+		rect.x + rect.w + 1 GUI_PAD, rect.y,
+		2 GUI_PAD + GUI_ICO_SIZ, 1 GUI_PAD + GUI_ICO_SIZ 
 	}, ICO_TABLE, "")) {
 		// set data pointer in context
 		ctx->in.dataPtr = ref;
 
 		// make datasel
-		subWindowGui(ctx, newWindow(
+		guiChildWindow(ctx, winNew(
 			DATASEL_WIDTH,
 			DATASEL_HEIGHT,
 			"Select Data",
 			makeDataselCallback(ref, tab, ctx),
-			loadIcon(WIN_DATASEL_ICO),
+			NULL,
 			0
 		));
 	}
@@ -516,33 +515,33 @@ int dataGui(
 	return 0;
 }
 
-int shaderGui(guiContext* ctx, guiLayerId layId, rectangle rect, void* val) {
+int shaderGui(guiContext* ctx, guiLayerId layId, guiRect rect, void* val) {
 	dataRef** ref = val;
 
 	// ref to string 
-	char str[OUT_BUF_SIZ];
-	snprintf(str, OUT_BUF_SIZ, "%.*s", OUT_BUF_SIZ - 1, 
+	char str[GUI_OUT_BUF_SIZ];
+	snprintf(str, GUI_OUT_BUF_SIZ, "%.*s", GUI_OUT_BUF_SIZ - 1, 
 		*ref ? (*ref)->path : "(null path)");
 
 	// make gui
-	rect.w -= 3 PAD + ICO_SIZ;
-	textBoxGui(ctx, layId, rect, str);
+	rect.w -= 3 GUI_PAD + GUI_ICO_SIZ;
+	guiTextBox(ctx, layId, rect, str);
 
 	// search button
-	if(buttonGui(ctx, SCROLL, (rectangle){
-		rect.x + rect.w + 1 PAD, rect.y,
-		2 PAD + ICO_SIZ, 1 PAD + ICO_SIZ 
+	if(guiButton(ctx, SCROLL, (guiRect){
+		rect.x + rect.w + 1 GUI_PAD, rect.y,
+		2 GUI_PAD + GUI_ICO_SIZ, 1 GUI_PAD + GUI_ICO_SIZ 
 	}, ICO_TABLE, "")) {
 		// set data pointer in context
 		ctx->in.dataPtr = ref;
 
 		// make datasel
-		subWindowGui(ctx, newWindow(
+		guiChildWindow(ctx, winNew(
 			DATASEL_WIDTH,
 			DATASEL_HEIGHT,
 			"Select Data",
 			makeShaderselCallback(ref, ctx),
-			loadIcon(WIN_DATASEL_ICO),
+			NULL,
 			0
 		));
 	}
@@ -556,20 +555,20 @@ int shaderGui(guiContext* ctx, guiLayerId layId, rectangle rect, void* val) {
 	return 0;
 }
 
-int pathGui(guiContext* ctx, guiLayerId layId, rectangle rect, void* val) {
+int pathGui(guiContext* ctx, guiLayerId layId, guiRect rect, void* val) {
 	// push non-interactive box
-	textBoxGui(ctx, layId, rect, (char*)val);
+	guiTextBox(ctx, layId, rect, (char*)val);
 
-	if(pressGui(ctx, layId, rect)) {
+	if(guiPress(ctx, layId, rect)) {
 		// set data pointer in context
 		ctx->in.dataPtr = val;
 
-		subWindowGui(ctx, newWindow(
+		guiChildWindow(ctx, winNew(
 			PATHSEL_WIDTH,
 			PATHSEL_HEIGHT,
 			"Select File",
 			makePathselCallback(val, ctx, DATA_DIR),
-			loadIcon(WIN_PATHSEL_ICO),
+			NULL,
 			0
 		));
 	}

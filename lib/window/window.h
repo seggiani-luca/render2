@@ -1,5 +1,5 @@
 /**
- * Minimal window library for simple OpenGL windows using GLFW.
+ * Minimal window library for simple OpenGL windows via GLFW.
  * Example usage:
  *
  * winRenderCallback cback; // hooked to content rendering functions
@@ -9,7 +9,7 @@
  *     150, 100,
  *     "Title",
  *     cback, icon,
- *     DEPTH_OFF
+ *     WIN_DEPTH_OFF
  * )
  *
  * while(winUpdate(win));
@@ -48,12 +48,12 @@
 /**
  * Depth test on.
  */
-#define DEPTH_ON 1
+#define WIN_DEPTH_ON 1
 
 /**
  * Depth test off.
  */
-#define DEPTH_OFF 0
+#define WIN_DEPTH_OFF 0
 
 // -- icons
 
@@ -147,7 +147,7 @@ struct window {
  * @param  title  title of window
  * @param  cback  rendering callback of window
  * @param  ico    icon of window
- * @param depth   whether to enable depth testing on window or not
+ * @param  depth  whether to enable depth testing on window or not
  * @return        the resulting window if valid, NULL otherwise
  */
 window* winNew(

@@ -2,6 +2,7 @@
 #define EDITOR_INSPECTOR_H
 
 #include "../../scene/entity/entity.h"
+#include "../../../lib/window/window.h"
 
 // -- constants 
 
@@ -75,7 +76,7 @@ int shaderFieldGui(const field* f, guiContext* ctx);
 // -- entities
 
 // gets a callback object for an entity inspector
-renderCallback makeEntityCallback(entity* ent);
+winRenderCallback makeEntityCallback(entity* ent);
 
 // changes entity callback
 void changeEntityCallback(window* win, entity* ent);

@@ -1,9 +1,8 @@
 #include "exception/exception.h"
-#include "window/window.h"
-#include "editor/editor.h"
+#include "../lib/window/window.h"
+#include "data/data.h"
 #include "scene/scene.h"
-#include "script/script.h"
-#include "render/render.h"
+#include "editor/editor.h"
 
 // -- windows
 
@@ -24,12 +23,9 @@ void cleanup() {
 	freeTables();
 
 	// free windows
-	freeWindow(mainWin);
-	freeWindow(inspectorWin);
-	freeWindow(hierarchyWin);
-
-	// terminate OpenGL
-	freeGl();
+	winFree(inspectorWin);
+	winFree(hierarchyWin);
+	winFree(mainWin);
 }
 
 void centerWindows(window* a, window* b, window* c) {
@@ -59,11 +55,11 @@ void centerWindows(window* a, window* b, window* c) {
 	int x = screenX + (screenW - totalW) / 2;
 
 	// move windows
-	moveWindow(a, x, ya);
+	winMove(a, x, ya);
 	x += a->fbWidth + gap;
-	moveWindow(b, x, yb);
+	winMove(b, x, yb);
 	x += b->fbWidth + gap;
-	moveWindow(c, x, yc);
+	winMove(c, x, yc);
 }
 
 // -- main
@@ -73,16 +69,17 @@ int main() {
 	scene* mainScene = newScene("Main Scene");
 	
 	// create main window
-	mainWin = newWindow(
+	mainWin = winNew(
 		MAIN_WIDTH,
 		MAIN_HEIGHT,
 		"Main",
 		makeRenderCallback(mainScene),
-		loadIcon(WIN_DEFAULT_ICO),
+		NULL,
 		1
 	);
 	if(!mainWin) {
-		logEvent(FATAL, GUI, "Couldn't create main window");	
+		logEvent(ERROR, GUI, winError());
+		logEvent(FATAL, GUI, "Couldn't create main window");
 		freeScene(mainScene);
 		return 1;
 	}
@@ -90,6 +87,7 @@ int main() {
 	// create editor windows
 	createEditorWindows(mainScene);
 	if(!hierarchyWin || !inspectorWin) {
+		logEvent(ERROR, GUI, winError());
 		logEvent(FATAL, GUI, "Couldn't create editor windows");	
 		freeScene(mainScene);
 		cleanup();
@@ -109,10 +107,9 @@ int main() {
 		scriptsUpdate(&mainScene->root);
 
 		// update windows
-		updateGl();
-		if(!updateWindow(mainWin)) break;
-		if(!updateWindow(hierarchyWin)) break;
-		if(!updateWindow(inspectorWin)) break;
+		if(!winUpdate(mainWin))      break;
+		if(!winUpdate(hierarchyWin)) break;
+		if(!winUpdate(inspectorWin)) break;
 	}
 
 	// free scene

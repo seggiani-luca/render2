@@ -5,7 +5,7 @@
 #include "../data/texture/texture.h"
 #include "../data/mesh/mesh.h"
 #include "../data/material/material.h"
-#include "../window/window.h"
+#include "../../lib/window/window.h"
 #include <stdio.h>
 
 // -- constants
@@ -47,7 +47,7 @@
 typedef struct scene scene;
 
 // gets a callback object for scene rendering 
-renderCallback makeRenderCallback(scene* scn);
+winRenderCallback makeRenderCallback(scene* scn);
 
 // -- objects
 
