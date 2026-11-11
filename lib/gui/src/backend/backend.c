@@ -13,6 +13,12 @@
 	#define GUI_ATLAS_PATH "lib/gui/dat/texture/gui_atlas_dark.tga"
 #elif defined  GUI_THEME_LIGHT
 	#define GUI_ATLAS_PATH "lib/gui/dat/texture/gui_atlas_light.tga"
+#elif defined  GUI_THEME_NEO
+	#define GUI_ATLAS_PATH "lib/gui/dat/texture/gui_atlas_neo.tga"
+#elif defined  GUI_THEME_TUX
+	#define GUI_ATLAS_PATH "lib/gui/dat/texture/gui_atlas_tux.tga"
+#elif defined  GUI_THEME_TOKYO
+	#define GUI_ATLAS_PATH "lib/gui/dat/texture/gui_atlas_tokyo.tga"
 #else
 	#error "No GUI theme set"
 #endif
