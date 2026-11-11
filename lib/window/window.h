@@ -1,4 +1,4 @@
-/**
+/*
  * Minimal window library for simple OpenGL windows via GLFW.
  * Example usage:
  *

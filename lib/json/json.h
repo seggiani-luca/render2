@@ -1,8 +1,31 @@
-/**
- * Minimal JSON serialization / deserialization library.
+/*
+ * Minimal JSON serialization / deserialization library. Only supports object
+ * serialization / deserialization for now.
  * Example usage:
  *
- * // TODO
+ * char* ptr = buf;
+ *
+ * // provide your own allocator
+ * jsonElement* obj = deserializeJsonObject(deserialAllocator, &ptr);
+ *
+ * if(!obj) {
+ *     // free allocator parsing
+ *     freeAllocator();
+ *     free(buf);
+ *     return;
+ * }
+ *
+ * // get a string from an object
+ * const char* name = getJsonString(getJsonAtKey(obj, "name"));
+ *
+ * // iterate over an array
+ * jsonElement* cur = getJsonHead(getJsonAtKey(obj, "fields"));
+ * while(cur) {
+ *     // process element
+ *     cur = getJsonNext(cur);
+ * }
+ *
+ * freeJsonObject(free, obj);
  *
  * 2026 - Luca Seggiani
  */
@@ -14,24 +37,30 @@
 
 // -- setup
 
-/*
- * Allocator template to feed to deserialization functions.
+/**
+ * Allocator callback used to allocate JSON elements.
+ * Receives the requested allocation size and returns the allocated memory,
+ * or NULL on failure.
  *
- * This is meant to allow for the caller to do cleanup on the objects allocated
- * by the library in case of library failure.
- *
- * It can also be used to allocate JSON objects in arbitrary memory allocators.
+ * This can be used to provide a custom allocation pool for object
+ * deserialization, which the user can then free on its own terms if the
+ * library fails.
+ * Note that the library doesn't free its own memory when it's deserializing
+ * very deep nested objects and it fails.
  */
 typedef void* (*jsonAllocator)(size_t);
 
-/*
- * Deallocator for the above allocator. 
+/**
+ * Deallocator callback used to release JSON elements (dual of the allocator
+ * above).
  */
 typedef void (*jsonDeallocator)(void*);
 
 // -- definitions
 
-// type of JSON element
+/**
+ * Type of JSON element.
+ */
 typedef enum {
 	JSON_STRING,
 	JSON_NUMBER,
@@ -41,91 +70,213 @@ typedef enum {
 	JSON_NULL
 } jsonType;
 
-// represents JSON element
+/**
+ * JSON element definition.
+ */
 typedef struct jsonElement {
-	// key of value 
+	/**
+	 * Key associated with the element when it belongs to an object.
+	 * NULL for array elements and root elements.
+	 */
 	const char* key;
 
-	// type of element
+	/**
+	 * Type of the stored value.
+	 */
 	jsonType type;
 
-	// payload of element
+	/**
+	 * Payload of the element, interpreted according to its type.
+	 */
 	union {
-		// string value
+		/**
+		 * Pointer to the string value.
+		 */
 		const char* string;
 
-		// floating-point number value 
+		/**
+		 * Floating-point number value.
+		 */
 		float number;
-		
-		// integer (boolean) value 
+
+		/**
+		 * Integer boolean value (0 or nonzero).
+		 */
 		int boolean;
 
-		// head of object children or array list
+		/**
+		 * First child of an object or array.
+		 */
 		struct jsonElement* head;
 	} value;
 
-	// next pointer
+	/**
+	 * Pointer to the next element in the containing object or array.
+	 */
 	struct jsonElement* next;
-} jsonElement; 
+} jsonElement;
 
-// -- getting 
+// -- getting
 
-// assumes a JSON element to be an object, and returns the value at a key
+/**
+ * Returns the value associated with a key in an object.
+ *
+ * @param elem object to search
+ * @param key  key to look for
+ * @return     matching element, or NULL if not found
+ */
 jsonElement* getJsonAtKey(const jsonElement* elem, const char* key);
 
-// assumes a JSON element to be an array, and returns its first element 
+/**
+ * Returns the first child of an object or array.
+ *
+ * @param elem object or array to inspect
+ * @return     first child, or NULL if empty
+ */
 jsonElement* getJsonHead(const jsonElement* elem);
 
-// assumes a JSON element to be an array member, and returns its next element
+/**
+ * Returns the next element in an object's or array's child list.
+ *
+ * @param elem current element
+ * @return     next element, or NULL if there is none
+ */
 jsonElement* getJsonNext(const jsonElement* elem);
 
-// assumes a JSON element to be a string and returns its value
+/**
+ * Returns the string value of an element.
+ *
+ * @param elem element to inspect
+ * @return     string value, or NULL if unavailable
+ */
 const char* getJsonString(const jsonElement* elem);
 
-// assumes a JSON element to be a float and returns its value
+/**
+ * Returns the floating-point value of an element.
+ *
+ * @param elem element to inspect
+ * @return     number value
+ */
 float getJsonNumber(const jsonElement* elem);
 
-// assumes a JSON element to be a boolean and returns its value
+/**
+ * Returns the boolean value of an element.
+ *
+ * @param elem element to inspect
+ * @return     boolean value
+ */
 int getJsonBoolean(const jsonElement* elem);
 
-// is a JSON element null?
+/**
+ * Checks whether an element represents JSON null.
+ *
+ * @param elem element to inspect
+ * @return     nonzero if the element is JSON null, zero otherwise
+ */
 int isJsonNull(const jsonElement* elem);
 
 // -- setting
 
-// adds a JSON element to an object at a key
+/**
+ * Adds an element to an object under the specified key.
+ *
+ * @param elem object to modify
+ * @param n    element to add
+ * @param key  key associated with the new element
+ * @return     modified object
+ */
 jsonElement* addJsonAtKey(jsonElement* elem, jsonElement* n, const char* key);
 
-// adds a JSON element to the tail of to an array
+/**
+ * Appends an element to the end of an array.
+ *
+ * @param elem array to modify
+ * @param n    element to append
+ * @return     modified array
+ */
 jsonElement* addJsonAtTail(jsonElement* elem, jsonElement* n);
 
-// creates a new JSON string element
+/**
+ * Creates a JSON string element.
+ *
+ * @param a   allocator used for the element
+ * @param val string value to store
+ * @return    newly allocated element
+ */
 jsonElement* newJsonString(jsonAllocator a, const char* val);
 
-// creates a new JSON number element
+/**
+ * Creates a JSON number element.
+ *
+ * @param a   allocator used for the element
+ * @param val floating-point value to store
+ * @return    newly allocated element
+ */
 jsonElement* newJsonNumber(jsonAllocator a, float val);
 
-// creates a new JSON object element
+/**
+ * Creates an empty JSON object.
+ *
+ * @param a allocator used for the element
+ * @return  newly allocated element
+ */
 jsonElement* newJsonObject(jsonAllocator a);
 
-// creates a new JSON array element
+/**
+ * Creates an empty JSON array.
+ *
+ * @param a allocator used for the element
+ * @return  newly allocated element
+ */
 jsonElement* newJsonArray(jsonAllocator a);
 
-// creates a new JSON boolean element
+/**
+ * Creates a JSON boolean element.
+ *
+ * @param a   allocator used for the element
+ * @param val boolean value to store
+ * @return    newly allocated element
+ */
 jsonElement* newJsonBoolean(jsonAllocator a, int val);
 
-// creates a new JSON null element
-jsonElement* newJsonNull(jsonAllocator a); 
+/**
+ * Creates a JSON null element.
+ *
+ * @param a allocator used for the element
+ * @return  newly allocated element
+ */
+jsonElement* newJsonNull(jsonAllocator a);
 
 // -- serialization / deserialization
 
-// print a JSON object to a file: let the OS handle dynamic size writes
+/**
+ * Serializes a JSON element tree to a file.
+ *
+ * @param file output file stream
+ * @param elem root element to serialize
+ */
 void serializeJsonObject(FILE* file, jsonElement* elem);
 
-// parses a JSON object from a buffer: slurp before deserializing
+/**
+ * Parses a JSON document from a mutable character buffer.
+ *
+ * The parser may modify the input buffer. String values reference the original
+ * buffer, which must remain valid while those values are in use.
+ *
+ * @param a   allocator used for JSON elements
+ * @param buf pointer to the input buffer pointer
+ * @return    parsed root element, or NULL on failure
+ */
 jsonElement* deserializeJsonObject(jsonAllocator a, char** buf);
 
-// frees a JSON object
+/**
+ * Recursively frees a JSON element tree.
+ *
+ * String storage is not freed separately.
+ *
+ * @param d    deallocator used for JSON elements
+ * @param elem root element to free
+ */
 void freeJsonObject(jsonDeallocator d, jsonElement* elem);
 
 // -- errors

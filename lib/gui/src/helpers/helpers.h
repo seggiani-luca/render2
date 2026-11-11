@@ -3,7 +3,7 @@
 
 #include "../../../glad/glad.h"
 
-/*
+/**
  * Compiles shader for the GUI.
  *
  * @param vert path of GUI vert shader
@@ -12,14 +12,14 @@
  */
 GLuint guiImportShader(const char* vertPath, const char* fragPath);
 
-/*
+/**
  * Frees shader for the GUI.
  *
  * @param progam GLuint of GUI shader to free
  */
 void guiFreeShader(GLuint program);
 
-/*
+/**
  * Load texture for the GUI.
  *
  * @param path of GUI theme
@@ -27,7 +27,7 @@ void guiFreeShader(GLuint program);
  */
 GLuint guiImportTexture(const char* path);
 
-/*
+/**
  * Frees texture for the GUI.
  *
  * @param progam GLuint of GUI texture to free

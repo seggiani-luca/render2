@@ -1,11 +1,3 @@
-/**
- * Minimal GUI library based on window, a library for OpenGL windows.
- * Designed to be extensible, example widget definitions are given in the
- * widget/ directory.
- *
- * 2026 - Luca Seggiani
- */
-
 #ifndef GUI_H
 #define GUI_H
 
