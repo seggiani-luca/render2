@@ -16,23 +16,29 @@ int guiHover(guiContext* ctx, guiLayerId layId, guiRect rect) {
 int guiRelease(guiContext* ctx, guiLayerId layId, guiRect rect) {
 	int reles = guiHover(ctx, layId, rect) && ctx->in.curReles;
 
+	// consume
+	if(reles) ctx->in.curReles = 0;
+
 	// consume other input
-	if(reles
-	|| (guiHover(ctx, layId, rect) && ctx->in.curPress)) {
-		ctx->in.curReles = ctx->in.curPress = ctx->in.curDown = 0;
-	}
+	// if(reles
+	// || (guiHover(ctx, layId, rect) && ctx->in.curPress)) {
+	// 	ctx->in.curReles = ctx->in.curPress = ctx->in.curDown = 0;
+	// }
 	
 	return reles;
 }
 
 int guiPress(guiContext* ctx, guiLayerId layId, guiRect rect) {
 	int press = guiHover(ctx, layId, rect) && ctx->in.curPress;
+	
+	// consume
+	if(press) ctx->in.curPress = 0;
 
 	// consume other input
-	if(press
-	|| (guiHover(ctx, layId, rect) && ctx->in.curReles)) {
-		ctx->in.curReles = ctx->in.curPress = ctx->in.curDown = 0;
-	}
+	// if(press
+	// || (guiHover(ctx, layId, rect) && ctx->in.curReles)) {
+	// 	ctx->in.curReles = ctx->in.curPress = ctx->in.curDown = 0;
+	// }
 
 	return press;
 }
@@ -67,7 +73,7 @@ char* guiBuffer(
 	*active = 1;
 
 	// discard on outside press or escape
-	if((!guiHover(ctx, layId, rect) && ctx->in.curDown) || ctx->in.escape) {
+	if((!guiHover(ctx, layId, rect) && ctx->in.curDown) || ctx->in.escape) {	
 		// reset id
 		ctx->in.hotReset = 1;
 
@@ -105,9 +111,6 @@ void guiScroll(guiContext* ctx, guiLayerId layId) {
 
 	// scroll vPos
 	ctx->layers[layId].vPos += ctx->in.absScroll;
-
-	// consume scroll
-	ctx->in.scroll = 0.0f;
 }
 
 // -- rendering primitives

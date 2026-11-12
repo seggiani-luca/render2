@@ -152,8 +152,9 @@ void addChildGui(window* win) {
 			1 GUI_PAD, 1 GUI_PAD,
 			WIN_WIDTH - 2 GUI_PAD, GUI_TXT_HEIGHT + 2 GUI_PAD
 		}, c->ico, c->label)) {
-			// no objects named the same as root
+			// no objects named the same as root or self
 			if(strcmp(name, ROOT_NAME) == 0) break; 
+			if(strcmp(name, SELF_NAME) == 0) break; 
 
 			// create and append child
 			entity* new = c->ctor(name);

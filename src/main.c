@@ -1,5 +1,6 @@
 #include "exception/exception.h"
 #include "data/data.h"
+#include "input/input.h"
 #include "time/time.h"
 #include "scene/scene.h"
 #include "editor/editor.h"
@@ -85,6 +86,9 @@ int main() {
 		return 1;
 	}
 
+	// attach input listeners
+	attachInput(mainWin->gl);
+
 	// create editor windows
 	createEditorWindows(mainScene);
 	if(!hierarchyWin || !inspectorWin) {
@@ -106,6 +110,9 @@ int main() {
 	for(;;) {
 		// script update hook 
 		scriptsUpdate(&mainScene->root, deltaTime());
+	
+		// reset input
+		inputReset();
 
 		// update windows
 		if(!winUpdate(mainWin))      break;

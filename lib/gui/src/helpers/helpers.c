@@ -27,12 +27,7 @@ const char* guiError() {
 }
 
 // macro for OpenGL errors
-#define GL_ERR(func)               \
-	{                              \
-	    GLenum err = glGetError(); \
-	    if(err != GL_NO_ERROR)     \
-	    return 0;                  \
-	}
+#define GL_ERR(func) // empty
 
 // -- shaders
 

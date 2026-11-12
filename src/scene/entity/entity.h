@@ -5,6 +5,7 @@
 #include "../../render/render.h"
 #include "../../serial/serial.h"
 #include "../../data/includes.h"
+#include <stdint.h>
 
 // -- fields
 
@@ -300,8 +301,20 @@ field* shaderNew(const char* name);
 
 // -- entities
 
+// entity map entry
+typedef struct {
+	entity* ent;
+	uint16_t generation;
+} mapEntry;
+
+// get entity from id
+entity* entityFromId(uint32_t id);
+
 // entity data
 struct entity {
+	// ID of entity
+	uint32_t id;
+
 	// name of entity
 	char name[ENT_NAME_SIZ];
 

@@ -16,7 +16,10 @@
 #define DEF_MATERIAL "dat/material/default.mtl"
 
 // name of root entity
-#define ROOT_NAME "Root"
+#define ROOT_NAME "root"
+
+// name of self entity
+#define SELF_NAME "self"
 
 // a scene is just an entity hierarchy
 struct scene {

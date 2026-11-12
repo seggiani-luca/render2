@@ -845,13 +845,30 @@ value* nativeGreaterEqual(arena* a, environment* env, value* args) {
 // definition of native equal function
 int equal(float a, float b) { return a == b; }
 value* nativeEqual(arena* a, environment* env, value* args) {
-	return nativeRelate(a,env, args, equal);
+	return nativeRelate(a, env, args, equal);
 }
 
 // definition of native notEqual function
 int notEqual(float a, float b)  { return a != b; }
 value* nativeNotEqual(arena* a, environment* env, value* args) {
 	return nativeRelate(a, env, args, notEqual);
+}
+
+value* nativeNullP(arena* a, environment* env, value* args) {
+	if(args->type != VAL_CONS) {
+		logEvent(ERROR, EXEC, "Null? requires an argument");
+		throw;
+	}
+
+	value* val = evaluateValue(a, env, args->cons.car);
+
+	args = args->cons.cdr;
+	if(args->type != VAL_NIL) {
+		logEvent(ERROR, EXEC, "Null? takes exactly one argument");
+		throw;
+	}
+
+	return makeBool(a, val->type == VAL_NIL);
 }
 
 // definition of native define function
@@ -1274,6 +1291,116 @@ value* nativeNot(arena* a, environment* env, value* args) {
 	return makeBool(a, !isTrue(val));
 }
 
+// definition of native cond function
+value* nativeCond(arena* a, environment* env, value* args) {
+	// go through conditions
+	while(args->type == VAL_CONS) {
+		// get clause 
+		value* clause = args->cons.car;
+		args = args->cons.cdr;
+
+		if(clause->type != VAL_CONS) {
+			logEvent(ERROR, EXEC, "Cond requires clauses");
+			throw;
+		}
+
+		// condition first
+		value* condition = clause->cons.car;
+
+		// expression second
+		value* expressions = clause->cons.cdr;
+
+		if(expressions->type != VAL_CONS) {
+			logEvent(ERROR, EXEC, "Cond clause requires expression");
+			throw;
+		}
+
+		// evaluate condition (unless else)
+		if(condition->type == VAL_SYMBOL
+		&& strcmp(condition->symbol, "else") == 0) {
+			return evaluateValue(a, env, expressions->cons.car);
+		}
+
+		value* conditionVal = evaluateValue(a, env, condition);
+
+		if(isTrue(conditionVal))
+			return evaluateValue(a, env, expressions->cons.car);
+	}
+
+	if(args->type != VAL_NIL) {
+		logEvent(ERROR, EXEC, "Cond requires proper list");
+		throw;
+	}
+
+	return makeNil();
+}
+
+// definition of native when function
+value* nativeWhen(arena* a, environment* env, value* args) {
+	// exactly one argument
+	if(args->type != VAL_CONS) {
+		logEvent(ERROR, EXEC, "When requires condition");
+		throw;
+	}
+
+	// get condition first
+	value* condition = evaluateValue(a, env, args->cons.car);
+	args = args->cons.cdr;
+
+	if(args->type != VAL_CONS) {
+		logEvent(ERROR, EXEC, "When requires expression");
+		throw;
+	}
+
+	// then branch
+	value* expression = args->cons.car;
+	args = args->cons.cdr;
+
+	if(args->type != VAL_NIL) {
+		logEvent(ERROR, EXEC, "When takes exactly two arguments");
+		throw;
+	}
+
+	// take branch
+	if(isTrue(condition))
+		return evaluateValue(a, env, expression);
+
+	return makeNil();
+}
+
+// definition of native unless function
+value* nativeUnless(arena* a, environment* env, value* args) {
+	// exactly one argument
+	if(args->type != VAL_CONS) {
+		logEvent(ERROR, EXEC, "Unless requires condition");
+		throw;
+	}
+
+	// get condition first
+	value* condition = evaluateValue(a, env, args->cons.car);
+	args = args->cons.cdr;
+
+	if(args->type != VAL_CONS) {
+		logEvent(ERROR, EXEC, "Unless requires expression");
+		throw;
+	}
+
+	// then branch
+	value* expression = args->cons.car;
+	args = args->cons.cdr;
+
+	if(args->type != VAL_NIL) {
+		logEvent(ERROR, EXEC, "Unless takes exactly two arguments");
+		throw;
+	}
+
+	// take branch
+	if(!isTrue(condition))
+		return evaluateValue(a, env, expression);
+
+	return makeNil();
+}
+
 // helper struct for native environment
 typedef struct {
 	// key of entry
@@ -1298,6 +1425,8 @@ static nativeEnvEntry nativeEntriesHelper[] = {
 	{ .key = ">=",       .fn = nativeGreaterEqual },
 	{ .key = "=",        .fn = nativeEqual        },
 	{ .key = "!=",       .fn = nativeNotEqual     },
+	
+	{ .key = "null?",    .fn = nativeNullP        },
 
 	// environment
 	{ .key = "define",   .fn = nativeDefine },
@@ -1317,15 +1446,31 @@ static nativeEnvEntry nativeEntriesHelper[] = {
 	{ .key = "eval",     .fn = nativeEval  },
 
 	// conditionals
-	{ .key = "if",       .fn = nativeIf  },
-	{ .key = "and",      .fn = nativeAnd },
-	{ .key = "or",       .fn = nativeOr  },
-	{ .key = "not",      .fn = nativeNot },
+	{ .key = "if",       .fn = nativeIf     },
+	{ .key = "and",      .fn = nativeAnd    },
+	{ .key = "or",       .fn = nativeOr     },
+	{ .key = "not",      .fn = nativeNot    },
+	{ .key = "cond",     .fn = nativeCond   },
+	{ .key = "when",     .fn = nativeWhen   },
+	{ .key = "unless",   .fn = nativeUnless },
 
 	// engine hooks
+	
+	// logging
 	{ .key = "log",      .fn = nativeLog   },
-	{ .key = "error",    .fn = nativeError },
 	{ .key = "warn",     .fn = nativeWarn  },
+	{ .key = "error",    .fn = nativeError },
+
+	// input
+	{ .key = "get-key",  .fn = nativeGetKey  },
+	{ .key = "get-axis", .fn = nativeGetAxis },
+
+	// entity handling
+	{ .key = "find-entity",          .fn = nativeFindEntity        },
+	{ .key = "get-entity-name",      .fn = nativeGetEntityName     },
+	{ .key = "get-entity-child",     .fn = nativeGetEntityChild    },
+	{ .key = "get-entity-children",  .fn = nativeGetEntityChildren },
+	{ .key = "get-entity-parent",    .fn = nativeGetEntityParent   },
 };
 
 // number of native entries

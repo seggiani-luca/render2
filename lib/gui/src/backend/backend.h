@@ -1,11 +1,11 @@
 #ifndef GUI_BACKEND_H
 #define GUI_BACKEND_H
 
-#include "../../../window/window.h"
 #include "../../../../lib/glad/glad.h"
+#include "../../../window/window.h"
 #include <limits.h>
 
-// -- atlas 
+// -- atlas
 
 /*
  * Structure of a GUI atlas:
@@ -38,7 +38,7 @@
 #define GUI_GUI_SCALE 0.25f
 
 /**
- * On-screen size of the atlas, calculated from pixel size and GUI scaling. 
+ * On-screen size of the atlas, calculated from pixel size and GUI scaling.
  */
 #define GUI_ATLAS_SIZ (GUI_ATLAS_DIM * GUI_GUI_SCALE)
 
@@ -61,21 +61,12 @@
 // -- rendering
 
 /**
- * Macro for OpenGL error printing. 
- */
-#define GL_ERR(func)                                    \
-	{                                                   \
-	    GLenum err = glGetError();                      \
-	    if(err != GL_NO_ERROR)                          \
-	    printf("OpenGL error 0x%x at %s\n", err, func); \
-	}
-
-/**
  * Struct for GUI coordinates.
  */
 struct guiPos {
-	// position 
-	float x; float y;
+  // position
+  float x;
+  float y;
 };
 typedef struct guiPos guiPos;
 
@@ -83,27 +74,28 @@ typedef struct guiPos guiPos;
  * Struct for GUI rectangles, defined by top-left position, width and height.
  */
 struct guiRect {
-	// top left corner position
-	float x; float y;
+  // top left corner position
+  float x;
+  float y;
 
-	// width
-	float w;
+  // width
+  float w;
 
-	// height
-	float h;
+  // height
+  float h;
 };
 typedef struct guiRect guiRect;
 
 /**
  * Instance of a GUI quad. A quad is the combination of a rectangle on a window
- * and the rectangle to map to it from the atlas. 
+ * and the rectangle to map to it from the atlas.
  */
 struct guiQuad {
-	// window rectangle
-	guiRect rect;
+  // window rectangle
+  guiRect rect;
 
-	// atlas rectangle
-	guiRect uv;
+  // atlas rectangle
+  guiRect uv;
 };
 typedef struct guiQuad guiQuad;
 
@@ -117,11 +109,11 @@ typedef struct guiQuad guiQuad;
  * contents are built, and then rendered on a window.
  */
 typedef struct {
-	// vector of pushed GUI quads
-	guiQuad vec[QUEUE_SIZ];
+  // vector of pushed GUI quads
+  guiQuad vec[QUEUE_SIZ];
 
-	// index of next GUI quad to push
-	int last;
+  // index of next GUI quad to push
+  int last;
 } guiQueue;
 
 // GUI layer (rendering queue and cursor position)
@@ -132,20 +124,20 @@ typedef struct {
  *   use to keep track of vertical layout. Scroll commands might change this;
  * - The current height of the layer, which gets updated alongside the vertical
  *   cursor position. Scroll commands never change this;
- * - The height of the layer at the last frame. 
+ * - The height of the layer at the last frame.
  */
 struct guiLayer {
-	// rendering queue of quad instances
-	guiQueue queue;
+  // rendering queue of quad instances
+  guiQueue queue;
 
-	// vertical cursor position
-	float vPos;
+  // vertical cursor position
+  float vPos;
 
-	// layer height 
-	float height;
-	
-	// last frame render layer height
-	float lastHeight;
+  // layer height
+  float height;
+
+  // last frame render layer height
+  float lastHeight;
 };
 typedef struct guiLayer guiLayer;
 
@@ -154,10 +146,10 @@ typedef struct guiLayer guiLayer;
  * appears above SCROLL, which appears above BACKGROUND.
  */
 typedef enum {
-	BACKGROUND,
-	SCROLL,
-	FIXED,
-	GUI_LAYERS // number of guiLayerIds
+  BACKGROUND,
+  SCROLL,
+  FIXED,
+  GUI_LAYERS // number of guiLayerIds
 } guiLayerId;
 
 /**
@@ -170,84 +162,81 @@ typedef enum {
  * - An active flag for the whole GUI window.
  */
 struct guiContext {
-	// window handle (also used as validity flags for the context's
-	// initialization state)
-	window* win;
+  // window handle (also used as validity flags for the context's
+  // initialization state)
+  window *win;
 
-	// children window handle
-	window* child;
+  // children window handle
+  window *child;
 
-	// substruct for OpenGL specific context
-	struct {
-		// VAO for basic quad
-		GLuint quadVAO;
+  // substruct for OpenGL specific context
+  struct {
+    // VAO for basic quad
+    GLuint quadVAO;
 
-		// VBO for basic quad
-		GLuint quadVBO;
+    // VBO for basic quad
+    GLuint quadVBO;
 
-		// VBO for GUI quad instances
-		GLuint instanceVBO;
+    // VBO for GUI quad instances
+    GLuint instanceVBO;
 
-		// GUI shader
-		GLuint shd;
+    // GUI shader
+    GLuint shd;
 
-		// GUI texture
-		GLuint tex;
-	} gl;
+    // GUI texture
+    GLuint tex;
+  } gl;
 
-	// substruct for GUI input context
-	struct {
-		// mouse X and Y
-		double xCur, yCur;
+  // substruct for GUI input context
+  struct {
+    // mouse X and Y
+    double xCur, yCur;
 
-		// mouse state (1 if pressed, 0 otherwise) 
-		int curDown;
+    // mouse state (1 if pressed, 0 otherwise)
+    int curDown;
 
-		// mouse state rising edge
-		int curPress;
+    // mouse state rising edge
+    int curPress;
 
-		// mouse state falling edge;
-		int curReles;
+    // mouse state falling edge;
+    int curReles;
 
-		// previous mouse state
-		int prevDown;
+    // enter key state
+    int enter;
 
-		// enter key state
-		int enter;
+    // escape key state
+    int escape;
 
-		// escape key state
-		int escape;
+    // active element
+    uint64_t hotId; // always set to "imane"
 
-		// active element
-		uint64_t hotId; // always set to "imane"
+    // should the active element be reset at the next frame?
+    int hotReset;
 
-		// should the active element be reset at the next frame?
-		int hotReset;
+    // input buffer
+    char keyBuf[GUI_IN_BUF_SIZ];
 
-		// input buffer
-		char keyBuf[GUI_IN_BUF_SIZ];
+    // input buffer position
+    int keyBufSiz;
 
-		// input buffer position
-		int keyBufSiz;
+    // scroll state
+    float scroll;
 
-		// scroll state
-		float scroll;
+    // absolute scrolling position
+    float absScroll;
 
-		// absolute scrolling position
-		float absScroll;
+    // editable data pointer
+    void *dataPtr;
 
-		// editable data pointer
-		void* dataPtr;
+    // was editable data modified?
+    int dataSet;
+  } in;
 
-		// was editable data modified? 
-		int dataSet;
-	} in;
+  // GUI layers
+  guiLayer layers[GUI_LAYERS];
 
-	// GUI layers
-	guiLayer layers[GUI_LAYERS];
-
-	// inactive GUI window flag 
-	int inactive;
+  // inactive GUI window flag
+  int inactive;
 };
 typedef struct guiContext guiContext;
 
@@ -259,16 +248,16 @@ typedef struct guiContext guiContext;
  * @param lay GUI layer to act on
  * @param q   quad to push
  */
-void guiPush(guiLayer* lay, guiQuad q);
+void guiPush(guiLayer *lay, guiQuad q);
 
 /**
  * Initializes a GUI context for rendering on a window (to be called each time
  * the window is updated, so each frame).
  *
  * @param  win window context belongs to (needed to fully initialize context)
- * @return the fully initialized, ready context 
+ * @return the fully initialized, ready context
  */
-guiContext* guiInit(window* win);
+guiContext *guiInit(window *win);
 
 /**
  * Flushes all the rendering queues of a context, drawing contents to the GUI
@@ -276,7 +265,7 @@ guiContext* guiInit(window* win);
  *
  * @param ctx GUI context to act on
  */
-void guiFlush(guiContext* ctx);
+void guiFlush(guiContext *ctx);
 
 // -- initialization
 
@@ -284,9 +273,9 @@ void guiFlush(guiContext* ctx);
  * Frees a GUI's data (mainly OpenGL objects). Setting this to a window close
  * callback completely removes manual frees from user code).
  *
- * @param ctx GUI context to free 
+ * @param ctx GUI context to free
  */
-void guiFree(void* vCtx);
+void guiFree(void *vCtx);
 
 // -- input
 
@@ -295,6 +284,6 @@ void guiFree(void* vCtx);
  *
  * @param win window context belongs to
  */
-void guiInput(window* win);
+void guiInput(window *win);
 
 #endif

@@ -32,6 +32,27 @@ value* nativeError(arena* a, environment* env, value* args);
 // throws a warning
 value* nativeWarn(arena* a, environment* env, value* args);
 
+// gets key status
+value* nativeGetKey(arena* a, environment* env, value* args);
+
+// gets axis status
+value* nativeGetAxis(arena* a, environment* env, value* args);
+
+// finds entity by name
+value* nativeFindEntity(arena* a, environment* env, value* args);
+
+// gets entity name
+value* nativeGetEntityName(arena* a, environment* env, value* args);
+
+// gets entity child by name
+value* nativeGetEntityChild(arena* a, environment* env, value* args);
+
+// gets all entity children
+value* nativeGetEntityChildren(arena* a, environment* env, value* args);
+
+// gets entity parent 
+value* nativeGetEntityParent(arena* a, environment* env, value* args);
+
 // -- execution
 
 // starts a script in scene

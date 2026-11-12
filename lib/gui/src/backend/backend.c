@@ -1,6 +1,7 @@
 #include "backend.h"
 #include "../gui.h"
 #include "../helpers/helpers.h"
+#include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -30,6 +31,9 @@ void guiPush(guiLayer* lay, guiQuad q) {
 	if(lay->queue.last == QUEUE_SIZ) return;
 	lay->queue.vec[lay->queue.last++] = q;
 }
+
+// macro for OpenGL errors
+#define GL_ERR(func) // empty
 
 // flushes a single GUI layer
 void guiFlushLayer(guiContext* ctx, guiLayer* lay) {
@@ -93,6 +97,11 @@ void guiFlushLayer(guiContext* ctx, guiLayer* lay) {
 }
 
 void guiFlush(guiContext* ctx) {
+	// good time to also clear input
+	ctx->in.curReles = ctx->in.curPress = 0;
+	ctx->in.escape = ctx->in.enter = 0;
+	ctx->in.scroll = 0.0f;
+
 	// clear buffer
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -288,64 +297,6 @@ void guiFree(void* vCtx) {
 	free(ctx);
 }
 
-// forward declarations for GLFW callbacks
-void guiCharCallback(GLFWwindow* gl, unsigned int codepoint);
-void guiKeyCallback(
-	GLFWwindow* gl,
-	int key,
-	int scancode,
-	int action,
-	int mods
-);
-void guiScrollCallback(GLFWwindow* gl, double x, double y);
-
-guiContext* guiInit(window* win) {
-	guiContext* ctx = (guiContext*)win->cbak.ctx;
-
-	// make context if NULL 
-	if(ctx->win == NULL) {
-		if(!guiNew(ctx)) return NULL;
-		ctx->win = win;
-
-		// attach callbacks
-		glfwSetCharCallback(win->gl, guiCharCallback);
-		glfwSetKeyCallback(win->gl, guiKeyCallback);
-		glfwSetScrollCallback(win->gl, guiScrollCallback);
-
-		// set other values
-		ctx->inactive = 0;
-		ctx->in.hotId = 0;
-		ctx->in.absScroll = 0.0f;
-		ctx->in.dataPtr = NULL;
-		ctx->in.dataSet = 0;
-		ctx->in.prevDown = 0;
-	}
-
-	// update child first if present
-	if(ctx->child) {
-		if(!winUpdate(ctx->child)) {
-			winFree(ctx->child);
-			ctx->child = NULL;
-			ctx->inactive = 0;
-		}
-
-		// get context back
-		glfwMakeContextCurrent(ctx->win->gl);
-	}
-
-	// reset all layers
-	for(int i = 0; i < GUI_LAYERS; i++) {
-		guiLayer* lay = &ctx->layers[i];
-
-		// reset queue and cursor
-		lay->queue.last = 0;
-		lay->vPos = 0.0f;
-		lay->height = 0.0f;
-	}
-
-	return ctx;
-}
-
 // -- input
 
 // GLFW character callback
@@ -383,6 +334,16 @@ void guiKeyCallback(
 	&& ctx->in.keyBufSiz > 0) {
 		ctx->in.keyBuf[--ctx->in.keyBufSiz] = '\0';
 	}
+
+	// register enter
+	if(key == GLFW_KEY_ENTER) {
+		ctx->in.enter = (action == GLFW_PRESS);
+	}
+
+	// register escape
+	if(key == GLFW_KEY_ESCAPE) {
+		ctx->in.escape = (action == GLFW_PRESS);
+	}
 }
 
 // GLFW scroll callback
@@ -395,7 +356,45 @@ void guiScrollCallback(
 	window* win = glfwGetWindowUserPointer(gl);
 	guiContext* ctx = win->cbak.ctx;
 
-	ctx->in.scroll += (float)y;
+	ctx->in.scroll += y;
+}
+
+// GLFW mouse callback
+void guiMouseCallback(
+	GLFWwindow* gl,
+	double x,
+	double y
+) {
+    window* win = glfwGetWindowUserPointer(gl);
+    guiContext* ctx = win->cbak.ctx;
+
+	ctx->in.xCur = WIN_USE_WAYLAND ? x : fbToWinW(win, x);
+	ctx->in.yCur = WIN_USE_WAYLAND ? y : fbToWinH(win, y);
+}
+
+// GLFW mouse button callback
+void guiMouseButtonCallback(
+    GLFWwindow* gl,
+	int button,
+	int action,
+	int mods __attribute__((unused))
+) {
+    window* win = glfwGetWindowUserPointer(gl);
+    guiContext* ctx = win->cbak.ctx;
+
+    if(button != GLFW_MOUSE_BUTTON_LEFT || ctx->inactive)
+        return;
+
+	if(action == GLFW_PRESS) {
+		ctx->in.curPress = 1;
+		ctx->in.curReles = 0;
+		ctx->in.curDown = 1;
+	}
+	if(action == GLFW_RELEASE) {
+		ctx->in.curPress = 0;
+		ctx->in.curReles = 1;
+		ctx->in.curDown = 0;
+	}
 }
 
 // currently focused window
@@ -404,12 +403,6 @@ static window* curFocus = NULL;
 void guiInput(window* win) {
 	guiContext* ctx = (guiContext*)win->cbak.ctx;
 
-	// get mouse position
-	double x, y;
-	glfwGetCursorPos(win->gl, &x, &y);
-	ctx->in.xCur = WIN_USE_WAYLAND ? x : fbToWinW(win, x);
-	ctx->in.yCur = WIN_USE_WAYLAND ? y : fbToWinH(win, y);
-
 	// reset all on inactive window
 	if(ctx->inactive) {
 		ctx->in.curPress = ctx->in.curReles = ctx->in.curDown = 0;
@@ -417,28 +410,68 @@ void guiInput(window* win) {
 		return;
 	}
 
-	// get mouse down state
-	int down = glfwGetMouseButton(win->gl, GLFW_MOUSE_BUTTON_LEFT);
-
-	// get other mouse states
-	ctx->in.curPress = (down  && !ctx->in.prevDown);
-	ctx->in.curReles = (!down &&  ctx->in.prevDown);
-	ctx->in.curDown  = down;
-
 	// use focus state
 	if(ctx->in.curPress) curFocus = win;
-	if(win != curFocus) ctx->in.curReles = 0; // release things you pressed
-
-	// update previous mouse state
-	ctx->in.prevDown = down;
-
-	// get key state
-	ctx->in.enter  = (glfwGetKey(win->gl, GLFW_KEY_ENTER)  == GLFW_PRESS);
-	ctx->in.escape = (glfwGetKey(win->gl, GLFW_KEY_ESCAPE) == GLFW_PRESS);
+	if(win != curFocus) {
+		ctx->in.curPress = 0;
+		ctx->in.curReles = 0;
+		ctx->in.curDown = 0;
+	}
 
 	// propagate hot state
 	if(ctx->in.hotReset) {
 		ctx->in.hotReset = 0;
 		ctx->in.hotId = 0;
 	}
+}
+
+guiContext* guiInit(window* win) {
+	guiContext* ctx = (guiContext*)win->cbak.ctx;
+
+	// make context if NULL 
+	if(ctx->win == NULL) {
+		if(!guiNew(ctx)) return NULL;
+		ctx->win = win;
+
+		// attach callbacks
+		glfwSetCharCallback(win->gl, guiCharCallback);
+		glfwSetKeyCallback(win->gl, guiKeyCallback);
+		glfwSetScrollCallback(win->gl, guiScrollCallback);
+		glfwSetCursorPosCallback(win->gl, guiMouseCallback);
+		glfwSetMouseButtonCallback(win->gl, guiMouseButtonCallback);
+
+		// reset other values 
+		ctx->in.curDown = ctx->in.curPress = ctx->in.curDown = 0;
+		ctx->in.escape = ctx->in.enter = 0;
+		ctx->inactive = 0;
+		ctx->in.hotId = 0;
+		ctx->in.hotReset = 0;
+		ctx->in.absScroll = 0.0f;
+		ctx->in.dataPtr = NULL;
+		ctx->in.dataSet = 0;
+	}
+
+	// update child first if present
+	if(ctx->child) {
+		if(!winUpdate(ctx->child)) {
+			winFree(ctx->child);
+			ctx->child = NULL;
+			ctx->inactive = 0;
+		}
+
+		// get context back
+		glfwMakeContextCurrent(ctx->win->gl);
+	}
+
+	// reset all layers
+	for(int i = 0; i < GUI_LAYERS; i++) {
+		guiLayer* lay = &ctx->layers[i];
+
+		// reset queue and cursor
+		lay->queue.last = 0;
+		lay->vPos = 0.0f;
+		lay->height = 0.0f;
+	}
+
+	return ctx;
 }

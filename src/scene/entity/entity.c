@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 // -- fields
 
@@ -500,6 +501,20 @@ field* shaderNew(const char* name) {
 
 // -- entities
 
+// entity map
+mapEntry entityMap[0x1 << 16] = {0};
+
+entity* entityFromId(uint32_t id) {
+	uint16_t index = id & 0xFFFF;
+	uint16_t generation = (id >> 16) & 0xFFFF;
+
+	mapEntry entry = entityMap[index];
+	if(entry.generation != generation) return NULL;
+	if(!entry.ent) return NULL;
+
+	return entry.ent;
+}
+
 void printEntity(const entity* e) {
 	printf("%s (Entity):\n", e->name);
 	field* cur = e->root;
@@ -518,7 +533,7 @@ entity* newEntity(const char* name) {
 	if(*name == '\0') {
 		logEvent(WARN, SCENE, "Can't create entity with no name");
 		return NULL;
-	} 
+	}
 
 	// allocate entity
 	entity* e = xmalloc(sizeof(entity));
@@ -534,6 +549,17 @@ entity* newEntity(const char* name) {
 	// setup hierarchy
 	e->parent = e->child = e->peer = NULL;
 	e->childCount = 0;
+
+	// assign ID
+	for(int i = 0; i < (0x1 << 16); i++) {
+		if(entityMap[i].ent) continue;
+
+		uint16_t generation = ++entityMap[i].generation;
+		entityMap[i].ent = e;
+
+		e->id = ((generation & 0xFFFF) << 16) | (i & 0xFFFF);
+		break;
+	}
 
 	return e;
 }
@@ -601,6 +627,10 @@ void freeEntityChildren(entity* e) {
 
 void freeEntity(entity* e) {
 	if(!e) return;
+
+	// free ID
+	uint16_t index = e->id & 0xFFFF;
+	entityMap[index].ent = NULL;
 
 	// free children
 	freeEntityChildren(e);

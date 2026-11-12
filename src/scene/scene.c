@@ -8,6 +8,8 @@
 
 // -- scenes
 
+extern mapEntry entityMap[];
+
 scene* newScene(const char* name) {
 	if(*name == '\0') return NULL;
 
@@ -24,6 +26,11 @@ scene* newScene(const char* name) {
 	s->root.fieldCount = 0;
 	s->root.parent = s->root.child = s->root.peer = NULL;
 	s->root.childCount = 0;
+	s->root.id = 0;
+
+	// reserve ID 0
+	entityMap[0].generation = 0;
+	entityMap[0].ent = &s->root;
 
 	// clear render scene
 	s->render = (renderScene){0};
