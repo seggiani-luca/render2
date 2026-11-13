@@ -1,8 +1,6 @@
 #include "entity.h"
 #include "../scene.h"
 #include "../../editor/inspector/inspector.h"
-#include "../../render/render.h"
-#include "../../serial/serial.h"
 #include "../../exception/exception.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +8,27 @@
 #include <strings.h>
 
 // -- fields
+
+ctorTableElement fieldCtorTable[FIELD_CTOR_TABLE_SIZ] = {
+	"int",        &intFieldVtable,        intNew,
+	"float",      &floatFieldVtable,      floatNew,
+	"string",     &stringFieldVtable,     stringNew,
+	"float2",     &float2FieldVtable,     float2New,
+	"float3",     &float3FieldVtable,     float3New,
+	"float4",     &float4FieldVtable,     float4New,
+	"mat2",       &mat2FieldVtable,       mat2New,
+	"mat3",       &mat3FieldVtable,       mat3New,
+	"mat4",       &mat4FieldVtable,       mat4New,
+	"quat",       &quatFieldVtable,       quatNew,
+	"transform",  &transformFieldVtable,  transformNew,
+	"camera",     &cameraFieldVtable,     cameraNew,
+	"atmosphere", &atmosphereFieldVtable, atmosphereNew,
+	"texture",    &textureFieldVtable,    textureNew,
+	"mesh",       &meshFieldVtable,       meshNew,
+	"material",   &materialFieldVtable,   materialNew,
+	"script",     &scriptFieldVtable,     scriptNew,
+	"shader",     &shaderFieldVtable,     shaderNew
+};
 
 // helper for field creation
 field newField(const char* name, const fieldVtable* vtable) {
@@ -29,6 +48,8 @@ void readField(const field* f, void* dst) { f->vtable->read(f, dst); }
 void writeField(field* f, const void* src) { f->vtable->write(f, src); }
 void printField(const field* f) { f->vtable->print(f); }
 int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
+value* getFieldValue(arena* a, const field* f) { return f->vtable->get(a, f); }
+void setFieldValue(field* f, const value* val) { f->vtable->set(f, val); }
 
 // macro for vtable definition 
 #define VTABLE(type)                               \
@@ -39,7 +60,9 @@ int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
 	    .gui         = type##FieldGui,             \
 	    .free        = NULL,                       \
 	    .serialize   = type##FieldSerialize,       \
-	    .deserialize = type##FieldDeserialize      \
+	    .deserialize = type##FieldDeserialize,     \
+	    .get         = type##FieldGet,             \
+	    .set         = type##FieldSet              \
 	};
 
 // macro for vtable definition, with free 
@@ -51,7 +74,9 @@ int guiField(const field* f, guiContext* ctx) { return f->vtable->gui(f, ctx);}
 	    .gui         = type##FieldGui,             \
 	    .free        = type##FieldFree,            \
 	    .serialize   = type##FieldSerialize,       \
-	    .deserialize = type##FieldDeserialize      \
+	    .deserialize = type##FieldDeserialize,     \
+	    .get         = type##FieldGet,             \
+	    .set         = type##FieldSet              \
 	};
 
 // macro for field allocation

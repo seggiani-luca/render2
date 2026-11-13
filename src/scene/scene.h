@@ -16,7 +16,7 @@
 #define DEF_MATERIAL "dat/material/default.mtl"
 
 // name of root entity
-#define ROOT_NAME "root"
+#define ROOT_NAME "Root"
 
 // name of self entity
 #define SELF_NAME "self"

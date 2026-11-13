@@ -435,50 +435,11 @@ void shaderFieldDeserialize(field* f, const  jsonElement* elem) {
 	if(!sf->ref) logEvent(WARN, IO, "Couldn't load shader");
 }
 
-// typedef for field constructors
-typedef field* (*fieldCtor)(const char* name);
-
-// field tag - vtable map element
-typedef struct  {
-	// string tag of field
-	char tag[32];
-
-	// field vtable
-	const fieldVtable* vtable;
-
-	// field constructor
-	fieldCtor ctor;
-} serialTableElement;
-
-// field tag - vtable map
-serialTableElement serialTable[] = {
-	"int",        &intFieldVtable,        intNew,
-	"float",      &floatFieldVtable,      floatNew,
-	"string",     &stringFieldVtable,     stringNew,
-	"float2",     &float2FieldVtable,     float2New,
-	"float3",     &float3FieldVtable,     float3New,
-	"float4",     &float4FieldVtable,     float4New,
-	"mat2",       &mat2FieldVtable,       mat2New,
-	"mat3",       &mat3FieldVtable,       mat3New,
-	"mat4",       &mat4FieldVtable,       mat4New,
-	"quat",       &quatFieldVtable,       quatNew,
-	"transform",  &transformFieldVtable,  transformNew,
-	"camera",     &cameraFieldVtable,     cameraNew,
-	"atmosphere", &atmosphereFieldVtable, atmosphereNew,
-	"texture",    &textureFieldVtable,    textureNew,
-	"mesh",       &meshFieldVtable,       meshNew,
-	"material",   &materialFieldVtable,   materialNew,
-	"script",     &scriptFieldVtable,     scriptNew,
-	"shader",     &shaderFieldVtable,     shaderNew
-};
-
-#define SERIAL_TABLE_SIZ (sizeof(serialTable) / sizeof(serialTableElement))
-
 // maps a field to its tag
 const char* getFieldTag(const field* fld) {
 	// go through table
-	for(size_t i = 0; i < SERIAL_TABLE_SIZ; i++) {
-		serialTableElement* cur = &serialTable[i];
+	for(size_t i = 0; i < FIELD_CTOR_TABLE_SIZ; i++) {
+		ctorTableElement* cur = &fieldCtorTable[i];
 		if(cur->vtable == fld->vtable) return cur->tag;
 	}
 
@@ -488,8 +449,8 @@ const char* getFieldTag(const field* fld) {
 // maps a field tag to its vtable, returning the constructor
 const fieldVtable* getFieldVtable(const char* tag, fieldCtor* ctor) {
 	// go through table
-	for(size_t i = 0; i < SERIAL_TABLE_SIZ; i++) {
-		serialTableElement* cur = &serialTable[i];
+	for(size_t i = 0; i < FIELD_CTOR_TABLE_SIZ; i++) {
+		ctorTableElement* cur = &fieldCtorTable[i];
 		if(strcmp(cur->tag, tag) == 0) {
 			*ctor = cur->ctor;
 			return cur->vtable;

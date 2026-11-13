@@ -5,6 +5,7 @@
 #include "../../render/render.h"
 #include "../../serial/serial.h"
 #include "../../data/includes.h"
+#include "../../script/script.h"
 #include <stdint.h>
 
 // -- fields
@@ -41,6 +42,12 @@ typedef struct {
 	
 	// deserialization method
 	void (*deserialize)(field* f, const jsonElement* elem);
+
+	// get value
+	value* (*get)(arena* a, const field* f);
+
+	// set value
+	void (*set)(field* f, const value* val);
 } fieldVtable;
 
 // macro for vtable declaration 
@@ -59,6 +66,25 @@ struct field {
 	field* next;
 };
 
+// typedef for field constructors
+typedef field* (*fieldCtor)(const char* name);
+
+// field tag - vtable map element
+typedef struct  {
+	// string tag of field
+	char tag[32];
+
+	// field vtable
+	const fieldVtable* vtable;
+
+	// field constructor
+	fieldCtor ctor;
+} ctorTableElement;
+
+// field tag - vtable map
+#define FIELD_CTOR_TABLE_SIZ 18
+extern ctorTableElement fieldCtorTable[FIELD_CTOR_TABLE_SIZ];
+
 // shortcut for field reading via own method
 void readField(const field* f, void* dst);
 
@@ -70,6 +96,12 @@ void printField(const field* f);
 
 // shortcut for field gui rendering via own method
 int guiField(const field* f, guiContext* ctx);
+
+// shortcut for field getting via own method
+value* getFieldValue(arena* a, const field* f);
+
+// shortcut for field setting via own method
+void setFieldValue(field* f, const value* val);
 
 // -- integer field
 

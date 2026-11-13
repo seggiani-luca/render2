@@ -32,7 +32,7 @@ sudo apt update
 sudo apt install build-essential libglfw3-dev libgl1-mesa-dev
 ```
 
-Quindi hai bisogno di un compilatore C compatibile almeno con C99 (GCC o Clang).
+Quindi hai bisogno di un compilatore C (GCC o Clang vanno bene).
 
 ## Compilare
 
@@ -46,6 +46,7 @@ Quindi c'è un `Makefile` per compilare tutto:
 make run    # compila il progetto e lo esegue
 make        # compila soltanto
 make debug  # avvia GDB per il debugging, con qualche soppressione abilitata
+            # (controlla il Makefile)
 make clean  # ripulisce gli oggetti
 ```
 

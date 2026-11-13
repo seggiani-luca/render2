@@ -3,6 +3,26 @@
 
 #include "lisp.h"
 
+// -- custom special forms
+
+/*
+ * Define NUM_CUSTOM_DEFINE_ENTRIES and populate a:
+ *
+ * nativeEnvEntry customNativeEntriesHelper[];
+ * 
+ * In order to define custom native functions (special forms).
+ * The nativeEnvEntry struct definition is below.
+ */
+
+// helper struct for native environment
+typedef struct {
+	// key of entry
+	char key[SYM_SIZE];
+
+	// native function
+	nativeFn fn;
+} nativeEnvEntry;
+
 // -- values
 
 // creates a new symbol value

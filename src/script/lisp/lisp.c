@@ -1401,15 +1401,6 @@ value* nativeUnless(arena* a, environment* env, value* args) {
 	return makeNil();
 }
 
-// helper struct for native environment
-typedef struct {
-	// key of entry
-	char key[SYM_SIZE];
-
-	// native function
-	nativeFn fn;
-} nativeEnvEntry;
-
 // native environment entries helper
 static nativeEnvEntry nativeEntriesHelper[] = {
 	// arithmetic
@@ -1452,29 +1443,13 @@ static nativeEnvEntry nativeEntriesHelper[] = {
 	{ .key = "not",      .fn = nativeNot    },
 	{ .key = "cond",     .fn = nativeCond   },
 	{ .key = "when",     .fn = nativeWhen   },
-	{ .key = "unless",   .fn = nativeUnless },
-
-	// engine hooks
-	
-	// logging
-	{ .key = "log",      .fn = nativeLog   },
-	{ .key = "warn",     .fn = nativeWarn  },
-	{ .key = "error",    .fn = nativeError },
-
-	// input
-	{ .key = "get-key",  .fn = nativeGetKey  },
-	{ .key = "get-axis", .fn = nativeGetAxis },
-
-	// entity handling
-	{ .key = "find-entity",          .fn = nativeFindEntity        },
-	{ .key = "get-entity-name",      .fn = nativeGetEntityName     },
-	{ .key = "get-entity-child",     .fn = nativeGetEntityChild    },
-	{ .key = "get-entity-children",  .fn = nativeGetEntityChildren },
-	{ .key = "get-entity-parent",    .fn = nativeGetEntityParent   },
+	{ .key = "unless",   .fn = nativeUnless }
 };
+#define NUM_NATIVE_ENTRIES \
+	(sizeof(nativeEntriesHelper) / sizeof(nativeEnvEntry))
 
-// number of native entries
-#define NATIVE_ENTRIES (sizeof(nativeEntriesHelper) / sizeof(nativeEnvEntry))
+// custom native environment entries helper
+extern nativeEnvEntry customNativeEntriesHelper[];
 
 // initializes the native environment
 envFrame* initNativeEnvironment() {
@@ -1482,9 +1457,22 @@ envFrame* initNativeEnvironment() {
 	envEntry* last = NULL;
 
 	// go through all native entries
-	for(size_t i = 0; i < NATIVE_ENTRIES; i++) {
+	size_t i = 0;
+	size_t j = 0;
+	for(;;) {
+		nativeEnvEntry* help;
+		
+
+#ifdef NUM_CUSTOM_NATIVE_ENTRIES
+		if(j == NUM_CUSTOM_NATIVE_ENTRIES) break;
+		if(i == NUM_NATIVE_ENTRIES) help = &customNativeEntriesHelper[j++];
+		else help = &nativeEntriesHelper[i++];
+#else
+		if(i == NUM_NATIVE_ENTRIES) break; 
+		else help = &nativeEntriesHelper[i++];
+#endif
+
 		// get objects
-		nativeEnvEntry* help  = &nativeEntriesHelper[i];
 		value*          val   = makeNative(NULL, help->fn);
 		envEntry*       entry = xmalloc(sizeof(envEntry));
 		
