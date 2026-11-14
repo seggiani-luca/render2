@@ -54,7 +54,7 @@ void stringFieldSet(field* f, const value* val) {
 	sf->str[ENT_STR_SIZ - 1] = '\0';
 }
 
-// sets a vector
+// gets a vector
 value* vectorGet(arena* a, void* vec, int n) {
 	value* list = NULL;
 	value** tail = &list;
@@ -80,7 +80,7 @@ value* vectorGet(arena* a, void* vec, int n) {
 	return list;
 }
 
-// gets a vector
+// sets a vector
 void vectorSet(void* vec, int n, const value* val) {
 	if(val->type != VAL_CONS) {
 		logEvent(ERROR, EXEC, "Vector must be list");
@@ -477,6 +477,94 @@ value* shaderFieldGet(arena* a, const field* f) {
 void shaderFieldSet(field* f, const value* val) {
 	// TODO handle references
 }
+
+// -- vector arithmetic
+
+// typedef for vector arithmetic functions
+typedef void (*vecArithmFunc)(float* a, float* b, int n, float* buf);
+
+// typedef for matrix arithmetic functions
+typedef void (*matArithmFunc)(float* a, float* b, int n, float* buf);
+
+// tries to get vector, buf must be sized to contain at least a 4D vector
+int isVector(float* buf, value* val) {
+	// TODO check if vector, return in buf
+}
+
+// tries to get matrix, buf must be sized to contain at least a 4x4 matrix 
+int isMatrix(float* buf, value* val) {
+	// TODO check if matrix, return in buf
+}
+
+// definition of native arithmetic function
+value* nativeVecArithm(
+	arena* a,
+	environment* env,
+	value* args,
+	arithmFunc scaFunc,
+	vecArithmFunc vecFunc,
+	matArithmFunc matFunc
+) {
+	if(args->type != VAL_CONS) {
+		logEvent(ERROR, EXEC, "Vector arithmetic op. requires first argument");
+		throw;
+	}
+
+	// get arguments
+	value* lhs = evaluateValue(a, env, args->cons.car);
+	args = args->cons.cdr;
+
+	if(args->type != VAL_CONS) {
+		logEvent(ERROR, EXEC, "Invalid lhs arguments to vector arithmetic op.");
+		throw;
+	}
+
+	value* rhs = evaluateValue(a, env, args->cons.car);
+	args = args->cons.cdr;
+
+	if(args->type != VAL_NIL) {
+		logEvent(ERROR, EXEC, "Invalid rhs arguments to vector arithmetic op.");
+		throw;
+	}
+
+	// check if numbers
+	if(lhs->type == VAL_NUMBER
+	&& rhs->type == VAL_NUMBER) {
+		return makeNumber(a, scaFunc(lhs->number, rhs->number));
+	}
+
+	// argument buffers
+	mat4 lhsVal;
+	mat4 rhsVal;
+	mat4 result;
+	
+	// check if vectors
+	int lhsN = isVector((float*)&lhsVal, lhs);
+	int rhsN = isVector((float*)&rhsVal, rhs);
+
+	if(lhsN != -1
+	&& rhsN != -1
+	&& lhsN != rhsN) {
+		vecFunc((float*)&lhsVal, (float*)&rhsVal, lhsN, (float*)&result);
+		return vectorGet(a, (float*)&result, lhsN);
+	}
+
+	// check if matrices
+	lhsN = isMatrix((float*)&lhsVal, lhs);
+	rhsN = isMatrix((float*)&rhsVal, rhs);
+	
+	if(lhsN != -1
+	&& rhsN != -1
+	&& lhsN != rhsN) {
+		matFunc((float*)&lhsVal, (float*)&rhsVal, lhsN, (float*)&result);
+		return matrixGet(a, (float*)&result, lhsN);
+	}
+
+	logEvent(ERROR, EXEC, "Invalid arguments to vector arithmetic op.");
+		throw;
+}
+
+// TODO implement vector/matrix natives
 
 // -- natives
 

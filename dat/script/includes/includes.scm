@@ -8,7 +8,7 @@
 ; -- math types 
 
 ; float2
-;   Constructs a "d" vector.
+;   Constructs a 2D vector.
 ;
 ;   Parameters:
 ;     x, y - Vector components.
@@ -109,8 +109,6 @@
 (define (quat x y z w)
   (float4 x y z w))
 
-; TODO math
-
 ; -- engine types
 
 ; transform
@@ -194,7 +192,7 @@
   (car (cdr (cdr atmosphere))))
 
 
-; -- Engine hooks
+; -- engine hooks
 
 ; start
 ;   Called once when the script is initialized.

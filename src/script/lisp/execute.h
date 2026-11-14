@@ -23,6 +23,23 @@ typedef struct {
 	nativeFn fn;
 } nativeEnvEntry;
 
+// -- arithmetic
+
+// typedef for arithmetic functions
+typedef float (*arithmFunc)(float a, float b);
+
+// definition of native add function
+inline float add(float a, float b) { return a + b; }
+
+// definition of native sub function
+inline float sub(float a, float b) { return a - b; }
+
+// definition of native mul function
+inline float mul(float a, float b) { return a * b; }
+
+// definition of native div function
+inline float divs(float a, float b) { return a / b; }
+
 // -- values
 
 // creates a new symbol value

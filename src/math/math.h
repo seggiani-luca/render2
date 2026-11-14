@@ -203,6 +203,8 @@ quat eulerToQuat(float3 e);
 // prints a quaternion
 void quatPrint(quat q);
 
+// -- transform
+
 // definition of transform
 typedef struct {
 	// position

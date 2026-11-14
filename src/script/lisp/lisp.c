@@ -728,9 +728,6 @@ void cleanEnvironment(environment *env) {
 
 // -- natives
 
-// typedef for arithmetic functions
-typedef float (*arithmFunc)(float a, float b);
-
 // definition of native arithmetic function
 value* nativeArithm(arena* a, environment* env, value* args, arithmFunc func) {
 	if(args->type != VAL_CONS) {
@@ -762,25 +759,21 @@ value* nativeArithm(arena* a, environment* env, value* args, arithmFunc func) {
 }
 
 // definition of native add function
-float add(float a, float b) { return a + b; }
 value* nativeAdd(arena* a, environment* env, value* args) {
 	return nativeArithm(a, env, args, add);
 }
 
 // definition of native sub function
-float sub(float a, float b) { return a - b; }
 value* nativeSub(arena* a, environment* env, value* args) {
 	return nativeArithm(a, env, args, sub);
 }
 
 // definition of native mul function
-float mul(float a, float b) { return a * b; }
 value* nativeMul(arena* a, environment* env, value* args) {
 	return nativeArithm(a, env, args, mul);
 }
 
 // definition of native div function
-float divs(float a, float b) { return a / b; }
 value* nativeDiv(arena* a, environment* env, value* args) {
 	return nativeArithm(a, env, args, divs);
 }
@@ -1471,6 +1464,8 @@ envFrame* initNativeEnvironment() {
 		if(i == NUM_NATIVE_ENTRIES) break; 
 		else help = &nativeEntriesHelper[i++];
 #endif
+
+		// TODO allow native entries to override default ones (on symbol match)
 
 		// get objects
 		value*          val   = makeNative(NULL, help->fn);
