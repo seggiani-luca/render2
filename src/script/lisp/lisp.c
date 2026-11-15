@@ -759,21 +759,25 @@ value* nativeArithm(arena* a, environment* env, value* args, arithmFunc func) {
 }
 
 // definition of native add function
+float add(float a, float b) { return a + b; }
 value* nativeAdd(arena* a, environment* env, value* args) {
 	return nativeArithm(a, env, args, add);
 }
 
 // definition of native sub function
+float sub(float a, float b) { return a - b; }
 value* nativeSub(arena* a, environment* env, value* args) {
 	return nativeArithm(a, env, args, sub);
 }
 
 // definition of native mul function
+float mul(float a, float b) { return a * b; }
 value* nativeMul(arena* a, environment* env, value* args) {
 	return nativeArithm(a, env, args, mul);
 }
 
 // definition of native div function
+float divs(float a, float b) { return a / b; }
 value* nativeDiv(arena* a, environment* env, value* args) {
 	return nativeArithm(a, env, args, divs);
 }
@@ -1464,15 +1468,27 @@ envFrame* initNativeEnvironment() {
 		if(i == NUM_NATIVE_ENTRIES) break; 
 		else help = &nativeEntriesHelper[i++];
 #endif
+		// get value
+		value* val   = makeNative(NULL, help->fn);
 
-		// TODO allow native entries to override default ones (on symbol match)
+		// check for existing symbol
+		envEntry* existing = head;
+		while(existing) {
+			if(strcmp(existing->key, help->key) == 0) break;
+			existing = existing->next;
+		}
 
-		// get objects
-		value*          val   = makeNative(NULL, help->fn);
-		envEntry*       entry = xmalloc(sizeof(envEntry));
-		
+		// override existing entry
+		if(existing) {
+			free(existing->value);
+			existing->value = val;
+			continue;
+		}
+
 		// initialize value and assign
+		envEntry*       entry = xmalloc(sizeof(envEntry));
 		entry->value = val;
+		entry->next = NULL;
 	
 		// initialize entry
 		memcpy(entry->key, help->key, SYM_SIZE);
@@ -1482,9 +1498,6 @@ envFrame* initNativeEnvironment() {
 		else head = entry;
 		last = entry;
 	}
-
-	// terminate list
-	last->next = NULL;
 
 	// setup native frame 
 	envFrame* nativeFrame = xmalloc(sizeof(envFrame));

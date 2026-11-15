@@ -109,6 +109,246 @@
 (define (quat x y z w)
   (float4 x y z w))
 
+; -- math operations
+
+; Arithmetic operators
+;   +, - operate on scalars, vectors, and matrices.
+;   * supports scalar multiplication, matrix-vector multiplication,
+;     and matrix-matrix multiplication.
+;   / supports scalar and vector/matrix division by a scalar.
+;
+;   Vector and matrix operands must have matching dimensions.
+;   Matrices must be square (2x2, 3x3, or 4x4).
+;
+;   Quaternion units are radians, euler angle units are degrees.
+;
+;   Examples:
+;     (+ (float3 1 2 3) (float3 4 5 6))
+;     (- (mat2 1 2 3 4) (mat2 4 3 2 1))
+;     (* (mat3 ...) (float3 ...))
+;     (* (mat4 ...) (mat4 ...))
+;     (* (mat4 ...) (vec4 ...))
+;     (* (float3 1 2 3) 2)
+;     (/ (float3 2 4 6) 2)
+
+
+; dot
+;   Computes the dot product of two vectors.
+;
+;   Parameters:
+;     a, b - Vectors of matching dimensions (2–4).
+;
+;   Returns:
+;     A scalar.
+
+; cross
+;   Computes the cross product of two 3D vectors.
+;
+;   Parameters:
+;     a, b - 3D vectors.
+;
+;   Returns:
+;     A 3D vector.
+
+; hadamard
+;   Computes the component-wise product of two vectors.
+;
+;   Parameters:
+;     a, b - Vectors of matching dimensions (2–4).
+;
+;   Returns:
+;     A vector of the same dimension.
+
+; norm-square
+;   Computes the squared Euclidean norm of a vector.
+;
+;   Parameters:
+;     vector - A vector (2–4 dimensions).
+;
+;   Returns:
+;     A scalar.
+
+; norm
+;   Computes the Euclidean norm of a vector.
+;
+;   Parameters:
+;     vector - A vector (2–4 dimensions).
+;
+;   Returns:
+;     A scalar.
+
+; normalize
+;   Returns the normalized form of a vector.
+;
+;   Parameters:
+;     vector - A vector (2–4 dimensions).
+;
+;   Returns:
+;     A vector of the same dimension.
+
+; mat2-eye
+;   The identity 2x2 matrix.
+
+(define mat2-eye
+  (mat2 1 0
+        0 1))
+
+
+; mat3-eye
+;   The identity 3x3 matrix.
+
+(define mat3-eye
+  (mat3 1 0 0
+        0 1 0
+        0 0 1))
+
+
+; mat4-eye
+;   The identity 4x4 matrix.
+
+(define mat4-eye
+  (mat4 1 0 0 0
+        0 1 0 0
+        0 0 1 0
+        0 0 0 1))
+
+
+; transpose
+;   Transposes a square matrix.
+;
+;   Parameters:
+;     matrix - A square matrix (2x2, 3x3, or 4x4).
+;
+;   Returns:
+;     The transposed matrix.
+
+; det
+;   Computes the determinant of a square matrix.
+;
+;   Parameters:
+;     matrix - A square matrix (2x2, 3x3, or 4x4).
+;
+;   Returns:
+;     A scalar.
+
+; invert
+;   Computes the inverse of a square matrix.
+;
+;   Parameters:
+;     matrix - A square matrix (2x2, 3x3, or 4x4).
+;
+;   Returns:
+;     The inverse matrix.
+
+
+; Quaternion operations
+;   Quaternions are represented as 4D vectors in XYZW order.
+
+; quat+
+;   Adds two quaternions component-wise.
+;
+;   Parameters:
+;     a, b - Quaternions.
+;
+;   Returns:
+;     A quaternion.
+
+; quat-
+;   Subtracts two quaternions component-wise.
+;
+;   Parameters:
+;     a, b - Quaternions.
+;
+;   Returns:
+;     A quaternion.
+
+; quat*
+;   Multiplies a quaternion by a scalar or another quaternion.
+;
+;   Parameters:
+;     a - A quaternion.
+;     b - A scalar or quaternion.
+;
+;   Returns:
+;     A quaternion.
+
+; quat/
+;   Divides a quaternion by a scalar.
+;
+;   Parameters:
+;     quaternion - A quaternion.
+;     scalar     - A scalar.
+;
+;   Returns:
+;     A quaternion.
+
+; quat-conjugate
+;   Computes the conjugate of a quaternion.
+;
+;   Parameters:
+;     quaternion - A quaternion.
+;
+;   Returns:
+;     A quaternion.
+
+; quat-invert
+;   Computes the inverse of a quaternion.
+;
+;   Parameters:
+;     quaternion - A quaternion.
+;
+;   Returns:
+;     A quaternion.
+
+; quat-norm-square
+;   Computes the squared norm of a quaternion.
+;
+;   Parameters:
+;     quaternion - A quaternion.
+;
+;   Returns:
+;     A scalar.
+
+; quat-norm
+;   Computes the norm of a quaternion.
+;
+;   Parameters:
+;     quaternion - A quaternion.
+;
+;   Returns:
+;     A scalar.
+
+; quat-normalize
+;   Returns the normalized form of a quaternion.
+;
+;   Parameters:
+;     quaternion - A quaternion.
+;
+;   Returns:
+;     A quaternion.
+
+; quat-angle-axis
+;   Constructs a quaternion from an angle and a 3D rotation axis.
+;
+;   Parameters:
+;     angle - Rotation angle.
+;     axis  - 3D rotation axis.
+;
+;   Returns:
+;     A quaternion.
+
+; quat-to-euler
+;   Converts a quaternion to XYZ extrinsic Euler angles (roll, pitch, yaw).
+;   Returns a 3D vector containing the X, Y and Z angles.
+;
+;   Quaternion units are radians, euler angle units are degrees.
+
+; euler-to-quat
+;   Converts XYZ extrinsic Euler angles (roll, pitch, yaw) to a quaternion.
+;   Takes a 3D vector containing the X, Y and Z angles.
+;
+;   Quaternion units are radians, euler angle units are degrees.
+
 ; -- engine types
 
 ; transform
