@@ -1,11 +1,71 @@
 ; -- base definitions
 
+; Special forms
+;   Most special forms are defined to agree with the usual Scheme syntax.
+;
+;   Available special forms are:
+;     - +, -, *, /, redefined by the engine as a special set of vector
+;                   arithmetic functions (see below)
+;     - <, <=, >, >=, =, !=
+;     - symbol?, number?, bool?, string?, pair?, procedure?, null?
+;     - equal?
+;     - define
+;     - lambda
+;     - begin
+;     - quote
+;     - list
+;     - cons
+;     - car
+;     - cdr
+;     - eval
+;     - if
+;     - cond
+;     - when
+;     - unless
+;     - and, or, not
+;
+;   The main difference from standard Scheme is that only define exists
+;   (no set!), and all definitions pollute the global namespace.
+;   No closures exist (as of now).
+;
+;   The scripting engine is designed as a set of engine-specific extensions (in
+;   src/script/*) on a base lisp execution engine (src/script/lisp*).
+;
+;   Check src/script/lisp.h and src/script/lisp.c for details.
+
 ; nil
 ;   The empty list. Used as the default return value for engine hooks.
 
 (define nil ())
 
-; -- math types 
+; epsilon
+;   Arbitrarily small value.
+
+(define epsilon 0.001)
+
+; pi
+;   Ratio between circumference and diameter of a circle.
+
+(define pi 3.141519)
+
+; length
+;   Returns the length of a list.
+;
+;   Parameters:
+;     l - A list.
+;
+;   Returns:
+;     A scalar.
+
+(define (length-recurse l n)
+  (if (null? l)
+    n
+    (length-recurse (cdr l) (+ 1 n))))
+
+(define (length l)
+  (length-recurse l 0))
+
+; -- math types
 
 ; float2
 ;   Constructs a 2D vector.
@@ -130,6 +190,21 @@
 ;     (* (mat4 ...) (vec4 ...))
 ;     (* (float3 1 2 3) 2)
 ;     (/ (float3 2 4 6) 2)
+
+
+; abs
+;   Takes the absolute of a scalar.
+;
+;   Paramters:
+;     n - A scalar.
+;
+;   Returns:
+;     A scalar.
+
+(define (abs n)
+  (if (< n 0)
+    (- 0 n)
+    n))
 
 
 ; dot
@@ -446,3 +521,226 @@
 ;   Defaults at nil, redefine for functionality.
 
 (define (update) nil)
+
+
+; -- logging
+
+; log
+;   Logs an informational message.
+;
+;   Parameters:
+;     message - The message to log.
+;
+;   Returns:
+;     nil.
+
+; warn
+;   Logs a warning message.
+;
+;   Parameters:
+;     message - The message to log.
+;
+;   Returns:
+;     nil.
+
+; error
+;   Logs an error message. Note that this halts execution, which might have
+;   different effects:
+;   - During script execution: almost definitely results in later execution
+;     errors;
+;   - During engine hook execution: halts that specific hook only.
+;
+;   Parameters:
+;     message - The message to log.
+;
+;   Returns:
+;     nil.
+
+
+; -- input
+
+; get-key
+;   Returns the current state of a keyboard key.
+;
+;   Parameters:
+;     key - The key identifier.
+;
+;   Available keys:
+;     - space
+;     - apostrophe
+;     - comma
+;     - minus
+;     - period
+;     - slash
+;     - 0 through 9
+;     - a through z (lowercase)
+;     - semicolon
+;     - equal
+;     - left bracket
+;     - backslash
+;     - right bracket
+;     - grave accent
+;     - world 1
+;     - world 2
+;     - escape
+;     - enter
+;     - tab
+;     - backspace
+;     - insert
+;     - delete
+;     - right
+;     - left
+;     - down
+;     - up
+;     - page up
+;     - page down
+;     - home
+;     - end
+;     - caps lock
+;     - scroll lock
+;     - num lock
+;     - print screen
+;     - pause
+;     - f1 through f25
+;     - kp 0 through kp 9
+;     - kp decimal
+;     - kp divide
+;     - kp multiply
+;     - kp subtract
+;     - kp add
+;     - kp enter
+;     - kp equal
+;     - left shift
+;     - left control
+;     - left alt
+;     - left super
+;     - right shift
+;     - right control
+;     - right alt
+;     - right super
+;     - menu
+;
+;   Returns:
+;     A boolean indicating whether the key is pressed.
+
+; get-axis
+;   Returns the current value of an input axis.
+;
+;   Available axes are:
+;       - button 1
+;       - button 2
+;       - button 3
+;       - button 4
+;       - button 5
+;       - button 6
+;       - button 7
+;       - button 8
+;       - left mouse (alias of button 1)
+;       - right mouse (alias of button 2)
+;       - middle mouse (alias of button 3)
+;
+;   Parameters:
+;     axis - The axis identifier.
+;
+;   Returns:
+;     A scalar representing the axis value.
+
+
+; -- entity handling
+
+; find-entity
+;   Finds an entity by name.
+;
+;   Parameters:
+;     name - The entity name.
+;
+;   Returns:
+;     The matching entity, or nil if none is found.
+
+; get-entity-name
+;   Returns the name of an entity.
+;
+;   Parameters:
+;     entity - The entity.
+;
+;   Returns:
+;     A string containing the entity name.
+
+; get-entity-child
+;   Returns a child entity by name.
+;
+;   Parameters:
+;     entity - The parent entity.
+;     name   - The child entity name.
+;
+;   Returns:
+;     The matching child entity, or nil if none is found.
+
+; get-entity-children
+;   Returns the children of an entity.
+;
+;   Parameters:
+;     entity - The parent entity.
+;
+;   Returns:
+;     A list of child entities.
+
+; get-entity-parent
+;   Returns the parent of an entity.
+;
+;   Parameters:
+;     entity - The entity.
+;
+;   Returns:
+;     The parent entity, or nil if none exists.
+
+; self
+;   Alias for the entity the script runs on.
+
+; -- field handling
+
+; get-field
+;   Retrieves the value of an entity field on the script's own entity.
+;
+;   Parameters:
+;     name   - The field name.
+;
+;   Returns:
+;     The field value, or nil if the field does not exist.
+
+; set-field
+;   Sets the value of an entity field on the script's own entity.
+;
+;   Parameters:
+;     name   - The field name.
+;     value  - The new field value.
+;
+;   Returns:
+;     nil.
+
+; require-field
+;   Creates a required field on the script's own entity.
+;
+;   Field type must be specified, available types are:
+;     - int
+;     - float
+;     - string
+;     - float2
+;     - float3
+;     - float4
+;     - mat2
+;     - mat3
+;     - mat4
+;     - quat
+;     - transform
+;     - camera
+;     - atmosphere
+;     - texture
+;     - mesh
+;     - material
+;     - script
+;     - shader
+;
+;   Parameters:
+;     type   - The field type.
+;     name   - The field name.

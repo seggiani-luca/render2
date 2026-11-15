@@ -357,6 +357,7 @@ scriptContext* getScriptContext(char** buf) {
 		logEvent(ERROR, LISP, "Couldn't parse script");
 		freeArena(&scr->parseArena);
 		freeArena(&scr->execArena);
+		free(scr);
 		scr = NULL;
 	}
 
@@ -851,21 +852,143 @@ value* nativeNotEqual(arena* a, environment* env, value* args) {
 	return nativeRelate(a, env, args, notEqual);
 }
 
+// evaluates exactly one predicate argument
+static value* predicateArgument(arena* a, environment* env, value* args,
+                                const char* name) {
+    if(args->type != VAL_CONS) {
+        logEvent(ERROR, EXEC, "%s requires an argument", name);
+        throw;
+    }
+
+    value* val = evaluateValue(a, env, args->cons.car);
+
+    args = args->cons.cdr;
+    if(args->type != VAL_NIL) {
+        logEvent(ERROR, EXEC, "%s takes exactly one argument", name);
+        throw;
+    }
+
+    return val;
+}
+
+
+// definition of native symbol? function
+value* nativeSymbolP(arena* a, environment* env, value* args) {
+    value* val = predicateArgument(a, env, args, "Symbol?");
+    return makeBool(a, val->type == VAL_SYMBOL);
+}
+
+
+// definition of native number? function
+value* nativeNumberP(arena* a, environment* env, value* args) {
+    value* val = predicateArgument(a, env, args, "Number?");
+    return makeBool(a, val->type == VAL_NUMBER);
+}
+
+
+// definition of native boolean? function
+value* nativeBoolP(arena* a, environment* env, value* args) {
+    value* val = predicateArgument(a, env, args, "Boolean?");
+    return makeBool(a, val->type == VAL_BOOL);
+}
+
+
+// definition of native string? function
+value* nativeStringP(arena* a, environment* env, value* args) {
+    value* val = predicateArgument(a, env, args, "String?");
+    return makeBool(a, val->type == VAL_STRING);
+}
+
+
+// definition of native pair? function
+value* nativePairP(arena* a, environment* env, value* args) {
+    value* val = predicateArgument(a, env, args, "Pair?");
+    return makeBool(a, val->type == VAL_CONS);
+}
+
+
+// definition of native procedure? function
+value* nativeProcedureP(arena* a, environment* env, value* args) {
+    value* val = predicateArgument(a, env, args, "Procedure?");
+    return makeBool(a,
+        val->type == VAL_FUNCTION ||
+        val->type == VAL_NATIVE);
+}
+
+
+// definition of native primitive? function
+value* nativePrimitiveP(arena* a, environment* env, value* args) {
+    value* val = predicateArgument(a, env, args, "Primitive?");
+    return makeBool(a, val->type == VAL_NATIVE);
+}
+
+
+// definition of native null? function
 value* nativeNullP(arena* a, environment* env, value* args) {
+    value* val = predicateArgument(a, env, args, "Null?");
+    return makeBool(a, val->type == VAL_NIL);
+}
+
+// check for equality
+int valueEqual(const value* lhs, const value* rhs) {
+    if(lhs->type != rhs->type)
+        return 0;
+
+    switch(lhs->type) {
+        case VAL_NIL:
+            return 1;
+
+        case VAL_BOOL:
+            return lhs->boolean == rhs->boolean;
+
+        case VAL_NUMBER:
+            return lhs->number == rhs->number;
+
+        case VAL_STRING:
+            return strcmp(lhs->string, rhs->string) == 0;
+
+        case VAL_SYMBOL:
+            return strcmp(lhs->symbol, rhs->symbol) == 0;
+
+        case VAL_CONS:
+            return valueEqual(lhs->cons.car, rhs->cons.car) &&
+                   valueEqual(lhs->cons.cdr, rhs->cons.cdr);
+
+        case VAL_FUNCTION:
+        case VAL_NATIVE:
+            return lhs == rhs;
+
+        default:
+            return lhs == rhs;
+    }
+}
+
+// definition of native equal? function
+value* nativeEq(arena* a, environment* env, value* args) {
 	if(args->type != VAL_CONS) {
-		logEvent(ERROR, EXEC, "Null? requires an argument");
+		logEvent(ERROR, EXEC, "Equal requires first argument");
 		throw;
 	}
 
-	value* val = evaluateValue(a, env, args->cons.car);
-
+	// get arguments
+	value* lhs = evaluateValue(a, env, args->cons.car);
 	args = args->cons.cdr;
-	if(args->type != VAL_NIL) {
-		logEvent(ERROR, EXEC, "Null? takes exactly one argument");
+
+	if( args->type != VAL_CONS) {
+		logEvent(ERROR, EXEC, "Invalid lhs arguments to equal");
 		throw;
 	}
 
-	return makeBool(a, val->type == VAL_NIL);
+	value* rhs = evaluateValue(a, env, args->cons.car);
+	args = args->cons.cdr;
+
+	if(args->type != VAL_NIL) {
+		logEvent(ERROR, EXEC, "Invalid rhs arguments to equal");
+		throw;
+	}
+	
+	// make result
+	return makeBool(a, valueEqual(lhs, rhs));
 }
 
 // definition of native define function
@@ -1414,7 +1537,14 @@ static nativeEnvEntry nativeEntriesHelper[] = {
 	{ .key = "=",        .fn = nativeEqual        },
 	{ .key = "!=",       .fn = nativeNotEqual     },
 	
-	{ .key = "null?",    .fn = nativeNullP        },
+	{ .key = "symbol?",    .fn = nativeSymbolP    },
+	{ .key = "number?",    .fn = nativeNumberP    },
+	{ .key = "bool?",      .fn = nativeBoolP      },
+	{ .key = "string?",    .fn = nativeStringP    },
+	{ .key = "pair?",      .fn = nativePairP      },
+	{ .key = "procedure?", .fn = nativeProcedureP },
+	{ .key = "null?",      .fn = nativeNullP      },
+	{ .key = "equal?",     .fn = nativeEq         },
 
 	// environment
 	{ .key = "define",   .fn = nativeDefine },
