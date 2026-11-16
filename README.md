@@ -4,20 +4,35 @@ Un motore di rendering sperimentale scritto da zero in C, GLAD e GLFW3.
 
 ## Funzionalità
 Pipeline di rendering 3D accelerata via OpenGL:
-- Programmabile via shader GLSL;
-- Con supporto alle mesh in formato `.obj`, materiali in formato `.mtl`, e texture in formato `.tga` senza compressione RLE;
-- Tipi dedicati al rendering (telecamere con controlli FOV, near e far plane; oggetti "atmosfera" per i vettori di illuminazione e gli uniform shader).
+- Programmabile via shader GLSL (con preprocessore per direttive `#include` ricorsive);
+- Con supporto alle mesh in formato `.obj`, materiali in formato `.mtl`, e texture in formato `.tga` senza compressione RLE (con supporto allo spazio colore sRGB);
+- Tipi dedicati al rendering (telecamere con controlli FOV, near e far plane; oggetti "atmosfera" per vettori di illuminazione, luce solare ed ambientale);
+- Skybox a cubo e riflessioni ambientali da mappe equirettangolari con filtro mip-map dipendente dalla rugosità ed effetto Fresnel;
+- Shading avanzato con supporto a subsurface scattering per la pelle e modello speculare a doppio lobo.
 
 Architettura ad entità:
-- Sistema flessibile ed estendibile basato su campi polimorfi (`field`) con vtable dedicate (`int`, `float`, `float2/3/4`, `color`, `string`, `texture`, `mesh`, `material`, `camera`);
-- Gerarchia ad albero delle entità con composizione delle trasformazioni.
+- Sistema flessibile ed estendibile basato su campi polimorfi (`field`) con vtable dedicate (`int`, `float`, `string`, `float2/3/4`, `mat2/3/4`, `quat`, `transform`, `camera`, `atmosphere`, `texture`, `mesh`, `material`, `script`, `shader`);
+- Gerarchia ad albero delle entità con composizione delle trasformazioni (posizione, rotazione su quaternioni e scala).
 
-Interfaccia utente grafica:
-- Editor visuale renderizzato direttamente via OpenGL: vista scena, gerarchia ed ispettore;
-- Motore di rendering della GUI dedicato.
+Motore di scripting Scheme/Lisp integrato:
+- Interprete Lisp completo sviluppato da zero con allocatore di memoria ad arena dedicato;
+- Hook di ciclo di vita (`start` e `update`) con calcolo di `delta-time` e binding all'entità (`self`);
+- Supporto matematico esteso direttamente da script (vettori, matrici con determinante e inversa, quaternioni ed angoli di Eulero);
+- Manipolazione dell'albero delle entità (`find-entity`, `get-entity-child`, ecc.) e accesso ai campi (`get-field`, `set-field`, `require-field`);
+- Accesso in tempo reale allo stato di input di tastiera e mouse.
 
-Serializzazione delle scene:
-- Parser e serializer JSON dedicato per il salvataggio e caricamento dello stato delle scene.
+Interfaccia utente grafica ed editor:
+- Toolkit GUI autonomo con backend OpenGL e supporto a temi visivi (Dark, Light, Neo, Tux, Tokyo);
+- Editor multi-finestra con vista scena, gerarchia ad albero ed ispettore dei campi;
+- Finestre di selezione interattiva per le risorse (texture, mesh, materiali, script, shader) e file explorer integrato.
+
+Serializzazione dei dati:
+- Parser e serializer JSON dedicato per il salvataggio e caricamento dello stato di scene e singole entità prefabbricate.
+
+Gestione del sistema ed eccezioni:
+- Meccanismo di eccezioni `try`/`catch`/`throw` basato su `setjmp`/`longjmp`;
+- Sistema di logging strutturato con livelli di severità e categorie di sottosistema;
+- Gestione dello stato di input globale (tasti, bottoni mouse, coordinate e rotella di scorrimento).
 
 L'intero progetto è stato sviluppato con l'obiettivo di essere il più educativo possibile:
 - Tutto è sviluppato da zero, in modo da mostrare come funziona ogni passo dello sviluppo di un motore grafico;
@@ -47,6 +62,7 @@ make run    # compila il progetto e lo esegue
 make        # compila soltanto
 make debug  # avvia GDB per il debugging, con qualche soppressione abilitata
             # (controlla il Makefile)
+make asan   # compila ed esegue con AddressSanitizer, reindirizzando su tst/asan.txt
 make clean  # ripulisce gli oggetti
 ```
 
@@ -57,30 +73,46 @@ L'idea è che puoi fare la `clone` dell'intera repository render2, ed usare la d
 L'organizzazione che è stata adottata in fase di sviluppo è la seguente:
 ```
 ├── dat                # asset (texture, mesh, ecc...)
-│   ├── icon           # icone delle finestre
-│   ├── material       # materiali (.mtl)
-│   ├── model          # modelli (.obj)
-│   ├── scene          # scene serializzate (.json)
-│   ├── shader         # shader frag e vert (.glsl)
-│   └── texture        # texture (.tga senza RLE)
-├── lib/glad           # libreria GLAD
+│   ├── entity         # entità serializzate (.json)
+│   ├── icon           # icone delle finestre
+│   ├── material       # materiali (.mtl)
+│   ├── model          # modelli (.obj)
+│   ├── scene          # scene serializzate (.json)
+│   ├── script         # script Scheme/Lisp (.scm)
+│   │   └── includes   # include e libreria di base per script
+│   ├── shader         # shader frag e vert (.glsl)
+│   │   └── includes   # include e funzioni comuni per shader
+│   └── texture        # texture (.tga senza RLE) e cubemap
+├── lib                # librerie e componenti disaccoppiati
+│   ├── glad           # libreria GLAD
+│   ├── gui            # toolkit GUI dedicato con temi e widget
+│   ├── json           # motore di serializzazione/deserializzazione JSON dedicato
+│   └── window         # wrapper finestre OpenGL su GLFW
 ├── src                # codice sorgente
-│   ├── data           # caricamento di dati dal disco, tabelle dei riferimenti
-│   │   ├── material   # caricamento e decodifica materiali
-│   │   ├── mesh       # caricamento e decodifica mesh, upload alla GPU
-│   │   ├── shader     # caricamento e decodifica shader, compilazione
-│   │   └── texture    # caricamento e decodifica texture
-│   ├── gui            # toolkit GUI dedicato
-│   │   ├── hierarchy  # GUI della gerarchia
-│   │   ├── inspector  # GUI dell'ispettore
-│   │   ├── render     # backend della GUI, rendering su superfici OpenGL e input
-│   │   └── widget     # toolkit di widget di default
-│   ├── math           # libreria di algebra lineare dedicata
-│   ├── render         # rendering delle entità
-│   ├── scene          # gestione delle scene (grafi di entità)
-│   │   └── entity     # definizione di entità con campi polimorfi
-│   ├── serial         # serializzazione e deserializzazione di scene
-│   │   └── json       # motore di serializzazione e deserializzazione JSON dedicato
-│   └── window         # adattatore su GLFW per le finestre
+│   ├── arena          # allocatore di memoria bump/arena
+│   ├── data           # caricamento dati dal disco e tabelle dei riferimenti
+│   │   ├── material   # caricamento e decodifica materiali
+│   │   ├── mesh       # caricamento e decodifica mesh, upload alla GPU
+│   │   ├── script     # caricamento e decodifica script
+│   │   ├── shader     # caricamento, preprocessamento e compilazione shader
+│   │   └── texture    # caricamento e decodifica texture
+│   ├── editor         # interfaccia utente dell'editor
+│   │   ├── hierarchy  # GUI della gerarchia delle entità
+│   │   ├── inspector  # GUI dell'ispettore dei campi
+│   │   ├── selector   # selettori di asset e file explorer
+│   │   └── widget     # widget specializzati per l'editor
+│   ├── exception      # gestione eccezioni (try/catch/throw) e logging strutturato
+│   ├── input          # gestione dello stato di tastiera e mouse
+│   ├── math           # libreria di algebra lineare (vettori, matrici, quaternioni, transform)
+│   ├── parse          # utilità di parsing e preprocessore #include
+│   ├── render         # rendering della scena e skybox
+│   ├── scene          # gestione delle scene (grafi di entità)
+│   │   └── entity     # definizione di entità con campi polimorfi
+│   ├── script         # motore di scripting Scheme/Lisp
+│   │   ├── field      # binding campi entità per lo scripting
+│   │   ├── lisp       # interprete Scheme/Lisp (eval, ambienti, valori)
+│   │   └── math       # funzioni matematiche per lo scripting
+│   ├── serial         # serializzazione e deserializzazione di scene ed entità
+│   └── time           # calcolo del delta time e gestione temporale
 └── tst                # soppressioni GDB, test vari
 ```

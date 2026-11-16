@@ -453,6 +453,62 @@
   (car (cdr (cdr transform))))
 
 
+; translate
+;   Translates the transform by a given vector
+;   (local transform, local coordinates).
+;   
+;   Parameters:
+;     vec - Translation vector.
+;
+;   Returns:
+;     nil.
+
+(define (translate vec)
+  (define translate-transform (get-field "Transform"))
+  (set-field "Transform"
+             (transform
+               (+ (get-transform-position translate-transform) vec)
+               (get-transform-rotation    translate-transform)
+               (get-transform-scale       translate-transform))))
+
+
+; rotate 
+;   Rotates the transform by a given quaternion 
+;   (local transform, local coordinates).
+;   
+;   Parameters:
+;     quat - Rotation quaternion.
+;
+;   Returns:
+;     nil.
+
+(define (rotate quat)
+  (define rotate-transform (get-field "Transform"))
+  (set-field "Transform"
+             (transform
+               (get-transform-position        rotate-transform)
+               (quat* (get-transform-rotation rotate-transform) quat)
+               (get-transform-scale           rotate-transform))))
+
+; scale 
+;   Scales the transform by a given vector
+;   (local transform, local coordinates).
+;   
+;   Parameters:
+;     vec - Scale vector.
+;
+;   Returns:
+;     nil.
+
+(define (scale vec)
+  (define scale-transform (get-field "Transform"))
+  (set-field "Transform"
+             (transform
+               (get-transform-position scale-transform)
+               (get-transform-rotation scale-transform)
+               (hadamard (get-transform-scale scale-transform) vec))))
+
+
 ; camera
 ;   Constructs a camera descriptor.
 ;
@@ -563,6 +619,7 @@
 ;   Returns the current state of a keyboard key.
 ;
 ;   Parameters:
+;     state - The state of the key (down, pressed, released).
 ;     key - The key identifier.
 ;
 ;   Available keys:
