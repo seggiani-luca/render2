@@ -413,7 +413,7 @@ void addFieldGui(window* win) {
 
 			// flag dirty
 			scene* scn = ownerScene(ent);
-			scn->dirty = 1;
+			dirtScene(scn);
 
 			// should close
 			glfwSetWindowShouldClose(win->gl, 1);
@@ -514,7 +514,7 @@ void entityGui(window* win) {
 				
 				// flag dirty
 				scene* scn = ownerScene(ent);
-				scn->dirty = 1;
+				dirtScene(scn);
 			} break;
 			case MODIFY: {
 				// if script, start
@@ -524,7 +524,7 @@ void entityGui(window* win) {
 
 				// flag dirty
 				scene* scn = ownerScene(ent);
-				scn->dirty = 1;
+				dirtScene(scn);
 			} break;
 			default: break;
 		}

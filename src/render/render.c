@@ -247,7 +247,7 @@ void render(window* win) {
 	if(!rCtx->gl.shd) newRender(rCtx);
 
 	// update render scene if modified
-	if(scn->dirty) updateRenderScene(scn);
+	if(scn->renderDirty) updateRenderScene(scn);
 
 	// get scene data
 	camera* camInfo = rnd->camera.info;
@@ -451,7 +451,7 @@ void updateRenderScene(scene* scene) {
 
 	// clear scene
 	freeRenderScene(scene);
-	scene->dirty = 0;
+	scene->renderDirty = 0;
 
 	// go through scene hierarchy
 	renderSceneIter iter = getRenderScIter(scene);

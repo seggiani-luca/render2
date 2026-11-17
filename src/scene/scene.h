@@ -31,14 +31,19 @@ struct scene {
 
 	// rendering state
 	renderScene render;
-
-	// dirty flag
-	int dirty;
+	int renderDirty;
+	
+	// physics state
+	physicsScene physics;
+	int physicsDirty;
 };
 typedef struct scene scene;
 
 // creates a new scene
 scene* newScene(const char* name);
+
+// dirties up a scene
+void dirtScene(scene* s);
 
 // initializes new scene with default entities 
 void initDefaultScene(scene* s);

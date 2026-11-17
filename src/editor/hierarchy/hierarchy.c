@@ -81,7 +81,7 @@ void addChildGui(window* win) {
 		ctx->in.dataSet = 0;
 		
 		// flag dirty
-		scn->dirty = 1;
+		dirtScene(scn);
 
 		// should close
 		glfwSetWindowShouldClose(win->gl, 1);
@@ -161,7 +161,7 @@ void addChildGui(window* win) {
 			if(new) appendChild(ent, new);
 
 			// flag dirty
-			scn->dirty = 1;
+			dirtScene(scn);
 
 			// should close
 			glfwSetWindowShouldClose(win->gl, 1);
@@ -360,7 +360,7 @@ void sceneGui(window* win) {
 				freeEntity(cur);
 
 				// flag dirty
-				scn->dirty = 1;
+				dirtScene(scn);
 				
 				// tree is not really valid anymore, redraw at next iteration
 				return;
@@ -382,7 +382,7 @@ void sceneGui(window* win) {
 					sCtx->moving = NULL;
 				
 					// flag dirty
-					scn->dirty = 1;
+					dirtScene(scn);
 				}
 				else {
 					// view

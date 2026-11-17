@@ -34,9 +34,15 @@ scene* newScene(const char* name) {
 
 	// clear render scene
 	s->render = (renderScene){0};
-	s->dirty = 1;
+	s->renderDirty = 1;
+	s->physicsDirty = 1;
 
 	return s;
+}
+
+void dirtScene(scene* s) {
+	s->renderDirty = 1;
+	s->physicsDirty = 1;
 }
 
 void initDefaultScene(scene* s) {

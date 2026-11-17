@@ -490,6 +490,7 @@
                (quat* (get-transform-rotation rotate-transform) quat)
                (get-transform-scale           rotate-transform))))
 
+
 ; scale 
 ;   Scales the transform by a given vector
 ;   (local transform, local coordinates).
@@ -504,8 +505,8 @@
   (define scale-transform (get-field "Transform"))
   (set-field "Transform"
              (transform
-               (get-transform-position scale-transform)
-               (get-transform-rotation scale-transform)
+               (get-transform-position        scale-transform)
+               (get-transform-rotation        scale-transform)
                (hadamard (get-transform-scale scale-transform) vec))))
 
 

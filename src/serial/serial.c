@@ -684,8 +684,8 @@ jsonElement* serializeScene(const scene* scn) {
 void deserializeScene(scene* scn, const jsonElement* elem) {
 	// free render scene and set as dirty
 	freeRenderScene(scn);
-	scn->dirty = 1;
-	
+	dirtScene(scn);
+		
 	// free scene children
 	freeEntityChildren(&scn->root);
 

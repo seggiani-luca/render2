@@ -446,7 +446,7 @@ value* nativeSetField(arena* a, environment* env, value* args) {
 	setFieldValue(fld, val);
 
 	// flag dirty
-	ownerScene(curEnt)->dirty = 1;
+	dirtScene(ownerScene(curEnt));
 
 	return makeNil();
 }
