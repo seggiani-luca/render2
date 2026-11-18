@@ -86,37 +86,26 @@ mat4 physicsScTransform(physicsSceneIter* it) {
 
 // appens physics entity to physics scene
 void appendPhysicsEntity(physicsScene* scn, physicsEntity* ent) {
-	// get to last entity
-	physicsEntity** cur = &scn->root;
-	while(*cur) cur = &(*cur)->next;
-
 	// append
-	ent->next = NULL;
-	*cur = ent;
+	ent->next = scn->root;
+	scn->root = ent;
 }
 
-void freePhysicsScene(scene* scene) {
+void newPhysicsScene(scene* scene) {
 	if(!scene) return;
 
-	physicsScene* rnd = &scene->physics;
-
-	// go through all entities, freeing
-	physicsEntity* cur = rnd->root;
-	while(cur) {
-		physicsEntity* tmp = cur;
-		cur = cur->next;
-		free(tmp);
-	}
-
-	// clear physics scene
-	memset(rnd, 0, sizeof(physicsScene));
+	physicsScene* phs = &scene->physics;
+	memset(phs, 0, sizeof(physicsScene));
+	
+	// create arena
+	phs->a = newArena();
 }
 
 void updatePhysicsScene(scene* scene) {
 	physicsScene* physics = &scene->physics;
 
-	// clear scene
-	freePhysicsScene(scene);
+	// rewind scene
+	rewindPhysicsScene(scene);
 	scene->physicsDirty = 0;
 
 	// go through scene hierarchy
@@ -130,6 +119,28 @@ void updatePhysicsScene(scene* scene) {
 
 		// TODO get rigidbody and collider
 	} while(physicsScIterNext(&iter));
+}
+
+void rewindPhysicsScene(scene* scene) {
+	if(!scene) return;
+
+	physicsScene* phs = &scene->physics;
+
+	// free arena
+	resetArena(&phs->a);
+
+	// clear everything after arena
+	memset((char*)phs + sizeof(phs->a), 0,
+		sizeof(*phs) - sizeof(phs->a));
+}
+
+void freePhysicsScene(scene* scene) {
+	if(!scene) return;
+
+	physicsScene* phs = &scene->physics;
+
+	// free arena
+	freeArena(&phs->a);
 }
 
 void printPhysicsScene(scene* scene) {

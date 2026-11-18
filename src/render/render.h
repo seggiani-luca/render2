@@ -2,6 +2,7 @@
 #define RENDER_H
 
 #include "../math/math.h"
+#include "../arena/arena.h"
 #include "../data/texture/texture.h"
 #include "../data/mesh/mesh.h"
 #include "../data/material/material.h"
@@ -101,6 +102,9 @@ typedef struct renderEntity renderEntity;
 
 // a rendering view of a scene
 typedef struct {
+	// arena allocator
+	arena a;
+	
 	// scene camera
 	struct {
 		// camera field
@@ -123,10 +127,16 @@ typedef struct {
 	renderEntity* root;
 } renderScene;
 
+// creates rendering view of a scene
+void newRenderScene(scene* scene);
+
 // updates rendering view of a scene
 void updateRenderScene(scene* scene);
 
-// frees render scene hierarchy
+// rewinds rendering view of a scene
+void rewindRenderScene(scene* scene);
+
+// frees rendering view of a scene
 void freeRenderScene(scene* scene);
 
 // prints rendering view of a scene

@@ -420,37 +420,26 @@ mat4 renderScTransform(renderSceneIter* it) {
 
 // appens render entity to render scene
 void appendRenderEntity(renderScene* scn, renderEntity* ent) {
-	// get to last entity
-	renderEntity** cur = &scn->root;
-	while(*cur) cur = &(*cur)->next;
-
 	// append
-	ent->next = NULL;
-	*cur = ent;
+	ent->next = scn->root;
+	scn->root = ent;
 }
 
-void freeRenderScene(scene* scene) {
+void newRenderScene(scene* scene) {
 	if(!scene) return;
 
 	renderScene* rnd = &scene->render;
-
-	// go through all entities, freeing
-	renderEntity* cur = rnd->root;
-	while(cur) {
-		renderEntity* tmp = cur;
-		cur = cur->next;
-		free(tmp);
-	}
-
-	// clear render scene
 	memset(rnd, 0, sizeof(renderScene));
+	
+	// create arena
+	rnd->a = newArena();
 }
 
 void updateRenderScene(scene* scene) {
 	renderScene* render = &scene->render;
 
-	// clear scene
-	freeRenderScene(scene);
+	// rewind scene
+	rewindRenderScene(scene);
 	scene->renderDirty = 0;
 
 	// go through scene hierarchy
@@ -499,7 +488,7 @@ void updateRenderScene(scene* scene) {
 		// get if object
 		if(transform && mesh && material) {
 			// create entity
-			renderEntity* ent = xmalloc(sizeof(renderEntity));
+			renderEntity* ent = arenaAlloc(&render->a, sizeof(renderEntity));
 			ent->transform = curTrans;
 			ent->mesh = mesh;
 			ent->material = material;
@@ -510,7 +499,31 @@ void updateRenderScene(scene* scene) {
 	} while(renderScIterNext(&iter));
 }
 
+void rewindRenderScene(scene* scene) {
+	if(!scene) return;
+
+	renderScene* rnd = &scene->render;
+
+	// free arena
+	resetArena(&rnd->a);
+
+	// clear everything after arena
+	memset((char*)rnd + sizeof(rnd->a), 0,
+		sizeof(*rnd) - sizeof(rnd->a));
+}
+
+void freeRenderScene(scene* scene) {
+	if(!scene) return;
+
+	renderScene* rnd = &scene->render;
+
+	// free arena
+	freeArena(&rnd->a);
+}
+
 void printRenderScene(scene* scene) {
+	if(!scene) return;
+	
 	renderScene* render = &scene->render;
 
 	printf("%s (Render View):\n", scene->name);

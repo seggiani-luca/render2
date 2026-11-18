@@ -32,9 +32,10 @@ scene* newScene(const char* name) {
 	entityMap[0].generation = 0;
 	entityMap[0].ent = &s->root;
 
-	// clear render scene
-	s->render = (renderScene){0};
+	// initialize views
+	newRenderScene(s);
 	s->renderDirty = 1;
+	newPhysicsScene(s);
 	s->physicsDirty = 1;
 
 	return s;
@@ -79,7 +80,11 @@ void initDefaultScene(scene* s) {
 void freeScene(scene* s) {
 	if(!s) return;
 
+	// free views
 	freeRenderScene(s);
+	freePhysicsScene(s);
+
+	// free scene
 	freeEntityChildren(&s->root);
 	free(s);
 }

@@ -682,8 +682,8 @@ jsonElement* serializeScene(const scene* scn) {
 
 // deserializes a scene from a JSON element 
 void deserializeScene(scene* scn, const jsonElement* elem) {
-	// free render scene and set as dirty
-	freeRenderScene(scn);
+	// rewind render scene and set as dirty
+	rewindRenderScene(scn);
 	dirtScene(scn);
 		
 	// free scene children
